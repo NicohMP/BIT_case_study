@@ -1,0 +1,5 @@
+# Local dev stack (placeholder).
+#
+# This file will eventually define a local Postgres container for a runnable demo.
+# Left intentionally blank to avoid locking in versions/tooling too early.
+

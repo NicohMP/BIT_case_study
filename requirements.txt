@@ -1,0 +1,7 @@
+# Minimal dependencies (placeholder).
+#
+# Add your chosen web framework, scheduler, ORM/migrations, and LLM client once decided.
+requests
+python-dotenv
+psycopg[binary]
+
