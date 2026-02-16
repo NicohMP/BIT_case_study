@@ -1,144 +1,110 @@
--- Seed canonical taxonomy + initial BIT holdings (v1)
---
--- Notes:
--- - This file is intended for local/dev initialization.
--- - For production, replace with proper migrations + a repeatable ingestion pipeline.
+-- supabase/seed.sql
+-- Seeds core BIT holdings (equities-only) from holdingschannel.com snapshot
+-- Change period shown: 2025-09-30 to 2025-12-31
 
--- 1) Allowed values: INDUSTRY_DOMAINS
-insert into kb_industry_domains (slug, label, description) values
-  ('crypto', 'Crypto', 'Crypto protocols, exchanges, miners, and infra.'),
-  ('cybersecurity', 'Cybersecurity', 'Security software and data protection.'),
-  ('fintech', 'Fintech', 'Payments, brokerages, and financial platforms.'),
-  ('health', 'Health', 'Digital health and health-tech.'),
-  ('insurance', 'Insurance', 'Insurance and insurtech.'),
-  ('internet', 'Internet', 'Consumer internet platforms and related.'),
-  ('semiconductors', 'Semiconductors', 'Chipmakers, foundries, memory, and AI compute.'),
-  ('software', 'Software', 'Enterprise software, cloud, and tooling.')
-on conflict (slug) do nothing;
+-- -------------------------
+-- 1) Upsert securities
+-- -------------------------
+INSERT INTO bit_security (company_name, ticker, exchange_mic, country_iso2, currency_iso3)
+VALUES
+  ('IREN Limited',                         'IREN',  'XNAS', 'AU', 'USD'),
+  ('Microsoft Corp',                       'MSFT',  'XNAS', 'US', 'USD'),
+  ('Hinge Health Inc',                     'HNGE',  'XNAS', 'US', 'USD'),  -- verify ticker/exchange
+  ('Alphabet Inc',                         'GOOGL', 'XNAS', 'US', 'USD'),
+  ('Alphabet Inc',                         'GOOG',  'XNAS', 'US', 'USD'),
+  ('Lemonade Inc',                         'LMND',  'XNYS', 'US', 'USD'),
+  ('Reddit Inc',                           'RDDT',  'XNYS', 'US', 'USD'),
+  ('Micron Technology Inc',                'MU',    'XNAS', 'US', 'USD'),
+  ('Taiwan Semiconductor Mfg. Co. Ltd',     'TSM',   'XNYS', 'TW', 'USD'),
+  ('Hut 8 Corp',                            'HUT',   'XNAS', 'US', 'USD'),
+  ('Robinhood Markets Inc',                'HOOD',  'XNAS', 'US', 'USD'),
+  ('Datadog Inc',                          'DDOG',  'XNAS', 'US', 'USD'),
+  ('Oscar Health Inc',                     'OSCR',  'XNYS', 'US', 'USD'),
+  ('Amazon.com Inc',                       'AMZN',  'XNAS', 'US', 'USD'),
+  ('Kaspi.kz JSC',                         'KSPI',  'XNAS', 'KZ', 'USD'),
+  ('Rubrik Inc',                           'RBRK',  'XNYS', 'US', 'USD'),
+  ('NVIDIA Corp',                          'NVDA',  'XNAS', 'US', 'USD'),
+  ('Meta Platforms Inc',                   'META',  'XNAS', 'US', 'USD'),
+  ('Coinbase Global Inc',                  'COIN',  'XNAS', 'US', 'USD'),
+  ('Bitmine Immersion Technologies Inc',   'BMNR',  'XNAS', 'US', 'USD')   -- verify ticker/exchange
+ON CONFLICT (exchange_mic, ticker)
+DO UPDATE SET
+  company_name  = EXCLUDED.company_name,
+  country_iso2  = EXCLUDED.country_iso2,
+  currency_iso3 = EXCLUDED.currency_iso3,
+  updated_at    = NOW();
 
--- 2) Allowed values: SUBDOMAINS (and SUBDOMAIN_TO_DOMAIN mapping via FK)
-insert into kb_subdomains (slug, label, industry_domain_slug, description) values
-  ('crypto_mining_infrastructure', 'Crypto Mining / Infrastructure', 'crypto', null),
-  ('cybersecurity_data', 'Cybersecurity / Data', 'cybersecurity', null),
-  ('digital_health', 'Digital Health', 'health', null),
-  ('fintech_brokerage', 'Fintech / Brokerage', 'fintech', null),
-  ('fintech_payments', 'Fintech / Payments', 'fintech', null),
-  ('health_insurance_tech', 'Health Insurance / Tech', 'health', null),
-  ('insurtech', 'Insurtech', 'insurance', null),
-  ('internet_cloud_ecommerce', 'Internet / Cloud / E-commerce', 'internet', null),
-  ('internet_platforms', 'Internet Platforms', 'internet', null),
-  ('internet_platforms_ads', 'Internet Platforms / Ads', 'internet', null),
-  ('semiconductors_ai', 'Semiconductors / AI', 'semiconductors', null),
-  ('semiconductors_foundry', 'Semiconductors / Foundry', 'semiconductors', null),
-  ('semiconductors_memory', 'Semiconductors / Memory', 'semiconductors', null),
-  ('software_cloud', 'Software / Cloud', 'software', null),
-  ('software_observability', 'Software / Observability', 'software', null)
-on conflict (slug) do nothing;
 
--- 3) Allowed values: REGIONS
-insert into kb_regions (code, label, description) values
-  ('US', 'United States', null),
-  ('AU', 'Australia', null),
-  ('CA', 'Canada', null),
-  ('TW', 'Taiwan', null),
-  ('KZ', 'Kazakhstan', null)
-on conflict (code) do nothing;
-
--- 4) Allowed values: SENSITIVITY_TAGS
--- Start small; expand as the filtering logic matures.
-insert into kb_sensitivity_tags (slug, label, description) values
-  ('rates', 'Rates', 'Exposure to interest rate expectations.'),
-  ('tariffs', 'Tariffs', 'Exposure to tariffs/trade policy.'),
-  ('regulation', 'Regulation', 'Exposure to regulatory outcomes.'),
-  ('geopolitics', 'Geopolitics', 'Exposure to geopolitical events.'),
-  ('ai', 'AI', 'Exposure to AI adoption/compute cycles.'),
-  ('crypto', 'Crypto', 'Exposure to crypto prices/regulation/mining economics.')
-on conflict (slug) do nothing;
-
--- 5) Optional: SYNONYMS (messy labels -> canonical)
--- These start as identity mappings for the current source strings.
-insert into kb_subdomain_synonyms (synonym, subdomain_slug) values
-  ('Crypto Mining / Infrastructure', 'crypto_mining_infrastructure'),
-  ('Cybersecurity / Data', 'cybersecurity_data'),
-  ('Digital Health', 'digital_health'),
-  ('Fintech / Brokerage', 'fintech_brokerage'),
-  ('Fintech / Payments', 'fintech_payments'),
-  ('Health Insurance / Tech', 'health_insurance_tech'),
-  ('Insurtech', 'insurtech'),
-  ('Internet / Cloud / E-commerce', 'internet_cloud_ecommerce'),
-  ('Internet Platforms', 'internet_platforms'),
-  ('Internet Platforms / Ads', 'internet_platforms_ads'),
-  ('Semiconductors / AI', 'semiconductors_ai'),
-  ('Semiconductors / Foundry', 'semiconductors_foundry'),
-  ('Semiconductors / Memory', 'semiconductors_memory'),
-  ('Software / Cloud', 'software_cloud'),
-  ('Software / Observability', 'software_observability')
-on conflict (synonym_norm) do nothing;
-
-insert into kb_region_synonyms (synonym, region_code) values
-  ('US', 'US'),
-  ('USA', 'US'),
-  ('United States', 'US'),
-  ('AU', 'AU'),
-  ('Australia', 'AU'),
-  ('CA', 'CA'),
-  ('Canada', 'CA'),
-  ('TW', 'TW'),
-  ('Taiwan', 'TW'),
-  ('KZ', 'KZ'),
-  ('Kazakhstan', 'KZ')
-on conflict (synonym_norm) do nothing;
-
--- 6) Seed holdings by coercing raw labels via synonym tables
-with src(ticker, company_name, total_value_usd, shares, subdomain_raw, region_raw, as_of, shares_change) as (
-  values
-    ('IREN', 'IREN Limited', 262199000, 6941992, 'Crypto Mining / Infrastructure', 'AU', date '2025-12-31', 1147765),
-    ('MSFT', 'Microsoft Corp', 43570000, 90092, 'Software / Cloud', 'US', date '2025-12-31', 14845),
-    ('HNGE', 'Hinge Health Inc', 154033000, 3316101, 'Digital Health', 'US', date '2025-12-31', 1466577),
-    ('GOOGL', 'Alphabet Inc', 143325000, 457908, 'Internet Platforms / Ads', 'US', date '2025-12-31', 196208),
-    ('LMND', 'Lemonade Inc', 130017000, 1826593, 'Insurtech', 'US', date '2025-12-31', 572248),
-    ('RDDT', 'Reddit Inc', 129514000, 563421, 'Internet Platforms', 'US', date '2025-12-31', -218584),
-    ('MU', 'Micron Technology Inc', 117213000, 410683, 'Semiconductors / Memory', 'US', date '2025-12-31', 25724),
-    ('TSM', 'Taiwan Semiconductor Mfg Ltd', 116314000, 382751, 'Semiconductors / Foundry', 'TW', date '2025-12-31', 4572),
-    ('HUT', 'Hut 8 Corp', 95920000, 2087941, 'Crypto Mining / Infrastructure', 'CA', date '2025-12-31', -89570),
-    ('HOOD', 'Robinhood Markets Inc', 94391000, 834578, 'Fintech / Brokerage', 'US', date '2025-12-31', 127087),
-    ('DDOG', 'Datadog Inc', 89525000, 658321, 'Software / Observability', 'US', date '2025-12-31', 365684),
-    ('OSCR', 'Oscar Health Inc', 88897000, 6186267, 'Health Insurance / Tech', 'US', date '2025-12-31', 5227152),
-    ('AMZN', 'Amazon.com Inc', 28619000, 123987, 'Internet / Cloud / E-commerce', 'US', date '2025-12-31', 35514),
-    ('KSPI', 'Kaspi KZ JSC', 79232000, 1014104, 'Fintech / Payments', 'KZ', date '2025-12-31', 134068),
-    ('RBRK', 'Rubrik Inc', 69626000, 910382, 'Cybersecurity / Data', 'US', date '2025-12-31', 326421),
-    ('NVDA', 'NVIDIA Corporation', 71165000, 381582, 'Semiconductors / AI', 'US', date '2025-12-31', -40723),
-    ('META', 'Meta Platforms Inc', 62821000, 95171, 'Internet Platforms', 'US', date '2025-12-31', -149214)
-),
-coerced as (
-  select
-    s.ticker,
-    s.company_name,
-    s.total_value_usd::numeric(20, 2) as total_value_usd,
-    s.shares::numeric(20, 6) as shares,
-    s.shares_change::numeric(20, 6) as shares_change,
-    sd.subdomain_slug as subdomain_slug,
-    r.region_code as region_code,
-    s.as_of,
-    'holdingschannel.com (snapshot 2025-12-31)'::text as source
-  from src s
-  join kb_subdomain_synonyms sd on sd.synonym_norm = lower(trim(s.subdomain_raw))
-  join kb_region_synonyms r on r.synonym_norm = lower(trim(s.region_raw))
+-- -------------------------
+-- 2) Upsert holdings snapshot
+-- -------------------------
+-- Columns in VALUES:
+-- (exchange_mic, ticker, shares, change_shares, position_size_thousands)
+INSERT INTO bit_holding (
+  security_id,
+  as_of,
+  shares,
+  total_value,
+  value_currency,
+  latest_change_side,
+  latest_change_shares,
+  latest_change_at,
+  source_note,
+  updated_at
 )
-insert into bit_holdings (
-  ticker, company_name, total_value_usd, shares, shares_change,
-  subdomain_slug, region_code, as_of, source
-)
-select
-  c.ticker, c.company_name, c.total_value_usd, c.shares, c.shares_change,
-  c.subdomain_slug, c.region_code, c.as_of, c.source
-from coerced c
-on conflict (ticker, as_of) do update set
-  company_name = excluded.company_name,
-  total_value_usd = excluded.total_value_usd,
-  shares = excluded.shares,
-  shares_change = excluded.shares_change,
-  subdomain_slug = excluded.subdomain_slug,
-  region_code = excluded.region_code,
-  source = excluded.source;
-
+SELECT
+  s.id                                         AS security_id,
+  '2025-12-31T00:00:00Z'::timestamptz           AS as_of,
+  v.shares                                     AS shares,
+  (v.position_k * 1000)::numeric(20,2)          AS total_value,
+  'USD'                                        AS value_currency,
+  CASE
+    WHEN v.change_shares IS NULL THEN NULL
+    WHEN v.change_shares > 0 THEN 'BUY'
+    WHEN v.change_shares < 0 THEN 'SELL'
+    ELSE NULL
+  END                                          AS latest_change_side,
+  CASE
+    WHEN v.change_shares IS NULL THEN NULL
+    WHEN v.change_shares = 0 THEN NULL
+    ELSE ABS(v.change_shares)
+  END                                          AS latest_change_shares,
+  NULL::timestamptz                             AS latest_change_at,
+  'holdingschannel.com; change 2025-09-30→2025-12-31' AS source_note,
+  NOW()                                        AS updated_at
+FROM (
+  VALUES
+    ('XNAS','IREN',   6941992::numeric,  1147765::numeric, 262199::numeric),
+    ('XNAS','MSFT',     90092::numeric,    14845::numeric,  43570::numeric),
+    ('XNAS','HNGE',   3316101::numeric,  1466577::numeric, 154033::numeric), -- verify ticker/exchange
+    ('XNAS','GOOGL',   457908::numeric,   196208::numeric, 143325::numeric),
+    ('XNAS','GOOG',    111000::numeric,  -153600::numeric,  34832::numeric),
+    ('XNYS','LMND',   1826593::numeric,   572248::numeric, 130017::numeric),
+    ('XNYS','RDDT',    563421::numeric,  -218584::numeric, 129514::numeric),
+    ('XNAS','MU',      410683::numeric,    25724::numeric, 117213::numeric),
+    ('XNYS','TSM',     382751::numeric,     4572::numeric, 116314::numeric),
+    ('XNAS','HUT',    2087941::numeric,   -89570::numeric,  95920::numeric),
+    ('XNAS','HOOD',    834578::numeric,   127087::numeric,  94391::numeric),
+    ('XNAS','DDOG',    658321::numeric,   365684::numeric,  89525::numeric),
+    ('XNYS','OSCR',   6186267::numeric,  5227152::numeric,  88897::numeric),
+    ('XNAS','AMZN',    123987::numeric,    35514::numeric,  28619::numeric),
+    ('XNAS','KSPI',   1014104::numeric,   134068::numeric,  79232::numeric),
+    ('XNYS','RBRK',    910382::numeric,   326421::numeric,  69626::numeric),
+    ('XNAS','NVDA',    381582::numeric,   -40723::numeric,  71165::numeric),
+    ('XNAS','META',     95171::numeric,  -149214::numeric,  62821::numeric),
+    ('XNAS','COIN',     53312::numeric,   -58829::numeric,  12056::numeric),
+    ('XNAS','BMNR',    355139::numeric, -1439069::numeric,   9642::numeric)  -- verify ticker/exchange
+) AS v(exchange_mic, ticker, shares, change_shares, position_k)
+JOIN bit_security s
+  ON s.exchange_mic = v.exchange_mic AND s.ticker = v.ticker
+ON CONFLICT (security_id)
+DO UPDATE SET
+  as_of                = EXCLUDED.as_of,
+  shares               = EXCLUDED.shares,
+  total_value          = EXCLUDED.total_value,
+  value_currency       = EXCLUDED.value_currency,
+  latest_change_side   = EXCLUDED.latest_change_side,
+  latest_change_shares = EXCLUDED.latest_change_shares,
+  latest_change_at     = EXCLUDED.latest_change_at,
+  source_note          = EXCLUDED.source_note,
+  updated_at           = NOW();
