@@ -1,34 +1,17 @@
-"""Simple relevance scoring for the MVP pipeline.
+"""Simple keyword relevance scoring for the MVP pipeline.
 
 Goal:
-- Use the `bit_domain` table (domain names) as the only "taxonomy" input.
+- Use the `bit_domain` table (domain names) as the only taxonomy input.
 - Rank Polymarket markets against those domains using lightweight keyword matching.
-
-This is intentionally naive: it's only used to select a small set of candidate
-markets to send to the LLM.
 """
 
 from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass
 from typing import Iterable
 
-from polyscanner.polymarket_client import PMMarket
-
-
-@dataclass(frozen=True)
-class Domain:
-    id: int
-    name: str
-
-
-@dataclass(frozen=True)
-class RankedMarket:
-    market: PMMarket
-    score: float
-    heuristic_domain: str | None
+from polyscanner.models import Domain, PMMarket, RankedMarket
 
 
 _DOMAIN_KEYWORDS: dict[str, list[str]] = {
@@ -46,10 +29,6 @@ def _tokenize(text: str) -> list[str]:
     return re.findall(r"[a-z0-9]+", text.lower())
 
 
-def _contains(text_l: str, needle: str) -> bool:
-    return needle in text_l
-
-
 def score_market_against_domain(market: PMMarket, domain: Domain) -> float:
     text = f"{market.question} {market.category or ''}".strip().lower()
     tokens = set(_tokenize(text))
@@ -63,11 +42,12 @@ def score_market_against_domain(market: PMMarket, domain: Domain) -> float:
 
     # Add a few curated keywords for recall.
     for kw in _DOMAIN_KEYWORDS.get(domain.name, []):
-        if " " in kw:
-            if _contains(text, kw.lower()):
+        kw_l = kw.lower()
+        if " " in kw_l:
+            if kw_l in text:
                 score += 1.0
         else:
-            if kw.lower() in tokens:
+            if kw_l in tokens:
                 score += 1.0
 
     # Light volume weighting so we prefer liquid/active markets.
@@ -76,7 +56,7 @@ def score_market_against_domain(market: PMMarket, domain: Domain) -> float:
     return score
 
 
-def rank_markets(markets: Iterable[PMMarket], domains: list[Domain], top_n: int = 10) -> list[RankedMarket]:
+def rank_markets_for_domains(markets: Iterable[PMMarket], domains: list[Domain], top_n: int = 10) -> list[RankedMarket]:
     ranked: list[RankedMarket] = []
     for m in markets:
         best_domain: str | None = None
