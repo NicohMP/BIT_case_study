@@ -7,10 +7,12 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
+.ipynb_checkpoints/
 
 venv/
 .venv/
 
 .DS_Store
 
-notebooks/*
+reports/
+notebooks/reports/

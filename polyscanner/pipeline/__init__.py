@@ -1,8 +1,5 @@
-"""Pipeline/orchestration package (skeleton).
+"""Pipeline package.
 
-This package will eventually contain scheduled tasks for:
-- ingestion
-- classification
-- report generation
+MVP entrypoint:
+- `polyscanner.pipeline.minimal.run_minimal_pipeline`
 """
-

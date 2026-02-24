@@ -1,7 +1,3 @@
-# Minimal dependencies (placeholder).
-#
-# Add your chosen web framework, scheduler, ORM/migrations, and LLM client once decided.
-requests
+# Minimal dependencies for the working MVP pipeline.
 python-dotenv
 psycopg[binary]
-

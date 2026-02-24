@@ -1,11 +1,9 @@
-"""Polymarket Signal Scanner package (skeleton).
+"""Polymarket Signal Scanner (MVP).
 
-Planned modules:
-- Polymarket API ingestion client
-- DB schema + access layer
-- Filtering + LLM classification
-- Report generation
-- Web UI/API layer
-- Pipeline scheduling/orchestration
+The current focus is a minimal, working, end-to-end wiring test:
+- load `bit_domain` from Postgres (Supabase local)
+- fetch Polymarket markets
+- rank top candidates
+- use Gemini to assign a domain per market
+- write a markdown report
 """
-
