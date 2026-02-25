@@ -1,7 +1,7 @@
 BEGIN;
 
 -- ==========================================
--- Step 3: Signal-family matching (v2 schema)
+--  Signal-family matching (v2 schema)
 -- ==========================================
 -- We keep the original `pm_market_signal_family_match` migration for history,
 -- but rename the table to *_legacy and create a new evidence-rich, versioned
