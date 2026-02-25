@@ -26,6 +26,25 @@ def _norm_text(text: str) -> str:
     return " ".join((text or "").lower().split()).strip()
 
 
+def _keyword_hits(text: str, keywords: Iterable[str]) -> list[str]:
+    t = _norm_text(text)
+    if not t:
+        return []
+    toks = set(t.split())
+    hits: list[str] = []
+    for kw in keywords:
+        k = _norm_text(str(kw or ""))
+        if not k:
+            continue
+        if " " in k or any(ch in k for ch in ("&", "-", "/", ".")):
+            if k in t:
+                hits.append(str(kw))
+        else:
+            if k in toks:
+                hits.append(str(kw))
+    return sorted(set(hits))
+
+
 @dataclass(frozen=True)
 class DiscoveryCandidate:
     signal_family_id: int
@@ -44,6 +63,12 @@ def lexical_discover(
     t = _norm_text(market_text)
     if not t or not family.keywords:
         return None
+
+    gate_hits: list[str] = []
+    if getattr(family, "lexical_gates", None):
+        gate_hits = _keyword_hits(t, family.lexical_gates)
+        if not gate_hits:
+            return None
 
     hits: list[str] = []
     # Speed trick: single-word keywords are checked via token set; phrases via substring.
@@ -74,6 +99,8 @@ def lexical_discover(
             "hit_count": int(len(set(hits))),
             "target_hits": int(target_hits),
             "lexical_score": float(lexical_score),
+            "lexical_gate_required": bool(getattr(family, "lexical_gates", None)),
+            "lexical_gate_hits": gate_hits,
         },
     )
 
@@ -193,6 +220,11 @@ def embedding_discover_topk(
                 if float(sim) < float(min_similarity):
                     continue
                 f = families[int(fi)]
+                gate_hits: list[str] = []
+                if getattr(f, "embedding_gates", None):
+                    gate_hits = _keyword_hits(market_texts_by_id.get(int(mid), ""), f.embedding_gates)
+                    if not gate_hits:
+                        continue
                 cands.append(
                     DiscoveryCandidate(
                         signal_family_id=f.signal_family_id,
@@ -207,6 +239,8 @@ def embedding_discover_topk(
                             "provider": provider.name,
                             "model_name": provider.model_name,
                             "family_query_text_hash": f.query_text_hash,
+                            "embedding_gate_required": bool(getattr(f, "embedding_gates", None)),
+                            "embedding_gate_hits": gate_hits,
                         },
                     )
                 )
@@ -324,6 +358,11 @@ def embedding_discover_topk_with_stats(
                 if float(sim) < float(min_similarity):
                     continue
                 f = families[int(fi)]
+                gate_hits: list[str] = []
+                if getattr(f, "embedding_gates", None):
+                    gate_hits = _keyword_hits(market_texts_by_id.get(int(mid), ""), f.embedding_gates)
+                    if not gate_hits:
+                        continue
                 cands.append(
                     DiscoveryCandidate(
                         signal_family_id=f.signal_family_id,
@@ -338,6 +377,8 @@ def embedding_discover_topk_with_stats(
                             "provider": provider.name,
                             "model_name": provider.model_name,
                             "family_query_text_hash": f.query_text_hash,
+                            "embedding_gate_required": bool(getattr(f, "embedding_gates", None)),
+                            "embedding_gate_hits": gate_hits,
                         },
                     )
                 )

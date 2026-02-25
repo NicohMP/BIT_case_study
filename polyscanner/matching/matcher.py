@@ -31,7 +31,12 @@ from polyscanner.matching.discovery import (
     lexical_discover,
 )
 from polyscanner.matching.embeddings import DBEmbeddingCache, LocalSentenceTransformerEmbedder
-from polyscanner.matching.family_descriptors import build_family_descriptors, load_family_keywords
+from polyscanner.matching.family_descriptors import (
+    build_family_descriptors,
+    load_family_embedding_gates,
+    load_family_lexical_gates,
+    load_family_keywords,
+)
 from polyscanner.signal_family_rules import RULES_BY_SLUG
 
 log = logging.getLogger(__name__)
@@ -289,7 +294,14 @@ def run_family_matching(
         conn.close()
 
     keywords_by_slug = load_family_keywords()
-    families = build_family_descriptors(signal_families=signal_families, keywords_by_slug=keywords_by_slug)
+    embedding_gates_by_slug = load_family_embedding_gates()
+    lexical_gates_by_slug = load_family_lexical_gates()
+    families = build_family_descriptors(
+        signal_families=signal_families,
+        keywords_by_slug=keywords_by_slug,
+        embedding_gates_by_slug=embedding_gates_by_slug,
+        lexical_gates_by_slug=lexical_gates_by_slug,
+    )
     family_by_id = {f.signal_family_id: f for f in families}
     market_by_id = {m.market_id: m for m in markets}
 

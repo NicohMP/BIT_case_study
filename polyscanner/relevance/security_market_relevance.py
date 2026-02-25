@@ -26,6 +26,7 @@ from typing import Any
 
 from polyscanner.db.pg import connect, fetch_macro_domains, fetch_signal_families, fetch_signal_family_domain_influence
 from polyscanner.filtering.hard_filters import load_hard_filter_rules
+from polyscanner.relevance.rate_like import is_rate_like
 
 log = logging.getLogger(__name__)
 
@@ -54,7 +55,33 @@ def _as_float(x: Any, default: float | None = None) -> float | None:
         return default
 
 
-def _best_match_rows_sql() -> str:
+def _best_match_rows_sql(*, trusted_only: bool) -> str:
+    """Return a subquery selecting one row per (market_id, signal_family_id).
+
+    Precision-first default for Step 4 is trusted-only: score using only strict
+    Step-3 classifications (method='rule_classification').
+
+    Discovery rows are higher-recall and noisier; they remain useful for Step-3
+    audits/diagnostics and candidate generation, but should not drive Step-4
+    relevance unless explicitly enabled.
+    """
+    if trusted_only:
+        return """
+            select distinct on (x.market_id, x.signal_family_id)
+              x.market_id,
+              x.signal_family_id,
+              x.method,
+              x.match_strength
+            from pm_market_signal_family_match x
+            where x.matcher_version = %(matcher_version)s
+              and x.method = 'rule_classification'
+              and x.match_strength > 0.0
+            order by
+              x.market_id,
+              x.signal_family_id,
+              x.match_strength desc
+        """
+
     # Select best match per (market_id, signal_family_id) with method preference:
     # rule_classification > discovery_* (highest match_strength).
     return """
@@ -159,6 +186,7 @@ def _fetch_best_market_family_matches(
     *,
     matcher_version: str,
     market_ids: list[int],
+    trusted_only: bool,
 ) -> dict[int, list[dict[str, Any]]]:
     """Return best family matches per market, only for requested market_ids."""
     if not market_ids:
@@ -167,7 +195,7 @@ def _fetch_best_market_family_matches(
         cur.execute(
             f"""
             with best as (
-              {_best_match_rows_sql()}
+              {_best_match_rows_sql(trusted_only=bool(trusted_only))}
             )
             select b.market_id, b.signal_family_id, b.method, b.match_strength
             from best b
@@ -225,6 +253,171 @@ def _upsert_relevance_rows(conn, *, rows: list[dict[str, Any]]) -> int:
     return len(rows)
 
 
+def _table_exists(conn, *, table_name: str) -> bool:
+    with conn.cursor() as cur:
+        cur.execute("select to_regclass(%s);", (f"public.{table_name}",))
+        return cur.fetchone()[0] is not None
+
+
+def persist_relevance_selection(
+    *,
+    db_url: str,
+    scoring_version: str,
+    selection_version: str = "selected_v1",
+    top_k: int = 20,
+    max_per_event: int = 1,
+    max_rate_like: int = 3,
+    limit_securities: int | None = None,
+    candidate_pool: int = 500,
+) -> dict[str, Any]:
+    """Persist a diversified top-K selection per security (Step 4b).
+
+    This reads from `pm_market_security_relevance` (raw scores) and writes a
+    deterministic selection into `pm_market_security_relevance_selection`.
+    """
+    conn = connect(db_url)
+    try:
+        if not _table_exists(conn, table_name="pm_market_security_relevance_selection"):
+            log.warning(
+                "Selection table missing: pm_market_security_relevance_selection. "
+                "Apply migration 20260225183500_add_pm_market_security_relevance_selection.sql."
+            )
+            return {"table_exists": False, "securities_selected": 0, "rows_upserted": 0}
+
+        securities = _fetch_securities(conn)
+        if limit_securities is not None:
+            securities = securities[: max(0, int(limit_securities))]
+
+        params = {
+            "top_k": int(top_k),
+            "max_per_event": int(max_per_event),
+            "max_rate_like": int(max_rate_like),
+            "candidate_pool": int(candidate_pool),
+        }
+
+        rows_out: list[dict[str, Any]] = []
+        sec_ids = [int(s["id"]) for s in securities]
+
+        for s in securities:
+            sid = int(s["id"])
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select
+                      r.final_score,
+                      r.market_id,
+                      m.event_id,
+                      m.question
+                    from pm_market_security_relevance r
+                    join pm_market m on m.pm_market_id = r.market_id
+                    where r.security_id = %s
+                      and r.scoring_version = %s
+                    order by r.final_score desc
+                    limit %s;
+                    """,
+                    (sid, str(scoring_version), int(candidate_pool)),
+                )
+                candidates = cur.fetchall()
+
+            picked: list[tuple[float, int, int | None, str]] = []
+            event_counts: dict[int, int] = {}
+            rate_n = 0
+            for final_score, mid, event_id, question in candidates:
+                eid = int(event_id) if event_id is not None else -1
+                q = str(question or "")
+                rate_like = is_rate_like(q)
+                if eid != -1 and event_counts.get(eid, 0) >= int(max_per_event):
+                    continue
+                if rate_like and rate_n >= int(max_rate_like):
+                    continue
+                picked.append((float(final_score), int(mid), int(event_id) if event_id is not None else None, q))
+                if eid != -1:
+                    event_counts[eid] = event_counts.get(eid, 0) + 1
+                if rate_like:
+                    rate_n += 1
+                if len(picked) >= int(top_k):
+                    break
+
+            for i, (final_score, mid, event_id, q) in enumerate(picked, start=1):
+                rows_out.append(
+                    {
+                        "security_id": sid,
+                        "market_id": int(mid),
+                        "scoring_version": str(scoring_version),
+                        "selection_version": str(selection_version),
+                        "rank": int(i),
+                        "final_score": float(final_score),
+                        "event_id": int(event_id) if event_id is not None else None,
+                        "is_rate_like": bool(is_rate_like(q)),
+                        "selection_params": json.dumps(params, ensure_ascii=False),
+                        "selection_reason": json.dumps(
+                            {"event_counts": event_counts, "rate_like_picked": int(rate_n)},
+                            ensure_ascii=False,
+                        ),
+                    }
+                )
+
+        # Replace selections for this (scoring_version, selection_version) and these securities.
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                delete from pm_market_security_relevance_selection
+                where security_id = any(%s)
+                  and scoring_version = %s
+                  and selection_version = %s;
+                """,
+                (sec_ids, str(scoring_version), str(selection_version)),
+            )
+            cur.executemany(
+                """
+                insert into pm_market_security_relevance_selection (
+                  security_id,
+                  market_id,
+                  scoring_version,
+                  selection_version,
+                  rank,
+                  final_score,
+                  event_id,
+                  is_rate_like,
+                  selection_params,
+                  selection_reason,
+                  created_at,
+                  updated_at
+                ) values (
+                  %(security_id)s,
+                  %(market_id)s,
+                  %(scoring_version)s,
+                  %(selection_version)s,
+                  %(rank)s,
+                  %(final_score)s,
+                  %(event_id)s,
+                  %(is_rate_like)s,
+                  %(selection_params)s::jsonb,
+                  %(selection_reason)s::jsonb,
+                  now(),
+                  now()
+                )
+                on conflict (security_id, market_id, scoring_version, selection_version) do update set
+                  rank = excluded.rank,
+                  final_score = excluded.final_score,
+                  event_id = excluded.event_id,
+                  is_rate_like = excluded.is_rate_like,
+                  selection_params = excluded.selection_params,
+                  selection_reason = excluded.selection_reason,
+                  updated_at = now();
+                """,
+                rows_out,
+            )
+        conn.commit()
+        return {
+            "table_exists": True,
+            "securities_selected": int(len(securities)),
+            "rows_upserted": int(len(rows_out)),
+        }
+    finally:
+        conn.close()
+
+
 def compute_market_security_relevance(
     *,
     db_url: str,
@@ -236,12 +429,18 @@ def compute_market_security_relevance(
     min_base_score: float = 0.0,
     top_families_in_breakdown: int = 8,
     include_domain_breakdown: bool = True,
+    trusted_only: bool = True,
 ) -> RelevanceRunResult:
     """Compute and persist Step 4 relevance scores for all (security, market) pairs.
 
     This function only scores markets that are:
     - active via pm_event (active=true AND closed=false)
     - kept by hard filters for the given filter_version
+
+    By default, Step 4 uses only trusted strict matches from Step 3
+    (pm_market_signal_family_match.method='rule_classification'). Discovery
+    candidates are intentionally higher-recall/noisier and should not drive
+    relevance scoring unless explicitly enabled.
     """
     if filter_version is None:
         filter_version = load_hard_filter_rules().filter_version
@@ -271,7 +470,10 @@ def compute_market_security_relevance(
         market_ids = list(kept_markets.keys())
 
         best_matches_by_market = _fetch_best_market_family_matches(
-            conn, matcher_version=str(matcher_version), market_ids=market_ids
+            conn,
+            matcher_version=str(matcher_version),
+            market_ids=market_ids,
+            trusted_only=bool(trusted_only),
         )
 
         # Precompute per-security per-family effect: Σ_D w_infl(F,D) * w_exp(S,D)

@@ -1,0 +1,272 @@
+(venv) nicolashoubouyan@MacBook-Pro-de-Nicolas-2 BIT_case_study % ./venv/bin/python scripts/run_relevance_scoring.py --filter-version hard_filters_v8 --matcher-version matcher_v9 --scoring-version relevance_v3 --trusted-only true --diversify true --max-per-event 1 --max-rate-like 2
+relevance_scoring: {'scoring_version': 'relevance_v3', 'filter_version': 'hard_filters_v8', 'matcher_version': 'matcher_v9', 'securities_scored': 20, 'markets_considered': 10333, 'rows_upserted': 5910, 'runtime_s': 0.471}
+
+Top markets for Alphabet Inc (GOOG):
+- score=0.782000 base=0.782000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.782000 base=0.782000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.644862 base=0.680000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.578000 base=0.578000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.578000 base=0.578000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.561222 base=0.578000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.558020 base=0.578000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.554442 base=0.578000 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.550945 base=0.644000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.530877 base=0.644000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+
+Top markets for Alphabet Inc (GOOGL):
+- score=0.782000 base=0.782000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.782000 base=0.782000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.644862 base=0.680000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.578000 base=0.578000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.578000 base=0.578000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.561222 base=0.578000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.558020 base=0.578000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.554442 base=0.578000 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.550945 base=0.644000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.530877 base=0.644000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+
+Top markets for Amazon.com Inc (AMZN):
+- score=0.765000 base=0.765000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.765000 base=0.765000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.568996 base=0.600000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.538968 base=0.630000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.519336 base=0.630000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.517561 base=0.630000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.510000 base=0.510000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.510000 base=0.510000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.495196 base=0.510000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.492370 base=0.510000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+
+Top markets for Bitmine Immersion Technologies Inc (BMNR):
+- score=0.523151 base=0.765000 q=0.684 id=957986 vol=7321.133123 q='AI data center moratorium passed before 2027?'
+- score=0.521579 base=0.550000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.510000 base=0.510000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.510000 base=0.510000 q=1.000 id=654414 vol=19482186.891199 q='Will there be no change in Fed interest rates after the March 2026 meeting?'
+- score=0.473050 base=0.525000 q=0.901 id=1068733 vol=552595.750821 q='Will stablecoins hit $500B before 2027?'
+- score=0.467500 base=0.467500 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.467500 base=0.467500 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.453929 base=0.467500 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.451339 base=0.467500 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.448446 base=0.467500 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+
+Top markets for Coinbase Global Inc (COIN):
+- score=0.623333 base=0.623333 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.623333 base=0.623333 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.551533 base=0.886667 q=0.622 id=1169843 vol=2497.006393 q='Will Trump cap credit card interest rates by March 31, 2026?'
+- score=0.462538 base=0.513333 q=0.901 id=1068733 vol=552595.750821 q='Will stablecoins hit $500B before 2027?'
+- score=0.439159 base=0.513333 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.423162 base=0.513333 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.421717 base=0.513333 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.406895 base=0.595000 q=0.684 id=957986 vol=7321.133123 q='AI data center moratorium passed before 2027?'
+- score=0.396988 base=0.513333 q=0.773 id=1108760 vol=36839.226123 q='Will USD-denominated stablecoin market share fall below 99% in 2026?'
+- score=0.394776 base=0.513333 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+
+Top markets for Datadog Inc (DDOG):
+- score=0.850000 base=0.850000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.850000 base=0.850000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.598853 base=0.700000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.577040 base=0.700000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.575068 base=0.700000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.568996 base=0.600000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.538330 base=0.700000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.510000 base=0.510000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.510000 base=0.510000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.499647 base=0.700000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+
+Top markets for Hinge Health Inc (HNGE):
+- score=0.646000 base=0.646000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.646000 base=0.646000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.455129 base=0.532000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.438550 base=0.532000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.437052 base=0.532000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.413114 base=0.544000 q=0.759 id=902971 vol=25440.074439 q='Will ACA premium tax credits not be extended and will the Republican Party win the House in 2026?'
+- score=0.409131 base=0.532000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.400587 base=0.644000 q=0.622 id=1169843 vol=2497.006393 q='Will Trump cap credit card interest rates by March 31, 2026?'
+- score=0.384026 base=0.504000 q=0.762 id=676842 vol=41619.664436 q='U.S. enacts AI safety bill before 2027?'
+- score=0.379732 base=0.532000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+
+Top markets for Hut 8 Corp (HUT):
+- score=0.578000 base=0.578000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.578000 base=0.578000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.531063 base=0.560000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.511525 base=0.748000 q=0.684 id=957986 vol=7321.133123 q='AI data center moratorium passed before 2027?'
+- score=0.476000 base=0.476000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.476000 base=0.476000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.462183 base=0.476000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.459545 base=0.476000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.456599 base=0.476000 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.407220 base=0.476000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+
+Top markets for IREN Limited (IREN):
+- score=0.655714 base=0.655714 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.655714 base=0.655714 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.623186 base=0.657143 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.558571 base=0.558571 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.558571 base=0.558571 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.542357 base=0.558571 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.539263 base=0.558571 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.535805 base=0.558571 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.465023 base=0.680000 q=0.684 id=957986 vol=7321.133123 q='AI data center moratorium passed before 2027?'
+- score=0.461973 base=0.540000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+
+Top markets for Kaspi.kz JSC (KSPI):
+- score=0.722500 base=0.722500 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.722500 base=0.722500 q=1.000 id=654414 vol=19482186.891199 q='Will there be no change in Fed interest rates after the March 2026 meeting?'
+- score=0.696673 base=1.120000 q=0.622 id=1169843 vol=2497.006393 q='Will Trump cap credit card interest rates by March 31, 2026?'
+- score=0.509025 base=0.595000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.490484 base=0.595000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.488808 base=0.595000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.457581 base=0.595000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.424700 base=0.595000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+- score=0.416927 base=0.595000 q=0.701 id=964469 vol=7289.459984 q="No change in Bank of England's interest rates after March 2026 meeting?"
+- score=0.352002 base=0.595000 q=0.592 id=1341262 vol=564.038749 q='Will the ECB announce an increase at the April 2026 meeting?'
+
+Top markets for Lemonade Inc (LMND):
+- score=0.722500 base=0.722500 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.722500 base=0.722500 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.718444 base=1.155000 q=0.622 id=1169843 vol=2497.006393 q='Will Trump cap credit card interest rates by March 31, 2026?'
+- score=0.509025 base=0.595000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.490484 base=0.595000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.488808 base=0.595000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.457581 base=0.595000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.424700 base=0.595000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+- score=0.416927 base=0.595000 q=0.701 id=964469 vol=7289.459984 q="No change in Bank of England's interest rates after March 2026 meeting?"
+- score=0.352002 base=0.595000 q=0.592 id=1341262 vol=564.038749 q='Will the ECB announce an increase at the April 2026 meeting?'
+
+Top markets for Meta Platforms Inc (META):
+- score=0.765000 base=0.765000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.765000 base=0.765000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.663828 base=0.700000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.595000 base=0.595000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.595000 base=0.595000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.577728 base=0.595000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.574432 base=0.595000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.570749 base=0.595000 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.538968 base=0.630000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.519336 base=0.630000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+
+Top markets for Micron Technology Inc (MU):
+- score=0.758661 base=0.800000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.680000 base=0.680000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.680000 base=0.680000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.660261 base=0.680000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.656494 base=0.680000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.652284 base=0.680000 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.578000 base=0.578000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.578000 base=0.578000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.418521 base=0.612000 q=0.684 id=957986 vol=7321.133123 q='AI data center moratorium passed before 2027?'
+- score=0.407220 base=0.476000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+
+Top markets for Microsoft Corp (MSFT):
+- score=0.777143 base=0.777143 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.777143 base=0.777143 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.568996 base=0.600000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.547523 base=0.640000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.527579 base=0.640000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.525777 base=0.640000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.510000 base=0.510000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.510000 base=0.510000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.495196 base=0.510000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.492370 base=0.510000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+
+Top markets for NVIDIA Corp (NVDA):
+- score=0.704471 base=0.742857 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.655714 base=0.655714 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.655714 base=0.655714 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.631429 base=0.631429 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.631429 base=0.631429 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.613099 base=0.631429 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.609601 base=0.631429 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.605693 base=0.631429 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.461973 base=0.540000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.445145 base=0.540000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+
+Top markets for Oscar Health Inc (OSCR):
+- score=0.612000 base=0.612000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.612000 base=0.612000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.470254 base=0.756000 q=0.622 id=1169843 vol=2497.006393 q='Will Trump cap credit card interest rates by March 31, 2026?'
+- score=0.438934 base=0.578000 q=0.759 id=902971 vol=25440.074439 q='Will ACA premium tax credits not be extended and will the Republican Party win the House in 2026?'
+- score=0.431174 base=0.504000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.415469 base=0.504000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.414049 base=0.504000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.387598 base=0.504000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.359746 base=0.504000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+- score=0.353162 base=0.504000 q=0.701 id=964469 vol=7289.459984 q="No change in Bank of England's interest rates after March 2026 meeting?"
+
+Top markets for Reddit Inc (RDDT):
+- score=0.850000 base=0.850000 q=1.000 id=654414 vol=19482186.891199 q='Will there be no change in Fed interest rates after the March 2026 meeting?'
+- score=0.850000 base=0.850000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.598853 base=0.700000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.577040 base=0.700000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.575068 base=0.700000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.568996 base=0.600000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.538330 base=0.700000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.510000 base=0.510000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.510000 base=0.510000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.499647 base=0.700000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+
+Top markets for Robinhood Markets Inc (HOOD):
+- score=0.680000 base=0.680000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.680000 base=0.680000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.644422 base=1.036000 q=0.622 id=1169843 vol=2497.006393 q='Will Trump cap credit card interest rates by March 31, 2026?'
+- score=0.479083 base=0.560000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.461632 base=0.560000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.460054 base=0.560000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.430664 base=0.560000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.399718 base=0.560000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+- score=0.392402 base=0.560000 q=0.701 id=964469 vol=7289.459984 q="No change in Bank of England's interest rates after March 2026 meeting?"
+- score=0.378440 base=0.420000 q=0.901 id=1068733 vol=552595.750821 q='Will stablecoins hit $500B before 2027?'
+
+Top markets for Rubrik Inc (RBRK):
+- score=0.850000 base=0.850000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.850000 base=0.850000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.598853 base=0.700000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+- score=0.577040 base=0.700000 q=0.824 id=1168139 vol=80977.192446 q='Will the upper bound of the target federal funds rate be 3.75% at the end of 2026?'
+- score=0.575068 base=0.700000 q=0.822 id=964477 vol=65243.790812 q='Will the ECB announce no change at the March 2026 meeting?'
+- score=0.568996 base=0.600000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.538330 base=0.700000 q=0.769 id=1227992 vol=37371.718159 q='Nothing Ever Happens: Interest Rates'
+- score=0.510000 base=0.510000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.510000 base=0.510000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.499647 base=0.700000 q=0.714 id=1249979 vol=8882.083102 q='Bank of Japan decreases interest rates after the April 2026 meeting?'
+
+Top markets for Taiwan Semiconductor Mfg. Co. Ltd (TSM):
+- score=0.758661 base=0.800000 q=0.948 id=604470 vol=547825.806992 q='Will China blockade Taiwan by June 30?'
+- score=0.680000 base=0.680000 q=1.000 id=567621 vol=9253540.301608 q='Will China invade Taiwan by end of 2026?'
+- score=0.680000 base=0.680000 q=1.000 id=701290 vol=3192826.343351 q='Will China invade Taiwan by March 31, 2026?'
+- score=0.660261 base=0.680000 q=0.971 id=540843 vol=1416826.965907 q='Will China invades Taiwan before GTA VI?'
+- score=0.656494 base=0.680000 q=0.965 id=677407 vol=838183.644855 q='China x Taiwan military clash before 2027?'
+- score=0.652284 base=0.680000 q=0.959 id=956590 vol=750069.451314 q='Will China invade Taiwan by June 30, 2026?'
+- score=0.578000 base=0.578000 q=1.000 id=654412 vol=69259580.287243 q='Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?'
+- score=0.578000 base=0.578000 q=1.000 id=572478 vol=27722147.50542 q='Will Trump nominate Jerome Powell as the next Fed chair?'
+- score=0.418521 base=0.612000 q=0.684 id=957986 vol=7321.133123 q='AI data center moratorium passed before 2027?'
+- score=0.407220 base=0.476000 q=0.856 id=991022 vol=197182.428141 q="No change in Bank of Japan's interest rates after March 2026 meeting?"
+
+
+
+
+
+
+(venv) nicolashoubouyan@MacBook-Pro-de-Nicolas-2 BIT_case_study % psql "$DATABASE_URL" -c "\dt pm_market_security_relevance_selection"
+psql "$DATABASE_URL" -c "\d+ pm_market_security_relevance_selection"
+psql "$DATABASE_URL" -c "\di ix_pmsrs_*"
+
+                           List of tables
+ Schema |                  Name                  | Type  |  Owner   
+--------+----------------------------------------+-------+----------
+ public | pm_market_security_relevance_selection | table | postgres
+(1 row)
+
+                                          Table "public.pm_market_security_relevance_selection"
+      Column       |           Type           | Collation | Nullable |   Default   | Storage  | Compression | Stats target | Description 
+-------------------+--------------------------+-----------+----------+-------------+----------+-------------+--------------+-------------
+ security_id       | bigint                   |           | not null |             | plain    |             |              | 
+ market_id         | bigint                   |           | not null |             | plain    |             |              | 
+ scoring_version   | text                     |           | not null |             | extended |             |              | 
+ selection_version | text                     |           | not null |             | extended |             |              | 
+ rank              | integer                  |           | not null |             | plain    |             |              | 
+ final_score       | double precision         |           | not null |             | plain    |             |              | 
+ event_id          | bigint                   |           |          |             | plain    |             |              | 
+ is_rate_like      | boolean                  |           | not null | false       | plain    |             |              | 
+ selection_params  | jsonb                    |           | not null | '{}'::jsonb | extended |             |              | 
+ selection_reason  | jsonb                    |           | not null | '{}'::jsonb | extended |             |              | 
+ created_at        | timestamp with time zone |           | not null | now()       | plain    |             |              | 
