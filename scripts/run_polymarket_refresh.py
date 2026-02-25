@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Run the end-to-end Polymarket refresh pipeline (Steps 1→3).
+"""Run the end-to-end Polymarket refresh pipeline (Steps 1→4b).
 
 Usage:
-  ./venv/bin/python scripts/run_polymarket_refresh.py --ingest-max-pages 200 --matcher-version matcher_v4
+  ./venv/bin/python scripts/run_polymarket_refresh.py --ingest-max-pages 200 --matcher-version matcher_v10
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ def _parse_bool(x: str) -> bool:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Run Steps 1→3: ingest → hard filters → family matching.")
+    p = argparse.ArgumentParser(description="Run Steps 1→4b: ingest → hard filters → family matching → relevance → selection.")
     # Step 1
     p.add_argument("--ingest-limit", type=int, default=100, help="Gamma /events page size (limit).")
     p.add_argument("--ingest-max-pages", type=int, default=None, help="Optional cap on number of /events pages.")
@@ -39,7 +39,7 @@ def main() -> None:
     p.add_argument("--hard-filters-batch-size", type=int, default=1000, help="DB upsert batch size for Step 2.")
     # Step 3
     p.add_argument("--matcher-version", type=str, default="matcher_v1", help="Version label for Step 3 outputs.")
-    p.add_argument("--match-limit", type=int, default=5000, help="Max kept markets to evaluate in Step 3.")
+    p.add_argument("--match-limit", type=int, default=12000, help="Max kept markets to evaluate in Step 3.")
     p.add_argument("--use-embeddings", type=str, default="true", help="true/false to enable embedding discovery.")
     p.add_argument(
         "--embedding-model",
@@ -52,6 +52,19 @@ def main() -> None:
     p.add_argument("--similarity-threshold", type=float, default=0.40, help="Min cosine similarity for embedding candidates.")
     p.add_argument("--lexical-min-score", type=float, default=0.30, help="Min lexical discovery score.")
     p.add_argument("--rule-threshold", type=float, default=0.70, help="Min strict rule score for match persistence.")
+    # Step 4
+    p.add_argument("--scoring-version", type=str, default="relevance_v1", help="Version label for Step 4 outputs.")
+    p.add_argument("--trusted-only", type=str, default="true", help="true/false: score using only rule_classification matches.")
+    p.add_argument("--min-base-score", type=float, default=0.0, help="Skip relevance rows with base_score <= this value.")
+    # Step 4b
+    p.add_argument("--persist-selection", type=str, default="true", help="true/false to store diversified top-K selections in DB.")
+    p.add_argument("--selection-version", type=str, default="selected_v1", help="Version label for Step 4b outputs.")
+    p.add_argument("--selection-k", type=int, default=20, help="K for stored diversified selection per security.")
+    p.add_argument("--selection-max-per-event", type=int, default=1, help="Max markets per event_id in stored selection.")
+    p.add_argument("--selection-max-rate-like", type=int, default=3, help="Max rate-like markets in stored selection.")
+    # Audit
+    p.add_argument("--run-audit", type=str, default="true", help="true/false to write a pipeline audit markdown.")
+    p.add_argument("--audit-top-n", type=int, default=20, help="Top-N to display per security in audit.")
     args = p.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -84,11 +97,31 @@ def main() -> None:
         embedding_min_similarity=float(args.similarity_threshold),
         lexical_min_score=float(args.lexical_min_score),
         classification_min_score=float(args.rule_threshold),
+        scoring_version=str(args.scoring_version),
+        trusted_only=_parse_bool(args.trusted_only),
+        min_base_score=float(args.min_base_score),
+        persist_selection=_parse_bool(args.persist_selection),
+        selection_version=str(args.selection_version),
+        selection_k=int(args.selection_k),
+        selection_max_per_event=int(args.selection_max_per_event),
+        selection_max_rate_like=int(args.selection_max_rate_like),
+        run_audit=_parse_bool(args.run_audit),
+        audit_top_n=int(args.audit_top_n),
         out_dir="reports",
     )
-    print("polymarket_refresh:", {"ingestion": out.ingestion, "hard_filters": out.hard_filters, "matching": out.matching})
+    print(
+        "polymarket_refresh:",
+        {
+            "run_id": out.run_id,
+            "ingestion": out.ingestion,
+            "hard_filters": out.hard_filters,
+            "matching": out.matching,
+            "relevance_scoring": out.relevance_scoring,
+            "relevance_selection": out.relevance_selection,
+            "pipeline_audit": out.pipeline_audit,
+        },
+    )
 
 
 if __name__ == "__main__":
     main()
-

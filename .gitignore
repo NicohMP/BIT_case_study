@@ -16,3 +16,7 @@ venv/
 
 reports/
 notebooks/reports/
+
+# Local debugging artifacts
+terminal_output*.txt
+terminal_ouput*.txt

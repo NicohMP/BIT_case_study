@@ -5,8 +5,10 @@ This repo implements a versioned, auditable data pipeline for scanning Polymarke
 - **Step 1 (Ingestion)**: ingest *all* active events + markets from the Gamma `/events` endpoint (pagination) into Postgres.
 - **Step 2 (Hard filters)**: deterministically reject template/junk markets and store explainable filter decisions.
 - **Step 3 (Signal-family matching)**: high-recall discovery (lexical + local embeddings) + high-precision deterministic rules, persisted with evidence for auditability.
+- **Step 4 (Relevance scoring)**: deterministic market relevance per BIT security via the authority matrices.
+- **Step 4b (Selection)**: persisted diversified top-K per security (the primary downstream feed).
 
-Downstream components (LLM enrichment and/or a web UI) should query the Postgres tables produced by Steps 1–3 rather than calling the Gamma API directly.
+Downstream components (LLM enrichment and/or a web UI) should query the Postgres tables/views produced by this pipeline rather than calling the Gamma API directly.
 
 ## Supabase (local)
 
@@ -14,10 +16,16 @@ Start Supabase and apply migrations + seed:
 `supabase start`
 `supabase db reset`
 
+Apply a single new migration without a reset (local):
+`psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/<migration>.sql`
+
 ## Environment
 
 Create `.env` with at least:
 - `DATABASE_URL` pointing to Supabase Postgres (local typically uses `127.0.0.1:54322`).
+
+Important: `.env` must use `KEY=value` lines (so `python-dotenv` can load it), e.g.:
+`DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres`
 
 Optional:
 - `POLYMARKET_API_BASE_URL` (default: `https://gamma-api.polymarket.com`)
@@ -92,6 +100,18 @@ Optional (display-only): de-duplicate by event_id and cap rate/FOMC-like markets
 Outputs:
 - DB upserts into `pm_market_security_relevance` (keyed by `(security_id, market_id, scoring_version)`)
 
+## Step 4b: Persisted diversified selection (downstream feed)
+
+Step 4b stores a diversified top-K per security to avoid:
+- the same `event_id` flooding the list
+- rate/FOMC-like markets dominating every security
+
+Run (also enabled by default in `scripts/run_relevance_scoring.py`):
+`./venv/bin/python scripts/run_relevance_scoring.py --filter-version hard_filters_v8 --matcher-version matcher_v10 --scoring-version relevance_v5 --persist-selection true --selection-version selected_v1`
+
+Outputs:
+- DB upserts into `pm_market_security_relevance_selection` (keyed by `(security_id, market_id, scoring_version, selection_version)`)
+
 ## Pipeline audit (debug bottlenecks)
 
 To debug why rate/FOMC markets dominate and whether the bottleneck is filters, matching thresholds,
@@ -101,9 +121,9 @@ or relevance concentration, generate a single markdown report:
 
 This writes `reports/pipeline_audit_*.md`.
 
-## One-command refresh (Steps 1→3)
+## One-command refresh (Steps 1→4b)
 
-For scheduled runs (cron/job runner) and downstream consumers, run Steps 1–3 in a single command:
+For scheduled runs (cron/job runner) and downstream consumers, run Steps 1–4b in a single command:
 
 `./venv/bin/python scripts/run_polymarket_refresh.py --ingest-max-pages 200 --matcher-version matcher_v1`
 
@@ -111,7 +131,9 @@ This:
 - ingests Gamma `/events` into `pm_event` + `pm_market`
 - writes filter decisions into `pm_market_filter_decision`
 - writes matches into `pm_market_signal_family_match`
-- writes audit artifacts into `reports/`
+- writes relevance rows into `pm_market_security_relevance`
+- writes diversified selections into `pm_market_security_relevance_selection`
+- optionally writes a `reports/pipeline_audit_*.md`
 
 ## Data contract (downstream LLM / web UI)
 
@@ -121,19 +143,26 @@ Primary tables produced by this pipeline:
 - `pm_market_signal_family_match`: per-market family matches (methods + evidence), keyed by `matcher_version`.
 - `pm_text_embedding_cache`: cached sentence-transformer embeddings (jsonb list of floats).
 - `pm_market_security_relevance`: per-(security, market) relevance scores, keyed by `scoring_version`.
+- `pm_market_security_relevance_selection`: diversified per-security top-K (recommended downstream feed).
+- `pm_pipeline_run`: run metadata (latest versions, artifacts, errors).
 
-Downstream services typically:
-- join `pm_market` ↔ `pm_event` (context)
-- join `pm_market_filter_decision` (choose a `filter_version`)
-- join `pm_market_signal_family_match` (choose a `matcher_version`, prefer `method='rule_classification'`)
+Recommended downstream query surfaces (views):
+- `v_pm_security_market_relevance_selected_latest_enriched`: **one-stop** for WebUI/LLM (latest run only).
+- `v_pm_market_kept_latest`: kept markets for the latest run (post Step 2).
+- `v_pm_market_signal_family_match_latest_trusted`: strict market→family matches for the latest run (post Step 3).
 
 ## Code layout
 
 - `scripts/ingest_active_events.py`: Step 1 CLI runner
 - `scripts/run_hard_filters.py`: Step 2 CLI runner
 - `scripts/run_family_matching.py`: Step 3 CLI runner
-- `scripts/run_polymarket_refresh.py`: Steps 1→3 orchestration
+- `scripts/run_relevance_scoring.py`: Step 4 + Step 4b CLI runner
+- `scripts/run_pipeline_audit.py`: end-to-end audit markdown
+- `scripts/run_polymarket_refresh.py`: Steps 1→4b orchestration (scheduled job entry point)
 - `polyscanner/ingestion/gamma_events_ingest.py`: Step 1 implementation
 - `polyscanner/filtering/hard_filters.py`: Step 2 filter logic + config loader
 - `polyscanner/filtering/runner.py`: Step 2 runner (DB streaming + persistence + audits)
 - `polyscanner/matching/matcher.py`: Step 3 runner (discovery + classification + persistence + audits)
+- `polyscanner/relevance/security_market_relevance.py`: Step 4 + Step 4b implementation
+- `polyscanner/pipeline/polymarket_refresh.py`: end-to-end orchestrator (Steps 1→4b)
+- `polyscanner/pipeline/audit.py`: end-to-end audit renderer (DB → markdown)
