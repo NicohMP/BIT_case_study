@@ -28,6 +28,8 @@ log = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class HardFilterRunResult:
+    """Class containing results of keyword match hard filtering"""
+
     run_id: str
     filter_version: str
     config_sha256: str
@@ -43,6 +45,11 @@ class HardFilterRunResult:
 
 
 def _utcnow() -> datetime:
+    """Small current time setter
+
+    Returns:
+        datetime: Current time
+    """
     return datetime.now(tz=timezone.utc)
 
 
@@ -57,8 +64,12 @@ def _as_market_dict(row: dict[str, Any]) -> dict[str, Any]:
         "volume_usd": row.get("volume_usd"),
         "liquidity_usd": row.get("liquidity_usd"),
         "end_date": row.get("end_date"),
-        "tags": row.get("market_tags") if isinstance(row.get("market_tags"), list) else [],
-        "raw_market": row.get("raw_market") if isinstance(row.get("raw_market"), dict) else {},
+        "tags": (
+            row.get("market_tags") if isinstance(row.get("market_tags"), list) else []
+        ),
+        "raw_market": (
+            row.get("raw_market") if isinstance(row.get("raw_market"), dict) else {}
+        ),
     }
 
 
@@ -67,8 +78,12 @@ def _as_event_dict(row: dict[str, Any]) -> dict[str, Any]:
         "event_id": row.get("event_id"),
         "title": row.get("event_title"),
         "slug": row.get("event_slug"),
-        "tags": row.get("event_tags") if isinstance(row.get("event_tags"), list) else [],
-        "raw_event": row.get("raw_event") if isinstance(row.get("raw_event"), dict) else {},
+        "tags": (
+            row.get("event_tags") if isinstance(row.get("event_tags"), list) else []
+        ),
+        "raw_event": (
+            row.get("raw_event") if isinstance(row.get("raw_event"), dict) else {}
+        ),
     }
 
 
@@ -108,7 +123,9 @@ def _fetch_active_universe(conn, *, limit: int | None = None):
     return cur
 
 
-def _upsert_decisions(conn, *, decisions: list[FilterDecision], filter_version: str) -> int:
+def _upsert_decisions(
+    conn, *, decisions: list[FilterDecision], filter_version: str
+) -> int:
     if not decisions:
         return 0
     rows = []
@@ -237,7 +254,9 @@ def _write_audit_report(
     lines.append(f"- filter_version: `{rules_meta.get('filter_version')}`")
     lines.append(f"- config_sha256: `{rules_meta.get('config_sha256')}`")
     lines.append(f"- evaluated: `{n_evaluated}`")
-    lines.append(f"- rejected: `{n_rejected}` ({(100.0 * n_rejected / max(1, n_evaluated)):.1f}%)\n")
+    lines.append(
+        f"- rejected: `{n_rejected}` ({(100.0 * n_rejected / max(1, n_evaluated)):.1f}%)\n"
+    )
 
     lines.append("## Top rejection reasons\n")
     for r, c in top_reasons[:20]:
@@ -273,7 +292,9 @@ def _write_audit_report(
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def _fetch_top_by_volume(conn, *, filter_version: str, is_rejected: bool, limit: int = 30) -> list[dict[str, Any]]:
+def _fetch_top_by_volume(
+    conn, *, filter_version: str, is_rejected: bool, limit: int = 30
+) -> list[dict[str, Any]]:
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -306,7 +327,9 @@ def _fetch_top_by_volume(conn, *, filter_version: str, is_rejected: bool, limit:
             {
                 "market_id": int(r[0]),
                 "is_rejected": bool(r[1]),
-                "rejection_reasons": list(r[2]) if isinstance(r[2], (list, tuple)) else [],
+                "rejection_reasons": (
+                    list(r[2]) if isinstance(r[2], (list, tuple)) else []
+                ),
                 "keep_reasons": list(r[3]) if isinstance(r[3], (list, tuple)) else [],
                 "template_score": float(r[4]) if r[4] is not None else None,
                 "equity_relevance_score": float(r[5]) if r[5] is not None else None,
@@ -323,7 +346,9 @@ def _fetch_top_by_volume(conn, *, filter_version: str, is_rejected: bool, limit:
 def _format_top_volume_line(row: dict[str, Any]) -> str:
     q = (row.get("question") or "").strip().replace("\n", " ")
     q = q[:180] + ("…" if len(q) > 180 else "")
-    reasons = row["rejection_reasons"] if row.get("is_rejected") else row["keep_reasons"]
+    reasons = (
+        row["rejection_reasons"] if row.get("is_rejected") else row["keep_reasons"]
+    )
     return (
         f"- `{row['market_id']}` (event `{row.get('event_id')}`) "
         f"vol={row.get('volume_usd')} liq={row.get('liquidity_usd')} "
@@ -359,13 +384,17 @@ def run_hard_filters(
     write_conn = connect(db_url)
     try:
         with read_conn.cursor() as cur0:
-            cur0.execute("select current_database(), current_user, inet_server_addr(), inet_server_port();")
+            cur0.execute(
+                "select current_database(), current_user, inet_server_addr(), inet_server_port();"
+            )
             ident = cur0.fetchone() or ("", "", None, None)
             cur0.execute("select count(*) from pm_event;")
             n_events = int((cur0.fetchone() or [0])[0] or 0)
             cur0.execute("select count(*) from pm_market;")
             n_markets = int((cur0.fetchone() or [0])[0] or 0)
-            cur0.execute("select count(*) from pm_event where active = true and closed = false;")
+            cur0.execute(
+                "select count(*) from pm_event where active = true and closed = false;"
+            )
             n_active_events = int((cur0.fetchone() or [0])[0] or 0)
             cur0.execute(
                 """
@@ -428,17 +457,26 @@ def run_hard_filters(
                             per_reason_samples[r].append(_format_market_line(row, d))
                 else:
                     kept_high_relevance.append(
-                        (d.equity_relevance_score - (0.25 * d.template_score), _format_market_line(row, d))
+                        (
+                            d.equity_relevance_score - (0.25 * d.template_score),
+                            _format_market_line(row, d),
+                        )
                     )
-                    kept_low_quality.append((d.quality_score, _format_market_line(row, d)))
+                    kept_low_quality.append(
+                        (d.quality_score, _format_market_line(row, d))
+                    )
 
                 batch.append(d)
                 if len(batch) >= int(batch_size):
-                    _upsert_decisions(write_conn, decisions=batch, filter_version=filter_version)
+                    _upsert_decisions(
+                        write_conn, decisions=batch, filter_version=filter_version
+                    )
                     batch.clear()
 
         if batch:
-            _upsert_decisions(write_conn, decisions=batch, filter_version=filter_version)
+            _upsert_decisions(
+                write_conn, decisions=batch, filter_version=filter_version
+            )
 
         top_reasons = dict(reason_counts.most_common(50))
         _insert_stats(
@@ -451,11 +489,19 @@ def run_hard_filters(
             top_reasons=top_reasons,
         )
 
-        kept_high_relevance_sorted = [x[1] for x in sorted(kept_high_relevance, key=lambda t: t[0], reverse=True)]
-        kept_low_quality_sorted = [x[1] for x in sorted(kept_low_quality, key=lambda t: t[0])]
+        kept_high_relevance_sorted = [
+            x[1] for x in sorted(kept_high_relevance, key=lambda t: t[0], reverse=True)
+        ]
+        kept_low_quality_sorted = [
+            x[1] for x in sorted(kept_low_quality, key=lambda t: t[0])
+        ]
 
-        top_kept = _fetch_top_by_volume(write_conn, filter_version=filter_version, is_rejected=False, limit=30)
-        top_rejected = _fetch_top_by_volume(write_conn, filter_version=filter_version, is_rejected=True, limit=30)
+        top_kept = _fetch_top_by_volume(
+            write_conn, filter_version=filter_version, is_rejected=False, limit=30
+        )
+        top_rejected = _fetch_top_by_volume(
+            write_conn, filter_version=filter_version, is_rejected=True, limit=30
+        )
         top_kept_lines = [_format_top_volume_line(r) for r in top_kept]
         top_rejected_lines = [_format_top_volume_line(r) for r in top_rejected]
 
@@ -464,7 +510,10 @@ def run_hard_filters(
         audit_path = out_path / f"hard_filter_audit_{ts}.md"
         _write_audit_report(
             path=audit_path,
-            rules_meta={"filter_version": filter_version, "config_sha256": config_sha256},
+            rules_meta={
+                "filter_version": filter_version,
+                "config_sha256": config_sha256,
+            },
             n_evaluated=evaluated,
             n_rejected=rejected,
             top_reasons=list(reason_counts.most_common(50)),

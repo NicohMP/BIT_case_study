@@ -5,7 +5,7 @@ filter_version: hard_filters_v8
 # - Keep overrides are evaluated AFTER reject patterns; if an override matches,
 #   the market is kept unless it hits a "non-overridable" group (e.g., sports).
 #
-# If you change patterns/weights in this file, bump `filter_version` so runs are
+# To change patterns/weights in this file, bump `filter_version` so runs are
 # versioned and repeatable.
 
 non_overridable_reject_groups:
