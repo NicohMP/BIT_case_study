@@ -1,9 +1,7 @@
-"""Polymarket Signal Scanner (MVP).
+"""Polymarket Signal Scanner.
 
-The current focus is a minimal, working, end-to-end wiring test:
-- load `bit_domain` from Postgres (Supabase local)
-- fetch Polymarket markets
-- rank top candidates
-- use Gemini to assign a domain per market
-- write a markdown report
+Core pipeline:
+- Step 1: ingest all active events + markets from Polymarket Gamma `/events`
+- Step 2: apply deterministic hard filters and persist auditable decisions
+- Step 3: match kept markets to signal families (discovery + strict rules)
 """

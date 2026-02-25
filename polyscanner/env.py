@@ -1,4 +1,4 @@
-"""Environment helpers (MVP).
+"""Environment helpers.
 
 We keep env access in one place so notebooks/scripts behave the same.
 
@@ -28,4 +28,3 @@ def get_env(name: str) -> str | None:
         return None
     value = value.strip()
     return value or None
-

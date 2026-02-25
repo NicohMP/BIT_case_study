@@ -1,0 +1,382 @@
+"""Deterministic signal-family rules used by Step 3 classification.
+
+These rules are intentionally simple and auditable:
+- transparent keyword/phrase hits with optional anchors/overrides
+- explicit exclusions to prevent common false positives
+
+They are *not* the high-recall retrieval layer; retrieval happens in Step 3
+discovery (lexical keywords + optional embeddings).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+
+@dataclass(frozen=True)
+class SignalFamilyRule:
+    """Transparent keyword rules with optional anchors/overrides.
+
+    This is a deterministic, auditable matcher used by Step 3.
+
+    - `keywords`: general terms counted toward `min_hits`
+    - `anchors`: high-precision topic anchors required for a match (optional)
+    - `overrides`: strong phrases that can match even when keywords are sparse
+      (still subject to exclusions)
+    """
+
+    keywords: list[str]
+    exclusions: list[str]
+    min_hits: int = 1
+    anchors: list[str] = field(default_factory=list)
+    min_anchor_hits: int = 0
+    overrides: list[str] = field(default_factory=list)
+
+
+RULES_BY_SLUG: dict[str, SignalFamilyRule] = {
+    "fomc_surprises": SignalFamilyRule(
+        keywords=[
+            "fomc",
+            "fed",
+            "powell",
+            "rate hike",
+            "rate cut",
+            "interest rate",
+            "basis points",
+        ],
+        exclusions=[],
+        min_hits=1,
+    ),
+    "real_yields_long_rates": SignalFamilyRule(
+        keywords=[
+            "real yield",
+            "real yields",
+            "treasury yield",
+            "10-year yield",
+            "10 year yield",
+            "10y yield",
+            "long rates",
+            "bond yields",
+            "breakeven inflation",
+        ],
+        # Prevent obvious false positives from generic "10 year(s)" phrases.
+        exclusions=[
+            "sentenced",
+            "years in prison",
+            "in prison",
+        ],
+        min_hits=1,
+    ),
+    "us_china_semis_export_controls": SignalFamilyRule(
+        keywords=[
+            "export controls",
+            "chip ban",
+            "semiconductor",
+            "nvidia",
+            "asml",
+            "tsmc",
+            "h20",
+            "china",
+        ],
+        exclusions=[],
+        min_hits=2,
+    ),
+    "taiwan_geopolitical_risk": SignalFamilyRule(
+        keywords=[
+            "taiwan",
+            "taiwan strait",
+            "china",
+            "invasion",
+            "blockade",
+        ],
+        exclusions=[],
+        min_hits=2,
+    ),
+    "crypto_regime_changes": SignalFamilyRule(
+        keywords=[
+            # "SEC" is ambiguous (also "Southeastern Conference" in sports markets).
+            # Keep it as a regulator anchor, but require co-occurrence (min_hits>=2)
+            # and exclude obvious sports phrasing below.
+            "sec",
+            "cftc",
+            # Broaden beyond a few hand-picked phrases so we don't depend on any
+            # single exact wording.
+            "crypto regulation",
+            "stablecoin",
+            "stablecoins",
+            "stablecoin bill",
+            "enforcement",
+            "lawsuit",
+            "sues",
+            "ban",
+            "spot etf",
+            "bitcoin etf",
+            "ethereum etf",
+            "crypto etf",
+            "exchange ban",
+            # Common entities in US crypto-regime headlines.
+            "coinbase",
+            "binance",
+            "kraken",
+            "ripple",
+            "xrp",
+        ],
+        exclusions=[
+            # Disambiguate SEC(sports) vs SEC(regulator)
+            "regular season",
+            "women's",
+            "women’s",
+            "men's",
+            "men’s",
+            "team",
+            "ncaa",
+            "basketball",
+            "football",
+            "soccer",
+            "mlb",
+            "nba",
+            "nfl",
+            "nhl",
+            "ufc",
+            "fifa",
+            "world cup",
+        ],
+        min_hits=2,
+    ),
+    "ai_regulation_big_tech_enforcement": SignalFamilyRule(
+        keywords=[
+            "ai act",
+            "ai regulation",
+            "antitrust",
+            "doj",
+            "ftc",
+            "big tech",
+            "platform regulation",
+            "digital services act",
+            "digital markets act",
+            "dma",
+            "privacy sandbox",
+        ],
+        exclusions=[],
+        min_hits=1,
+    ),
+    "datacenter_power_grid_constraints": SignalFamilyRule(
+        keywords=[
+            # Avoid matching generic "power" markets (e.g., "Balance of Power").
+            # Require co-occurrence (min_hits>=2) across these more specific terms.
+            "datacenter",
+            "data center",
+            "datacenter power",
+            "data center power",
+            "power grid",
+            "grid",
+            "electricity",
+            "interconnection",
+            "substation",
+            "transmission",
+            "utility",
+            "nuclear power",
+            "smr",
+            "interconnection queue",
+            "load growth",
+            "electricity demand",
+            "power demand",
+            "grid capacity",
+            "transmission line",
+            "gas plant",
+            "natural gas plant",
+        ],
+        exclusions=[
+            # Political template markets
+            "balance of power",
+            "nuclear option",
+            "filibuster",
+        ],
+        min_hits=2,
+    ),
+    "antitrust_platforms_app_stores_ads": SignalFamilyRule(
+        keywords=[
+            # Platform/app store / DMA vocabulary
+            "app store",
+            "google play",
+            "sideload",
+            "sideloading",
+            "digital markets act",
+            "dma",
+            "adtech",
+            "advertising market",
+            "ad tech",
+            "google ads",
+            "search monopoly",
+            "self-preferencing",
+            "gatekeeper",
+            "store commission",
+            "in-app purchase",
+            "iap",
+            "app store fees",
+            "open app markets act",
+            "epic games",
+            # Common targets (only useful with min_hits>=2)
+            "apple",
+            "google",
+            "meta",
+            "amazon",
+        ],
+        exclusions=[
+            # Hard exclusions: app chart / ranking markets (not antitrust enforcement).
+            "#1",
+            "#2",
+            "#3",
+            "#4",
+            "#5",
+            "top 10",
+            "top-10",
+            "free app",
+            "paid app",
+            "grossing",
+            "downloads",
+            "app store charts",
+            "google play charts",
+            "ranked",
+            "ranking",
+            "trending",
+            # Avoid sports template markets if a generic term slips in.
+            "regular season",
+            "women's",
+            "women’s",
+            "men's",
+            "men’s",
+            "team",
+            "ncaa",
+            "basketball",
+            "football",
+            "soccer",
+        ],
+        # Require a regulator/competition anchor so company names don't explode recall.
+        anchors=[
+            "antitrust",
+            "doj",
+            "department of justice",
+            "ftc",
+            "federal trade commission",
+            "digital markets act",
+            "dma",
+            "digital services act",
+            "competition",
+            "european commission",
+            "eu commission",
+            "lawsuit",
+            "sues",
+            "fine",
+            "monopoly",
+            "break up",
+        ],
+        min_anchor_hits=1,
+        min_hits=1,
+        overrides=[
+            "digital markets act",
+            "open app markets act",
+            "app store lawsuit",
+            "google adtech",
+            "privacy sandbox",
+        ],
+    ),
+    "it_spending_cycle_enterprise_cloud_ai": SignalFamilyRule(
+        keywords=[
+            "it spending",
+            "enterprise spending",
+            "cloud spending",
+            "capex",
+            "saas",
+            "aws",
+            "azure",
+            "gcp",
+            "google cloud",
+            "enterprise it",
+            "enterprise software",
+            "software spending",
+            "subscription software",
+            "datacenter capex",
+            "data center capex",
+            "ai capex",
+            "hyperscaler",
+        ],
+        exclusions=[],
+        min_hits=1,
+    ),
+    "healthcare_policy_reimbursement": SignalFamilyRule(
+        keywords=[
+            "medicare",
+            "medicaid",
+            "cms",
+            "medicare part d",
+            "medicare part b",
+            "reimbursement",
+            "reimbursement rate",
+            "payment rate",
+            "healthcare policy",
+            "coverage",
+            "medicare advantage",
+            "medicaid expansion",
+            "premium",
+            "premium subsidy",
+            "aca subsidies",
+            "insurance",
+            "uninsured",
+            "drug pricing",
+            "price negotiation",
+            "pbm",
+            "pharmacy benefit manager",
+            "formulary",
+            "marketplace",
+            "exchange",
+            "aca",
+            "obamacare",
+            "hhs",
+        ],
+        exclusions=[
+            "fantasy",
+        ],
+        # "insurance"/"premium" are broad. Require at least one anchor to avoid
+        # matching generic insurance chatter that isn't about healthcare policy.
+        anchors=[
+            "medicare",
+            "medicaid",
+            "cms",
+            "hhs",
+            "aca",
+            "obamacare",
+            "reimbursement",
+            "drug pricing",
+            "price negotiation",
+            "pbm",
+            "medicare advantage",
+            "medicare part d",
+        ],
+        min_anchor_hits=1,
+        min_hits=1,
+        overrides=[
+            "medicare for all",
+            "drug price negotiation",
+            "medicare negotiation",
+            "cms rule",
+            "medicaid expansion",
+            "medicare part d",
+            "premium subsidies",
+            "aca subsidies",
+            "pbm reform",
+        ],
+    ),
+    "consumer_credit_conditions_cycle": SignalFamilyRule(
+        keywords=[
+            "credit card",
+            "delinquency",
+            "default",
+            "consumer credit",
+            "mortgage",
+            "loan",
+        ],
+        exclusions=[],
+        min_hits=1,
+    ),
+}

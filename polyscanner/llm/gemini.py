@@ -2,20 +2,11 @@
 
 Loads `GOOGLE_API_KEY` from environment (typically via `.env`) and calls the
 Generative Language API (Gemini) using plain HTTP.
-
-Why this module exists:
-- Keep report generation provider-specific code isolated.
-- Avoid adding heavyweight dependencies for the case study.
-
-Env vars:
-- GOOGLE_API_KEY (preferred) or LLM_API_KEY (fallback)
-- GEMINI_MODEL or LLM_MODEL (fallback)
 """
 
 from __future__ import annotations
 
 import json
-import os
 import random
 import time
 from typing import Any
@@ -23,37 +14,24 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-try:
-    from dotenv import load_dotenv  # type: ignore
-except Exception:  # pragma: no cover
-    load_dotenv = None  # type: ignore[assignment]
+from polyscanner.env import get_env, load_env
 
 
 class GeminiError(RuntimeError):
     pass
 
 
-def _env(name: str) -> str | None:
-    value = os.getenv(name)
-    if value is None:
-        return None
-    value = value.strip()
-    return value or None
-
-
 def get_api_key() -> str:
-    if load_dotenv is not None:
-        load_dotenv(override=False)
-    key = _env("GOOGLE_API_KEY") or _env("LLM_API_KEY")
+    load_env()
+    key = get_env("GOOGLE_API_KEY") or get_env("LLM_API_KEY")
     if not key:
         raise GeminiError("Missing GOOGLE_API_KEY (or LLM_API_KEY) in environment/.env")
     return key
 
 
 def get_model() -> str:
-    if load_dotenv is not None:
-        load_dotenv(override=False)
-    return _env("GEMINI_MODEL") or _env("LLM_MODEL") or "gemini-2.0-flash"
+    load_env()
+    return get_env("GEMINI_MODEL") or get_env("LLM_MODEL") or "gemini-2.0-flash"
 
 
 def generate_json(
@@ -80,7 +58,6 @@ def generate_json(
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature": float(temperature),
-            # Best-effort hint; if unsupported, Gemini will still return text.
             "responseMimeType": "application/json",
         },
     }
@@ -106,7 +83,6 @@ def generate_json(
             break
         except HTTPError as e:
             last_err = e
-            # 429 (rate/capacity) and 5xx are often transient: retry with backoff.
             if e.code in {429, 500, 502, 503, 504} and attempt < max_retries:
                 retry_after = None
                 try:
@@ -122,7 +98,6 @@ def generate_json(
                 else:
                     sleep_s = retry_base_s * (2**attempt)
 
-                # add small jitter
                 sleep_s = sleep_s + random.uniform(0.0, min(0.25 * sleep_s, 2.0))
                 time.sleep(sleep_s)
                 continue
@@ -146,7 +121,6 @@ def generate_json(
     except Exception as e:  # noqa: BLE001
         raise GeminiError(f"Unexpected Gemini response shape: {e}; body={data}") from e
 
-    # Parse JSON with a small robustness fallback (strip accidental prose).
     try:
         parsed = json.loads(text)
     except json.JSONDecodeError:
@@ -161,3 +135,4 @@ def generate_json(
 
     parsed["_raw"] = data
     return parsed
+

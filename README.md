@@ -1,12 +1,12 @@
-# Polymarket Signal Scanner (MVP wiring)
+# Polymarket Signal Scanner
 
-This repo contains a **minimal end-to-end skeleton**:
-- Read BIT domains from Postgres (Supabase local)
-- Fetch active markets from Polymarket (Gamma API)
-- Score markets vs BIT domains (embeddings, with keyword fallback)
-- Rank markets by domain relevance (channels are optional/disabled for now)
-- (Optional) Ask Gemini to map each market to a BIT domain (structured JSON)
-- Write a markdown report to `reports/`
+This repo implements a versioned, auditable data pipeline for scanning Polymarket:
+
+- **Step 1 (Ingestion)**: ingest *all* active events + markets from the Gamma `/events` endpoint (pagination) into Postgres.
+- **Step 2 (Hard filters)**: deterministically reject template/junk markets and store explainable filter decisions.
+- **Step 3 (Signal-family matching)**: high-recall discovery (lexical + local embeddings) + high-precision deterministic rules, persisted with evidence for auditability.
+
+Downstream components (LLM enrichment and/or a web UI) should query the Postgres tables produced by Steps 1–3 rather than calling the Gamma API directly.
 
 ## Supabase (local)
 
@@ -17,37 +17,83 @@ Start Supabase and apply migrations + seed:
 ## Environment
 
 Create `.env` with at least:
-- `DATABASE_URL` pointing to local Supabase Postgres (typically `127.0.0.1:54322`)
-- `GOOGLE_API_KEY` (Gemini API key)
+- `DATABASE_URL` pointing to Supabase Postgres (local typically uses `127.0.0.1:54322`).
 
 Optional:
-- `GEMINI_MODEL` (default: `gemini-2.0-flash`)
-- `EMBEDDING_MODEL` (default: `all-MiniLM-L6-v2`)
+- `POLYMARKET_API_BASE_URL` (default: `https://gamma-api.polymarket.com`)
+- `EMBEDDING_MODEL` (default: `sentence-transformers/all-MiniLM-L6-v2`)
 - `EMBEDDING_DEVICE` (e.g. `mps` or `cpu`)
 
-## Run from a notebook
+## Ingest Polymarket events + markets into Postgres (coverage-first)
 
-```python
-from polyscanner.pipeline.minimal import run_minimal_pipeline
+After applying migrations (e.g. `supabase db reset`), ingest all **active, non-closed** events (and their embedded markets)
+via the Gamma `/events` endpoint pagination. This upserts into `pm_event` and `pm_market`:
 
-result = run_minimal_pipeline(top_n=10, use_llm=True)
-result["report_path"]
-```
+`./venv/bin/python scripts/ingest_active_events.py --limit 100 --max-pages 200`
 
-## Ingest Polymarket markets into Postgres
+## Step 2: Hard filters (cheap precision)
 
-After applying migrations (e.g. `supabase db reset`), you can ingest the latest active markets into `pm_market`:
+Run deterministic hard filters to reject template/junk markets and store auditable decisions:
 
-`./venv/bin/python scripts/ingest_pm_markets.py`
+- Config (edit patterns + bump version when you change rules): `polyscanner/filtering/hard_filter_rules.yaml`
+- Run: `./venv/bin/python scripts/run_hard_filters.py`
+- Outputs:
+  - DB upserts into `pm_market_filter_decision` (keyed by `(market_id, filter_version)`)
+  - Markdown audit report in `reports/hard_filter_audit_*.md`
 
-## Code layout (MVP)
+## Step 3: Signal-family matching (high recall → high precision)
 
-- `polyscanner/pipeline/minimal.py`: orchestrates the end-to-end run
-- `polyscanner/db/pg.py`: Postgres read helpers (`bit_domain`, signal families, etc.)
-- `polyscanner/clients/polymarket_gamma.py`: Polymarket market ingestion
-- `polyscanner/relevance/domain_relevance.py`: domain relevance (embeddings with fallback)
-- `polyscanner/relevance/channels.py`: (optional) channel relevance heuristics
-- `polyscanner/relevance/final_score.py`: combines components (falls back to domain-only when exposures are absent)
-- `polyscanner/llm/gemini.py`: Gemini HTTP client
-- `polyscanner/llm/domain_mapping.py`: prompt that maps markets → domains
-- `polyscanner/reporting/markdown.py`: render + write the markdown report
+Two-stage matcher:
+1) **Discovery** (high recall): lexical keywords + optional embeddings
+2) **Classification** (high precision): deterministic gated rules
+
+Run:
+`./venv/bin/python scripts/run_family_matching.py --filter-version hard_filters_v8 --matcher-version matcher_v1 --limit 5000 --use-embeddings true`
+
+Config inputs:
+- `polyscanner/matching/family_keywords.yaml` (discovery keywords/synonyms per family)
+- `polyscanner/signal_family_rules.py` (strict deterministic family rules)
+
+Outputs:
+- DB upserts into `pm_market_signal_family_match` (versioned by `matcher_version` + `method`)
+- Optional embedding cache in `pm_text_embedding_cache`
+- Audit artifacts in `reports/`:
+  - `family_coverage_*.csv`
+  - `false_positive_audit_*.md`
+  - `missing_family_diagnosis_*.md`
+
+## One-command refresh (Steps 1→3)
+
+For scheduled runs (cron/job runner) and downstream consumers, run Steps 1–3 in a single command:
+
+`./venv/bin/python scripts/run_polymarket_refresh.py --ingest-max-pages 200 --matcher-version matcher_v1`
+
+This:
+- ingests Gamma `/events` into `pm_event` + `pm_market`
+- writes filter decisions into `pm_market_filter_decision`
+- writes matches into `pm_market_signal_family_match`
+- writes audit artifacts into `reports/`
+
+## Data contract (downstream LLM / web UI)
+
+Primary tables produced by this pipeline:
+- `pm_event` / `pm_market`: raw + normalized Polymarket universe (active events + markets).
+- `pm_market_filter_decision`: per-market keep/reject decision, keyed by `filter_version`.
+- `pm_market_signal_family_match`: per-market family matches (methods + evidence), keyed by `matcher_version`.
+- `pm_text_embedding_cache`: cached sentence-transformer embeddings (jsonb list of floats).
+
+Downstream services typically:
+- join `pm_market` ↔ `pm_event` (context)
+- join `pm_market_filter_decision` (choose a `filter_version`)
+- join `pm_market_signal_family_match` (choose a `matcher_version`, prefer `method='rule_classification'`)
+
+## Code layout
+
+- `scripts/ingest_active_events.py`: Step 1 CLI runner
+- `scripts/run_hard_filters.py`: Step 2 CLI runner
+- `scripts/run_family_matching.py`: Step 3 CLI runner
+- `scripts/run_polymarket_refresh.py`: Steps 1→3 orchestration
+- `polyscanner/ingestion/gamma_events_ingest.py`: Step 1 implementation
+- `polyscanner/filtering/hard_filters.py`: Step 2 filter logic + config loader
+- `polyscanner/filtering/runner.py`: Step 2 runner (DB streaming + persistence + audits)
+- `polyscanner/matching/matcher.py`: Step 3 runner (discovery + classification + persistence + audits)

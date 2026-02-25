@@ -1,5 +1,5 @@
-"""Pipeline package.
+"""Pipeline entrypoints.
 
-MVP entrypoint:
-- `polyscanner.pipeline.minimal.run_minimal_pipeline`
+Operational refresh:
+- `polyscanner.pipeline.polymarket_refresh.run_polymarket_refresh`
 """

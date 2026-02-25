@@ -1,0 +1,2 @@
+"""Market relevance scoring (MVP)."""
+

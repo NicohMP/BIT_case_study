@@ -1,0 +1,157 @@
+filter_version: hard_filters_v8
+
+# Notes:
+# - All regex are applied case-insensitively.
+# - Keep overrides are evaluated AFTER reject patterns; if an override matches,
+#   the market is kept unless it hits a "non-overridable" group (e.g., sports).
+#
+# If you change patterns/weights in this file, bump `filter_version` so runs are
+# versioned and repeatable.
+
+non_overridable_reject_groups:
+  - sports
+  - micro_price_bets
+  - religion_prophecy
+
+reject_patterns_by_group:
+  sports:
+    - "\\b(nfl|nba|mlb|nhl|wnba|ufc|mma|fifa|uefa|champions\\s+league|premier\\s+league|la\\s+liga|serie\\s+a|bundesliga)\\b"
+    - "\\b(f1|formula\\s*1|nascar|pga|atp|wta|grand\\s+slam|tennis|golf|cricket|ipl|mls|ncaa|ncaaf|ncaab)\\b"
+    - "\\b(super\\s+bowl|world\\s+cup|stanley\\s+cup|world\\s+series|march\\s+madness)\\b"
+    - "\\b(playoffs?|semifinals?|quarterfinals?|finals?)\\b"
+    - "\\b(matchday|fixture(s)?|game\\s*\\d+|kickoff|score|touchdown|goal|assist|penalty)\\b"
+    - "\\bend\\s+in\\s+a\\s+draw\\b"
+    - "\\bboth\\s+teams\\s+to\\s+score\\b"
+    - "\\bvs\\.?\\b.{0,60}\\b(end\\s+in\\s+a\\s+draw|draw|wins?|to\\s+win)\\b"
+    - "(^|\\s)spread:\\s"
+    - "\\b(moneyline|handicap)\\b"
+    - "\\b(spread|handicap)\\b.{0,30}\\(\\s*[+-]\\d+(\\.\\d+)?\\s*\\)"
+    - "\\b(over|under)\\s*\\d+(\\.\\d+)?\\b.{0,20}\\b(points?|goals?|runs?|kills?|maps?|sets?|games?)\\b"
+    - "\\b(o\\s*/\\s*u|o/u|ou)\\s*\\d+(\\.\\d+)?\\b"
+    - "\\b(league\\s+of\\s+legends|valorant|counter\\-?strike|cs:go|dota\\s*2|esports?)\\b"
+    - "\\bseries:\\s*most\\s+(drakes?|inhibitors?|nashors?|barons?|towers?|kills?)\\b"
+
+  winner_template:
+    - "\\bwho\\s+will\\s+win\\b"
+    # Avoid matching generic "win" phrasing (e.g., "win a lawsuit").
+    - "\\b(win|wins|winner)\\b.{0,40}\\b(election|nomination|primary|runoff|midterm|presidential|parliamentary)\\b"
+    - "\\b(election|nomination|primary|runoff|midterm|presidential|parliamentary)\\b.{0,40}\\b(win|wins|winner)\\b"
+    - "\\b(champion|tournament|bracket|group\\s+stage)\\b"
+
+  appstore_charts:
+    - "\\b(app\\s*store|google\\s*play)\\b.{0,40}(?:\\btop\\s*\\d+\\b|#\\s*\\d+|\\bmost\\s+downloaded\\b|\\bdownloads?\\b|\\bgrossing\\b|\\bcharts?\\b|\\brank(?:ed|ing)?\\b|\\btrending\\b)"
+    - "(?:\\btop\\s*\\d+\\b|#\\s*\\d+).{0,40}\\b(app\\s*store|google\\s*play)\\b"
+    - "\\b(app\\s*store|google\\s*play)\\s*(charts?|rankings?)\\b"
+
+  entertainment_gossip:
+    - "\\b(oscar(s)?|grammy(s)?|emmy(s)?|reality\\s+tv|celebrity|dating|break\\s*up|box\\s+office)\\b"
+    - "\\b(album|movie|season\\s+finale|episode)\\b"
+
+  meme_trivia:
+    - "\\b(will\\s+.*\\s+say\\s+.*\\b|will\\s+.*\\s+tweet\\b|tweet\\s+about|meme|viral)\\b"
+    - "\\b(trivia|easter\\s+egg|poll\\s+question)\\b"
+
+  politics_polls:
+    # High-volume but typically low equity relevance (keep Step 2 conservative).
+    - "\\bapproval\\s+rating\\b"
+    - "\\b(net\\s+approval|favorability)\\b"
+
+  political_leader_template:
+    # Typically low equity relevance and very template-driven (high recall/precision).
+    # Keep overrides can rescue if there is explicit macro/regulatory/corporate context.
+    - "\\bcontrol\\s+the\\s+(house|senate)\\b"
+    - "\\bafter\\s+the\\s+\\d{4}\\s+midterm\\s+elections?\\b"
+    - "\\bnext\\s+(prime\\s+minister|president|chancellor|governor)\\b"
+    - "\\bwill\\s+candidate\\s+\\w+\\s+be\\s+the\\s+next\\s+(prime\\s+minister|president)\\b"
+
+  micro_price_bets:
+    # Ultra-short-horizon "up/down in 5 minutes" style markets (almost always noise).
+    - "\\bup\\s+or\\s+down\\b"
+    - "\\b\\d{1,2}:\\d{2}\\s*(am|pm)\\b\\s*-\\s*\\d{1,2}:\\d{2}\\s*(am|pm)\\b"
+    - "\\b(in\\s+the\\s+next\\s+(\\d+\\s*)?(minutes?|hour|hours))\\b"
+    - "\\b(by\\s+(midnight|noon|end\\s+of\\s+day|eod))\\b"
+
+  price_target_template:
+    # Reject "above/below $X by date" style price targets that tend to be pure noise.
+    # Keep overrides can rescue these if there's explicit policy/macro context.
+    # Guard: do NOT treat as "pure price template" if the text includes explicit policy/regulatory/macro triggers.
+    - "^(?!.*\\b(etf|sec|cftc|stablecoin(s)?|mica|doj|ftc|antitrust|eu\\s+commission|european\\s+commission|lawsuit|sues|settlement|remedy|tariff(s)?|sanction(s)?|export\\s+controls?|entity\\s+list|bis|legislation|bill|act|congress|fomc|fed|cpi|inflation|unemployment|jobs|payrolls|gdp|recession|rates?|yields?)\\b).*\\b(btc|bitcoin|eth|ethereum|sol|solana|doge|spx|s\\&p\\s*500|nasdaq|dow|gold|oil|wti|brent)\\b.{0,40}\\b(above|below|>=|<=|over|under)\\b.{0,20}\\b\\$?\\d+(\\.\\d+)?\\b"
+    - "^(?!.*\\b(etf|sec|cftc|stablecoin(s)?|mica|doj|ftc|antitrust|eu\\s+commission|european\\s+commission|lawsuit|sues|settlement|remedy|tariff(s)?|sanction(s)?|export\\s+controls?|entity\\s+list|bis|legislation|bill|act|congress|fomc|fed|cpi|inflation|unemployment|jobs|payrolls|gdp|recession|rates?|yields?)\\b).*\\b(btc|bitcoin|eth|ethereum|sol|solana|doge|spx|s\\&p\\s*500|nasdaq|dow|gold|oil|wti|brent)\\b.{0,50}\\b(reach|hit|touch|at)\\b.{0,10}\\b\\$?\\d+(\\.\\d+)?\\b"
+    - "^(?!.*\\b(etf|sec|cftc|stablecoin(s)?|mica|doj|ftc|antitrust|eu\\s+commission|european\\s+commission|lawsuit|sues|settlement|remedy|tariff(s)?|sanction(s)?|export\\s+controls?|entity\\s+list|bis|legislation|bill|act|congress|fomc|fed|cpi|inflation|unemployment|jobs|payrolls|gdp|recession|rates?|yields?)\\b).*\\b(price\\s+of|trading\\s+above|close\\s+above|close\\s+below)\\b"
+
+  religion_prophecy:
+    - "\\bjesus\\s+christ\\b"
+    - "\\bsecond\\s+coming\\b"
+    - "\\brapture\\b"
+    - "\\bapocalypse\\b"
+    - "\\bantichrist\\b"
+    - "\\bprophe(cy|cies)\\b"
+
+keep_override_patterns_by_group:
+  policy_or_macro_context:
+    - "\\bcftc\\b"
+    - "\\betf\\b"
+    - "\\bstablecoin(s)?\\b"
+    - "\\bmica\\b"
+    - "\\bsecurities\\s+and\\s+exchange\\s+commission\\b"
+    - "\\bsec\\b\\s*(?:rule|rules|lawsuit|charges?|filing|approval|chair|commission)\\b"
+    - "\\bapproval\\b(?!\\s+rating)"
+    - "\\bapproved\\b"
+    - "\\b(ban|banned|sanction(s)?|tariff(s)?|export\\s+controls?|entity\\s+list|bis)\\b"
+    - "\\b(legislation|bill|act|law|congress)\\b"
+    - "\\b(fed|fomc|rates?|yield(s)?|cpi|inflation|unemployment|jobs|payrolls|gdp|recession)\\b"
+    - "\\b(doj|ftc|antitrust|eu\\s+commission|european\\s+commission|fine|lawsuit|settlement|remedy|compliance)\\b"
+    - "\\b(earnings|guidance|acquisition|merger|ipo|bankruptcy|sec\\s+filing)\\b"
+    - "\\bbis\\b"
+    - "\\bentity\\s+list\\b"
+    - "\\b(h100|a100)\\b"
+    - "\\basml\\b"
+    - "\\b(power\\s*grid|interconnection|utility|substation|transformer)\\b"
+
+equity_relevance_patterns_by_group:
+  macro:
+    - "\\b(fed|fomc|cpi|inflation|unemployment|gdp|recession|rates?|yields?)\\b"
+    - "\\b(tariff(s)?|sanction(s)?|export\\s+control(s)?|trade\\s+war)\\b"
+
+  regulation_legal:
+    - "\\b(antitrust|eu\\s+commission|european\\s+commission)\\b"
+    - "\\b(doj|department\\s+of\\s+justice)\\b"
+    - "\\b(ftc|federal\\s+trade\\s+commission)\\b"
+    - "\\bcftc\\b"
+    - "\\bsecurities\\s+and\\s+exchange\\s+commission\\b"
+    - "\\bsec\\b\\s*(?:charges?|sues|lawsuit|rule|rules|filing|settlement|complaint|chair|commission)\\b"
+    - "\\b(fine|lawsuit|settlement|injunction|ban|approved|remedy|compliance)\\b"
+    - "\\bapproval\\b(?!\\s+rating)"
+
+  corporate_actions:
+    - "\\b(earnings|guidance|acquisition|acquire|merger|ipo|spin\\-?off|bankruptcy|restructuring)\\b"
+    - "\\b(share\\s+buyback|dividend\\s+cut|default)\\b"
+
+weights:
+  template_group_weight:
+    sports: 1.0
+    winner_template: 0.7
+    appstore_charts: 0.8
+    entertainment_gossip: 0.6
+    meme_trivia: 0.6
+    politics_polls: 0.7
+    political_leader_template: 0.6
+    micro_price_bets: 0.9
+    price_target_template: 0.7
+    religion_prophecy: 0.9
+
+  relevance_group_weight:
+    macro: 0.6
+    regulation_legal: 0.8
+    corporate_actions: 0.7
+
+  quality:
+    # log1p(volume_usd)/volume_log_cap contributes up to 1.0
+    volume_log_cap: 14.0
+    # log1p(liquidity_usd)/liquidity_log_cap contributes up to 1.0
+    liquidity_log_cap: 12.0
+    volume_weight: 0.55
+    liquidity_weight: 0.35
+    end_date_weight: 0.10
+    # Markets with end_date before now get this multiplier
+    ended_multiplier: 0.15

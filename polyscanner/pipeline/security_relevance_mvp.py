@@ -2,7 +2,7 @@
 
 Goal:
 - Given a single BIT security, rank Polymarket markets by deterministic relevance using:
-  - pm_market -> signal_family matches (keyword matcher)
+  - pm_market -> signal_family matches (Step-3 matcher outputs)
   - signal_family -> macro_domain influence matrix (0..5)
   - security -> macro_domain exposure weights (sum=1.0)
 
@@ -19,19 +19,16 @@ from pathlib import Path
 from typing import Any
 
 from polyscanner.db.pg import (
-    delete_pm_market_signal_family_matches,
     fetch_macro_domains,
-    fetch_pm_markets_for_scoring,
+    fetch_pm_active_markets_for_scoring,
     fetch_security,
     fetch_security_by_ticker,
     fetch_security_macro_domain_exposures,
     fetch_signal_families,
     fetch_signal_family_domain_influence,
     fetch_top_family_matches_per_market,
-    upsert_pm_market_signal_family_matches,
 )
 from polyscanner.env import get_env, load_env
-from polyscanner.ingestion.pm_markets import ingest_markets_from_tag_ids
 from polyscanner.llm.security_signal_report import generate_security_signal_report_with_gemini
 from polyscanner.reporting.signal_family_markdown import render_signal_family_llm_report_markdown
 from polyscanner.relevance.signal_family_score import (
@@ -40,8 +37,7 @@ from polyscanner.relevance.signal_family_score import (
     InfluenceCell,
     score_markets_for_security,
 )
-from polyscanner.signal_family_rules import RULES_BY_SLUG
-from polyscanner.pipeline.signal_family_mvp import match_market_to_rule
+from polyscanner.filtering.hard_filters import load_hard_filter_rules
 
 
 def _dedupe_group(question: str) -> str:
@@ -71,9 +67,6 @@ def run_security_relevance_mvp(
     ticker: str | None = None,
     exchange_mic: str | None = None,
     db_url: str | None = None,
-    tag_ids: list[int] | None = None,
-    ingest_from_tags: bool = True,
-    tag_markets_cap_per_tag: int = 60,
     markets_limit: int = 3000,
     min_volume_usd: float | None = None,
     match_min_score: float = 0.0,
@@ -82,6 +75,9 @@ def run_security_relevance_mvp(
     top_k_per_family_for_llm: int = 5,
     out_dir: str = "reports",
     use_llm: bool = True,
+    hard_filter_version: str | None = None,
+    matcher_version: str | None = None,
+    match_method: str = "rule_classification",
 ) -> dict[str, Any]:
     """Run the deterministic relevance engine for a single security and write a report."""
     load_env()
@@ -89,6 +85,10 @@ def run_security_relevance_mvp(
     if not db_url:
         raise RuntimeError("DATABASE_URL is required")
     db_url = db_url.replace("postgresql+psycopg://", "postgresql://")
+    if hard_filter_version is None:
+        hard_filter_version = load_hard_filter_rules().filter_version
+    if matcher_version is None:
+        matcher_version = (get_env("MATCHER_VERSION") or "").strip() or "matcher_v1"
 
     if security_id is None:
         if not ticker:
@@ -101,17 +101,6 @@ def run_security_relevance_mvp(
         sec = fetch_security(db_url, security_id=int(security_id))
         if not sec:
             raise RuntimeError(f"Unknown security_id={security_id}")
-
-    # Optional: ingest more relevant markets using curated tags first.
-    ingestion_summary: dict[str, Any] | None = None
-    if tag_ids and ingest_from_tags:
-        base_url = (get_env("POLYMARKET_API_BASE_URL") or "https://gamma-api.polymarket.com").strip()
-        ingestion_summary = ingest_markets_from_tag_ids(
-            db_url=db_url,
-            base_url=base_url,
-            tag_ids=[int(x) for x in tag_ids],
-            markets_cap_per_tag=int(tag_markets_cap_per_tag),
-        )
 
     # Load authority layer
     signal_families = fetch_signal_families(db_url, active_only=True)
@@ -143,47 +132,31 @@ def run_security_relevance_mvp(
         for r in influence_rows
     ]
 
-    # Market universe (volume-ordered for scoring)
-    markets = fetch_pm_markets_for_scoring(db_url, limit=int(markets_limit), min_volume_usd=min_volume_usd)
+    # Market universe (volume-ordered for scoring), optionally hard-filtered.
+    markets = fetch_pm_active_markets_for_scoring(
+        db_url,
+        limit=int(markets_limit),
+        min_volume_usd=min_volume_usd,
+        hard_filter_version=hard_filter_version,
+    )
     if not markets:
         raise RuntimeError("No pm_market rows found; run ingestion first.")
-
-    # Recompute keyword matches with current rules (clear stale rows first).
-    deleted = delete_pm_market_signal_family_matches(
-        db_url,
-        signal_family_ids=[int(sf.id) for sf in signal_families],
-        match_method="keyword",
-    )
-
-    match_rows: list[dict[str, Any]] = []
-    for m in markets:
-        for sf in signal_families:
-            rule = RULES_BY_SLUG.get(sf.slug)
-            if rule is None:
-                continue
-            score, matched_terms = match_market_to_rule(question=m["question"], category=m.get("category"), rule=rule)
-            if score <= 0.0:
-                continue
-            match_rows.append(
-                {
-                    "pm_market_id": int(m["pm_market_id"]),
-                    "signal_family_id": int(sf.id),
-                    "match_method": "keyword",
-                    "match_score": float(score),
-                    "matched_terms": json.dumps(matched_terms, ensure_ascii=False),
-                    "match_rationale": "",
-                }
-            )
-    upserted = upsert_pm_market_signal_family_matches(db_url, match_rows)
 
     # Fetch top-k family matches per market for scoring (prevents stacking).
     market_ids = [int(m["pm_market_id"]) for m in markets]
     top_matches_rows = fetch_top_family_matches_per_market(
         db_url,
         market_ids=market_ids,
+        matcher_version=str(matcher_version),
+        method=str(match_method),
         top_k=int(top_k_families_per_market),
         min_match_score=float(match_min_score),
     )
+    if not top_matches_rows:
+        raise RuntimeError(
+            f"No Step-3 matches found for matcher_version={matcher_version!r} method={match_method!r}. "
+            "Run `./venv/bin/python scripts/run_family_matching.py` first."
+        )
 
     matches_by_market_id: dict[int, list[FamilyMatch]] = {}
     for r in top_matches_rows:
@@ -221,9 +194,9 @@ def run_security_relevance_mvp(
         return {
             "report_path": report_path,
             "security": sec,
-            "ingestion_summary": ingestion_summary,
-            "deleted_previous_matches": deleted,
-            "upserted_matches": upserted,
+            "hard_filter_version": hard_filter_version,
+            "matcher_version": matcher_version,
+            "match_method": match_method,
             "top_scored_markets": scored,
         }
 
@@ -325,10 +298,9 @@ def run_security_relevance_mvp(
     return {
         "report_path": report_path,
         "security": sec,
-        "ingestion_summary": ingestion_summary,
-        "deleted_previous_matches": deleted,
-        "upserted_matches": upserted,
+        "hard_filter_version": hard_filter_version,
+        "matcher_version": matcher_version,
+        "match_method": match_method,
         "top_scored_markets": scored,
         "llm_report": llm_report_no_raw,
     }
-

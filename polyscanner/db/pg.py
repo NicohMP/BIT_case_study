@@ -220,7 +220,7 @@ def fetch_pm_markets(db_url: str, *, limit: int = 500) -> list[dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                select pm_market_id, question, category, probability, volume_usd, raw
+                select pm_market_id, question, category, probability, volume_usd, raw_market
                 from pm_market
                 order by last_seen_at desc
                 limit %s;
@@ -250,7 +250,17 @@ def upsert_pm_market_signal_family_matches(
     db_url: str,
     rows: list[dict[str, Any]],
 ) -> int:
-    """Upsert rows into `pm_market_signal_family_match`."""
+    """Upsert rows into Step-3 `pm_market_signal_family_match` table.
+
+    Expected keys per row:
+    - market_id
+    - signal_family_id
+    - method
+    - matcher_version
+    - match_strength
+    - evidence (json-serializable; optional)
+    - rationale (optional)
+    """
     if not rows:
         return 0
     conn = connect(db_url)
@@ -259,33 +269,40 @@ def upsert_pm_market_signal_family_matches(
             cur.executemany(
                 """
                 insert into pm_market_signal_family_match (
-                    pm_market_id,
+                    market_id,
                     signal_family_id,
-                    match_method,
-                    match_score,
-                    matched_terms,
-                    match_rationale,
-                    matched_at,
+                    method,
+                    matcher_version,
+                    match_strength,
+                    evidence,
+                    rationale,
+                    created_at,
                     updated_at
                 ) values (
-                    %(pm_market_id)s,
+                    %(market_id)s,
                     %(signal_family_id)s,
-                    %(match_method)s,
-                    %(match_score)s,
-                    %(matched_terms)s::jsonb,
-                    %(match_rationale)s,
+                    %(method)s,
+                    %(matcher_version)s,
+                    %(match_strength)s,
+                    %(evidence)s::jsonb,
+                    %(rationale)s,
                     now(),
                     now()
                 )
-                on conflict (pm_market_id, signal_family_id) do update set
-                    match_method = excluded.match_method,
-                    match_score = excluded.match_score,
-                    matched_terms = excluded.matched_terms,
-                    match_rationale = excluded.match_rationale,
-                    matched_at = now(),
+                on conflict (market_id, signal_family_id, method, matcher_version) do update set
+                    match_strength = excluded.match_strength,
+                    evidence = excluded.evidence,
+                    rationale = excluded.rationale,
                     updated_at = now();
                 """,
-                rows,
+                [
+                    {
+                        **r,
+                        "evidence": json.dumps(r.get("evidence") or {}, ensure_ascii=False),
+                        "rationale": r.get("rationale"),
+                    }
+                    for r in rows
+                ],
             )
         conn.commit()
         return len(rows)
@@ -297,6 +314,9 @@ def fetch_top_markets_for_signal_family(
     db_url: str,
     *,
     signal_family_id: int,
+    matcher_version: str,
+    method: str = "rule_classification",
+    min_strength: float = 0.70,
     top_n: int = 10,
 ) -> list[dict[str, Any]]:
     """Return joined (match + pm_market) rows for report rendering."""
@@ -311,29 +331,25 @@ def fetch_top_markets_for_signal_family(
                   m.category,
                   m.probability,
                   m.volume_usd,
-                  x.match_score,
-                  x.matched_terms
+                  x.match_strength,
+                  x.evidence
                 from pm_market_signal_family_match x
-                join pm_market m on m.pm_market_id = x.pm_market_id
+                join pm_market m on m.pm_market_id = x.market_id
                 where x.signal_family_id = %s
-                order by x.match_score desc, m.volume_usd desc nulls last
+                  and x.matcher_version = %s
+                  and x.method = %s
+                  and x.match_strength >= %s
+                order by x.match_strength desc, m.volume_usd desc nulls last
                 limit %s;
                 """,
-                (int(signal_family_id), int(top_n)),
+                (int(signal_family_id), str(matcher_version), str(method), float(min_strength), int(top_n)),
             )
             rows = cur.fetchall()
         out: list[dict[str, Any]] = []
         for r in rows:
-            matched_terms = r[6]
-            if isinstance(matched_terms, list):
-                mt = matched_terms
-            elif isinstance(matched_terms, str):
-                try:
-                    mt = json.loads(matched_terms)
-                except Exception:
-                    mt = []
-            else:
-                mt = []
+            evidence = r[6] if isinstance(r[6], dict) else {}
+            matched_terms = evidence.get("matched_terms") if isinstance(evidence, dict) else None
+            mt = matched_terms if isinstance(matched_terms, list) else []
             out.append(
                 {
                     "pm_market_id": int(r[0]),
@@ -353,37 +369,29 @@ def fetch_top_markets_for_signal_family(
 def delete_pm_market_signal_family_matches(
     db_url: str,
     *,
-    signal_family_ids: list[int],
-    match_method: str | None = None,
+    matcher_version: str,
+    methods: list[str] | None = None,
 ) -> int:
-    """Delete matches for the given signal families.
-
-    Why:
-    - The MVP pipeline recomputes matches each run.
-    - Without deletion, stale rows from older keyword rules can remain and pollute
-      the candidate set (e.g., false positives that no longer match after rules change).
-    """
-    if not signal_family_ids:
-        return 0
+    """Delete Step-3 matches for one matcher_version (for recompute)."""
     conn = connect(db_url)
     try:
         with conn.cursor() as cur:
-            if match_method is None:
+            if methods:
                 cur.execute(
                     """
                     delete from pm_market_signal_family_match
-                    where signal_family_id = any(%s);
+                    where matcher_version = %s
+                      and method = any(%s);
                     """,
-                    (signal_family_ids,),
+                    (str(matcher_version), [str(m) for m in methods]),
                 )
             else:
                 cur.execute(
                     """
                     delete from pm_market_signal_family_match
-                    where signal_family_id = any(%s)
-                      and match_method = %s;
+                    where matcher_version = %s;
                     """,
-                    (signal_family_ids, str(match_method)),
+                    (str(matcher_version),),
                 )
             deleted = int(cur.rowcount or 0)
         conn.commit()
@@ -517,10 +525,12 @@ def fetch_top_family_matches_per_market(
     db_url: str,
     *,
     market_ids: list[int] | None = None,
+    matcher_version: str,
+    method: str = "rule_classification",
     top_k: int = 2,
-    min_match_score: float = 0.0,
+    min_match_score: float = 0.70,
 ) -> list[dict[str, Any]]:
-    """Fetch top-k signal-family matches per market (ranked by match_score)."""
+    """Fetch top-k signal-family matches per market (ranked by match_strength)."""
     top_k = max(1, int(top_k))
     conn = connect(db_url)
     try:
@@ -530,66 +540,73 @@ def fetch_top_family_matches_per_market(
                     """
                     with ranked as (
                       select
-                        x.pm_market_id,
+                        x.market_id,
                         x.signal_family_id,
-                        x.match_score,
-                        x.matched_terms,
+                        x.match_strength,
+                        x.evidence,
                         row_number() over (
-                          partition by x.pm_market_id
-                          order by x.match_score desc
+                          partition by x.market_id
+                          order by x.match_strength desc
                         ) as rn
                       from pm_market_signal_family_match x
-                      where x.pm_market_id = any(%s)
-                        and x.match_score >= %s
+                      where x.market_id = any(%s)
+                        and x.matcher_version = %s
+                        and x.method = %s
+                        and x.match_strength >= %s
                     )
                     select
-                      r.pm_market_id,
+                      r.market_id,
                       r.signal_family_id,
                       sf.slug,
                       sf.title,
-                      r.match_score,
-                      r.matched_terms
+                      r.match_strength,
+                      r.evidence
                     from ranked r
                     join signal_family sf on sf.id = r.signal_family_id
                     where r.rn <= %s
-                    order by r.pm_market_id, r.match_score desc;
+                    order by r.market_id, r.match_strength desc;
                     """,
-                    (market_ids, float(min_match_score), int(top_k)),
+                    (market_ids, str(matcher_version), str(method), float(min_match_score), int(top_k)),
                 )
             else:
                 cur.execute(
                     """
                     with ranked as (
                       select
-                        x.pm_market_id,
+                        x.market_id,
                         x.signal_family_id,
-                        x.match_score,
-                        x.matched_terms,
+                        x.match_strength,
+                        x.evidence,
                         row_number() over (
-                          partition by x.pm_market_id
-                          order by x.match_score desc
+                          partition by x.market_id
+                          order by x.match_strength desc
                         ) as rn
                       from pm_market_signal_family_match x
-                      where x.match_score >= %s
+                      where x.matcher_version = %s
+                        and x.method = %s
+                        and x.match_strength >= %s
                     )
                     select
-                      r.pm_market_id,
+                      r.market_id,
                       r.signal_family_id,
                       sf.slug,
                       sf.title,
-                      r.match_score,
-                      r.matched_terms
+                      r.match_strength,
+                      r.evidence
                     from ranked r
                     join signal_family sf on sf.id = r.signal_family_id
                     where r.rn <= %s
-                    order by r.pm_market_id, r.match_score desc;
+                    order by r.market_id, r.match_strength desc;
                     """,
-                    (float(min_match_score), int(top_k)),
+                    (str(matcher_version), str(method), float(min_match_score), int(top_k)),
                 )
             rows = cur.fetchall()
 
         out: list[dict[str, Any]] = []
         for r in rows:
+            evidence = r[5] if isinstance(r[5], dict) else {}
+            matched_terms = evidence.get("matched_terms") if isinstance(evidence, dict) else None
+            mt = matched_terms if isinstance(matched_terms, list) else []
             out.append(
                 {
                     "pm_market_id": int(r[0]),
@@ -597,7 +614,7 @@ def fetch_top_family_matches_per_market(
                     "signal_family_slug": str(r[2]),
                     "signal_family_title": str(r[3]),
                     "match_score": float(r[4]),
-                    "matched_terms": r[5] if isinstance(r[5], list) else [],
+                    "matched_terms": mt,
                 }
             )
         return out
@@ -647,6 +664,177 @@ def fetch_pm_markets_for_scoring(
                     "category": str(r[2]) if r[2] is not None else None,
                     "probability": float(r[3]) if r[3] is not None else None,
                     "volume_usd": float(r[4]) if r[4] is not None else None,
+                }
+            )
+        return out
+    finally:
+        conn.close()
+
+
+def fetch_pm_active_markets_for_scoring(
+    db_url: str,
+    *,
+    limit: int = 3000,
+    min_volume_usd: float | None = None,
+    hard_filter_version: str | None = None,
+) -> list[dict[str, Any]]:
+    """Fetch active markets ordered by volume, with event+tag context.
+
+    Intended for Step-3 matching + downstream scoring. If `hard_filter_version`
+    is provided, only returns markets kept by the hard filters.
+    """
+    conn = connect(db_url)
+    try:
+        with conn.cursor() as cur:
+            params: list[Any] = []
+            where = ["e.active = true and e.closed = false"]
+            join_filter = ""
+            if hard_filter_version:
+                join_filter = """
+                    join pm_market_filter_decision d
+                      on d.market_id = m.pm_market_id
+                     and d.filter_version = %s
+                     and d.is_rejected = false
+                """
+                params.append(str(hard_filter_version))
+
+            if min_volume_usd is not None:
+                where.append("m.volume_usd is not null and m.volume_usd >= %s")
+                params.append(float(min_volume_usd))
+
+            params.append(int(limit))
+
+            cur.execute(
+                f"""
+                select
+                  m.pm_market_id,
+                  m.question,
+                  m.category,
+                  m.probability,
+                  m.volume_usd,
+                  m.slug as market_slug,
+                  m.tags as market_tags,
+                  e.event_id,
+                  e.title as event_title,
+                  e.slug as event_slug,
+                  e.tags as event_tags
+                from pm_market m
+                join pm_event e on e.event_id = m.event_id
+                {join_filter}
+                where {" and ".join(where)}
+                order by m.volume_usd desc nulls last, m.last_seen_at desc
+                limit %s;
+                """,
+                tuple(params),
+            )
+            rows = cur.fetchall()
+
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            out.append(
+                {
+                    "pm_market_id": int(r[0]),
+                    "question": str(r[1] or ""),
+                    "category": (str(r[2]) if r[2] is not None else None),
+                    "probability": (float(r[3]) if r[3] is not None else None),
+                    "volume_usd": (float(r[4]) if r[4] is not None else None),
+                    "market_slug": (str(r[5]) if r[5] is not None else None),
+                    "market_tags": (r[6] if isinstance(r[6], list) else []),
+                    "event_id": int(r[7]) if r[7] is not None else None,
+                    "event_title": (str(r[8]) if r[8] is not None else None),
+                    "event_slug": (str(r[9]) if r[9] is not None else None),
+                    "event_tags": (r[10] if isinstance(r[10], list) else []),
+                }
+            )
+        return out
+    finally:
+        conn.close()
+
+
+def fetch_pm_active_markets_for_matching(
+    db_url: str,
+    *,
+    limit: int = 50_000,
+    hard_filter_version: str | None = None,
+) -> list[dict[str, Any]]:
+    """Fetch active, non-closed markets joined with event context for Step-3 matching.
+
+    If `hard_filter_version` is provided, only returns markets that are *kept*
+    (`pm_market_filter_decision.is_rejected = false`) for that version.
+    """
+    conn = connect(db_url)
+    try:
+        with conn.cursor() as cur:
+            if hard_filter_version:
+                cur.execute(
+                    """
+                    select
+                      m.pm_market_id,
+                      m.event_id,
+                      m.question,
+                      m.category,
+                      m.slug as market_slug,
+                      m.tags as market_tags,
+                      m.probability,
+                      m.volume_usd,
+                      m.liquidity_usd,
+                      e.title as event_title,
+                      e.slug as event_slug,
+                      e.tags as event_tags
+                    from pm_market m
+                    join pm_event e on e.event_id = m.event_id
+                    join pm_market_filter_decision d
+                      on d.market_id = m.pm_market_id
+                     and d.filter_version = %s
+                     and d.is_rejected = false
+                    where e.active = true and e.closed = false
+                    order by m.volume_usd desc nulls last, m.pm_market_id
+                    limit %s;
+                    """,
+                    (str(hard_filter_version), int(limit)),
+                )
+            else:
+                cur.execute(
+                    """
+                    select
+                      m.pm_market_id,
+                      m.event_id,
+                      m.question,
+                      m.category,
+                      m.slug as market_slug,
+                      m.tags as market_tags,
+                      m.probability,
+                      m.volume_usd,
+                      m.liquidity_usd,
+                      e.title as event_title,
+                      e.slug as event_slug,
+                      e.tags as event_tags
+                    from pm_market m
+                    join pm_event e on e.event_id = m.event_id
+                    where e.active = true and e.closed = false
+                    order by m.volume_usd desc nulls last, m.pm_market_id
+                    limit %s;
+                    """,
+                    (int(limit),),
+                )
+            rows = cur.fetchall()
+
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            out.append(
+                {
+                    "pm_market_id": int(r[0]),
+                    "event_id": int(r[1]) if r[1] is not None else None,
+                    "question": str(r[2] or ""),
+                    "category": (str(r[3]) if r[3] is not None else None),
+                    "market_slug": (str(r[4]) if r[4] is not None else None),
+                    "market_tags": (r[5] if isinstance(r[5], list) else []),
+                    "probability": (float(r[6]) if r[6] is not None else None),
+                    "volume_usd": (float(r[7]) if r[7] is not None else None),
+                    "liquidity_usd": (float(r[8]) if r[8] is not None else None),
+                    "event_title": (str(r[9]) if r[9] is not None else None),
+                    "event_slug": (str(r[10]) if r[10] is not None else None),
+                    "event_tags": (r[11] if isinstance(r[11], list) else []),
                 }
             )
         return out
