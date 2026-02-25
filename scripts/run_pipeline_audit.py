@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
 import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -34,18 +33,9 @@ if str(ROOT) not in sys.path:
 from polyscanner.db.pg import connect  # noqa: E402
 from polyscanner.env import get_env, load_env  # noqa: E402
 from polyscanner.filtering.hard_filters import load_hard_filter_rules  # noqa: E402
+from polyscanner.relevance.rate_like import is_rate_like  # noqa: E402
 
 log = logging.getLogger(__name__)
-
-
-RATE_MARKET_RE = re.compile(
-    r"\b("
-    r"fomc|federal\s+reserve|fed\b|powell|interest\s+rate|rate\s+cut|rate\s+hike|basis\s+points|bps\b|"
-    r"treasury\s+yield|10[-\s]?year\s+treasury|10[-\s]?year\s+yield|2[-\s]?year\s+yield|long\s+rates|"
-    r"cpi|inflation|jobs\s+report|unemployment|nonfarm|nfp|fomc\s+meeting"
-    r")\b",
-    flags=re.IGNORECASE,
-)
 
 
 def _utcnow() -> datetime:
@@ -81,10 +71,6 @@ def _quantiles(values: list[float], ps: list[float]) -> dict[str, float]:
     return out
 
 
-def _is_rate_market(question: str) -> bool:
-    return bool(RATE_MARKET_RE.search(question or ""))
-
-
 @dataclass(frozen=True)
 class AuditPaths:
     markdown_path: str
@@ -96,6 +82,7 @@ def run_pipeline_audit(
     filter_version: str | None,
     matcher_version: str,
     scoring_version: str | None,
+    selection_version: str | None = None,
     out_dir: str = "reports",
     top_n: int = 20,
 ) -> AuditPaths:
@@ -115,6 +102,8 @@ def run_pipeline_audit(
     lines.append(f"- filter_version: `{filter_version}`")
     lines.append(f"- matcher_version: `{matcher_version}`")
     lines.append(f"- scoring_version: `{scoring_version or '(none provided)'}`")
+    if selection_version is not None:
+        lines.append(f"- selection_version: `{selection_version}`")
     lines.append("")
 
     conn = connect(db_url)
@@ -266,7 +255,7 @@ def run_pipeline_audit(
         fam_rate = Counter()
         for slug, q in rows:
             fam_total[slug] += 1
-            if _is_rate_market(q):
+            if is_rate_like(q):
                 fam_rate[slug] += 1
         if fam_total:
             lines.append("### Rate/FOMC leakage into strict rule matches")
@@ -404,7 +393,7 @@ def run_pipeline_audit(
                     continue
                 event_counts = Counter(int(r[2]) for r in rows if r[2] is not None)
                 n_unique_events = len(event_counts)
-                n_rate_like = sum(1 for r in rows if _is_rate_market(str(r[3] or "")))
+                n_rate_like = sum(1 for r in rows if is_rate_like(str(r[3] or "")))
 
                 lines.append(f"### {cname} ({ticker}) — top {top_n}")
                 lines.append(f"- unique events: {n_unique_events}/{len(rows)}")
@@ -418,6 +407,61 @@ def run_pipeline_audit(
                     lines.append(f"- ({float(final_score):.3f}) market_id={int(mid)} event_id={eid} — {str(q or '').strip()[:180]}")
                 lines.append("")
 
+            # If a selection table exists, report selection-quality diagnostics too.
+            if selection_version and _table_exists(conn, table_name="pm_market_security_relevance_selection"):
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        select count(*)
+                        from pm_market_security_relevance_selection
+                        where scoring_version = %s and selection_version = %s;
+                        """,
+                        (str(scoring_version), str(selection_version)),
+                    )
+                    n_sel = int(cur.fetchone()[0])
+                lines.append("## Step 4b — Stored diversified selection")
+                lines.append(
+                    f"- pm_market_security_relevance_selection rows for scoring_version={scoring_version!r} "
+                    f"selection_version={selection_version!r}: {n_sel}"
+                )
+                lines.append("")
+
+                for sid, cname, ticker in securities:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            """
+                            select s.rank, s.final_score, s.market_id, s.event_id, m.question
+                            from pm_market_security_relevance_selection s
+                            join pm_market m on m.pm_market_id = s.market_id
+                            where s.security_id = %s
+                              and s.scoring_version = %s
+                              and s.selection_version = %s
+                            order by s.rank asc
+                            limit %s;
+                            """,
+                            (int(sid), str(scoring_version), str(selection_version), int(top_n)),
+                        )
+                        srows = cur.fetchall()
+                    if not srows:
+                        continue
+                    event_counts = Counter(int(r[3]) for r in srows if r[3] is not None)
+                    n_unique_events = len(event_counts)
+                    n_rate_like = sum(1 for r in srows if is_rate_like(str(r[4] or "")))
+
+                    lines.append(f"### {cname} ({ticker}) — selected top {top_n}")
+                    lines.append(f"- unique events: {n_unique_events}/{len(srows)}")
+                    lines.append(f"- rate-like questions: {n_rate_like}/{len(srows)} ({_pct(n_rate_like, len(srows))})")
+                    if event_counts:
+                        top_event_id, top_event_n = event_counts.most_common(1)[0]
+                        lines.append(f"- most-common event_id: {top_event_id} ({top_event_n}/{len(srows)})")
+                    lines.append("")
+
+                    for rank, final_score, mid, eid, q in srows[:10]:
+                        lines.append(
+                            f"- ({int(rank):02d}) ({float(final_score):.3f}) market_id={int(mid)} event_id={eid} — {str(q or '').strip()[:180]}"
+                        )
+                    lines.append("")
+
     finally:
         conn.close()
 
@@ -430,6 +474,7 @@ def main() -> None:
     p.add_argument("--filter-version", type=str, default=None)
     p.add_argument("--matcher-version", type=str, required=True)
     p.add_argument("--scoring-version", type=str, default=None)
+    p.add_argument("--selection-version", type=str, default=None)
     p.add_argument("--out-dir", type=str, default="reports")
     p.add_argument("--top-n", type=int, default=20)
     args = p.parse_args()
@@ -446,6 +491,7 @@ def main() -> None:
         filter_version=args.filter_version,
         matcher_version=str(args.matcher_version),
         scoring_version=args.scoring_version,
+        selection_version=args.selection_version,
         out_dir=str(args.out_dir),
         top_n=int(args.top_n),
     )

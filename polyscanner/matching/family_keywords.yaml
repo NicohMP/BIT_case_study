@@ -94,6 +94,32 @@ families:
       - euv
       - duv
       - semiconductor equipment
+    embedding_gates:
+      - export controls
+      - export control
+      - export restrictions
+      - export license
+      - export licensing
+      - chip export restrictions
+      - chip ban
+      - bis
+      - entity list
+      - bureau of industry and security
+      - commerce department
+    lexical_gates:
+      # Prevent lexical discovery from being hijacked by compute-price markets that mention
+      # "H100"/"NVIDIA" but have nothing to do with export controls.
+      - export controls
+      - export control
+      - export restrictions
+      - export license
+      - export licensing
+      - chip export restrictions
+      - chip ban
+      - bis
+      - entity list
+      - bureau of industry and security
+      - commerce department
     synonyms: []
 
   crypto_regime_changes:
@@ -191,7 +217,6 @@ families:
       - digital services act
       - dsa
       - antitrust
-      - competition
       - open app markets act
       - epic games
       - privacy sandbox
@@ -200,15 +225,28 @@ families:
       - eu commission
       - doj
       - ftc
-      - fine
-      - remedy
-      - injunction
-      - lawsuit
-      - settlement
-      - apple
-      - google
-      - meta
-      - amazon
+      - monopoly
+      - break up
+      - consent decree
+      - antitrust lawsuit
+    embedding_gates:
+      - app store
+      - google play
+      - sideloading
+      - in-app purchase
+      - open app markets act
+      - epic games
+      - digital markets act
+      - dma
+      - digital services act
+      - dsa
+      - adtech
+      - google adtech
+      - privacy sandbox
+      - antitrust
+      - doj
+      - ftc
+      - european commission
     synonyms: []
 
   it_spending_cycle_enterprise_cloud_ai:
@@ -228,6 +266,14 @@ families:
       - gcp
       - saas
       - seat growth
+      # AI compute / infra cost proxies
+      - gpu rental
+      - gpu rental prices
+      - gpu pricing
+      - compute pricing
+      - h100 index
+      - h100
+      - a100
     synonyms: []
 
   healthcare_policy_reimbursement:

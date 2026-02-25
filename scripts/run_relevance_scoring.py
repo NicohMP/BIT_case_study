@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import re
 import sys
 from pathlib import Path
 
@@ -22,22 +21,11 @@ if str(ROOT) not in sys.path:
 
 from polyscanner.db.pg import connect  # noqa: E402
 from polyscanner.env import get_env, load_env  # noqa: E402
-from polyscanner.relevance.security_market_relevance import compute_market_security_relevance  # noqa: E402
-
-
-_RATE_MARKET_RE = re.compile(
-    r"\b("
-    r"fomc|federal\s+reserve|fed\b|powell|interest\s+rate|rate\s+cut|rate\s+hike|basis\s+points|bps\b|"
-    r"treasury\s+yield|10[-\s]?year\s+treasury|10[-\s]?year\s+yield|2[-\s]?year\s+yield|long\s+rates|"
-    r"cpi|inflation|jobs\s+report|unemployment|nonfarm|nfp|fomc\s+meeting"
-    r")\b",
-    flags=re.IGNORECASE,
+from polyscanner.relevance.rate_like import is_rate_like  # noqa: E402
+from polyscanner.relevance.security_market_relevance import (  # noqa: E402
+    compute_market_security_relevance,
+    persist_relevance_selection,
 )
-
-
-def _is_rate_like(question: str) -> bool:
-    return bool(_RATE_MARKET_RE.search(question or ""))
-
 
 def _diversified_top_rows(
     rows: list[tuple[float, float, float, int, str, Any, Any]],
@@ -59,7 +47,7 @@ def _diversified_top_rows(
     for r in rows:
         _final, _base, _q, _mid, qtext, _vol, event_id = r
         eid = int(event_id) if event_id is not None else -1
-        is_rate = _is_rate_like(str(qtext or ""))
+        is_rate = is_rate_like(str(qtext or ""))
         if eid != -1 and event_counts.get(eid, 0) >= int(max_per_event):
             continue
         if is_rate and rate_n >= int(max_rate_like):
@@ -82,10 +70,21 @@ def main() -> None:
     p.add_argument("--limit-markets", type=int, default=None, help="Optional cap on kept markets considered.")
     p.add_argument("--limit-securities", type=int, default=None, help="Optional cap on securities considered.")
     p.add_argument("--min-base-score", type=float, default=0.0, help="Skip rows with base_score <= this value.")
+    p.add_argument(
+        "--trusted-only",
+        type=str,
+        default="true",
+        help="true/false: score using only rule_classification matches (recommended for precision).",
+    )
     p.add_argument("--diversify", type=str, default="false", help="true/false to diversify printed top lists (does not change DB).")
     p.add_argument("--diversify-k", type=int, default=10, help="K for diversified printed top list.")
     p.add_argument("--max-per-event", type=int, default=1, help="Max markets per event_id in diversified display.")
     p.add_argument("--max-rate-like", type=int, default=3, help="Max rate/FOMC-like markets in diversified display.")
+    p.add_argument("--persist-selection", type=str, default="true", help="true/false to store diversified top-K selections in DB.")
+    p.add_argument("--selection-version", type=str, default="selected_v1", help="Version label for persisted selection (Step 4b).")
+    p.add_argument("--selection-k", type=int, default=20, help="K for stored diversified selection per security.")
+    p.add_argument("--selection-max-per-event", type=int, default=1, help="Max markets per event_id in stored selection.")
+    p.add_argument("--selection-max-rate-like", type=int, default=3, help="Max rate-like markets in stored selection.")
     args = p.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -103,7 +102,31 @@ def main() -> None:
         limit_markets=args.limit_markets,
         limit_securities=args.limit_securities,
         min_base_score=float(args.min_base_score),
+        trusted_only=(str(args.trusted_only).strip().lower() in {"1", "true", "t", "yes", "y", "on"}),
     )
+
+    persist_selection = (str(args.persist_selection).strip().lower() in {"1", "true", "t", "yes", "y", "on"})
+    if persist_selection:
+        sel = persist_relevance_selection(
+            db_url=db_url,
+            scoring_version=str(res.scoring_version),
+            selection_version=str(args.selection_version),
+            top_k=int(args.selection_k),
+            max_per_event=int(args.selection_max_per_event),
+            max_rate_like=int(args.selection_max_rate_like),
+            limit_securities=res.securities_scored,
+        )
+        persist_selection = bool(sel.get("table_exists"))
+        print(
+            "relevance_selection:",
+            {
+                "scoring_version": str(res.scoring_version),
+                "selection_version": str(args.selection_version),
+                "securities_selected": int(sel["securities_selected"]),
+                "rows_upserted": int(sel["rows_upserted"]),
+            },
+        )
+
     print(
         "relevance_scoring:",
         {
@@ -133,35 +156,63 @@ def main() -> None:
 
         for s in securities[: res.securities_scored]:
             with conn.cursor() as cur:
-                # Fetch more than we print so we can diversify without missing good candidates.
-                fetch_limit = 200 if diversify else 10
-                cur.execute(
-                    """
-                    select
-                      r.final_score,
-                      r.base_score,
-                      r.quality_multiplier,
-                      m.pm_market_id,
-                      m.question,
-                      m.volume_usd,
-                      m.event_id
-                    from pm_market_security_relevance r
-                    join pm_market m on m.pm_market_id = r.market_id
-                    where r.security_id = %s
-                      and r.scoring_version = %s
-                    order by r.final_score desc
-                    limit %s;
-                    """,
-                    (int(s["id"]), str(res.scoring_version), int(fetch_limit)),
-                )
-                rows = cur.fetchall()
+                rows: list[Any] = []
+                if persist_selection:
+                    cur.execute(
+                        """
+                        select
+                          s.final_score,
+                          r.base_score,
+                          r.quality_multiplier,
+                          m.pm_market_id,
+                          m.question,
+                          m.volume_usd,
+                          m.event_id
+                        from pm_market_security_relevance_selection s
+                        join pm_market_security_relevance r
+                          on r.security_id = s.security_id
+                         and r.market_id = s.market_id
+                         and r.scoring_version = s.scoring_version
+                        join pm_market m on m.pm_market_id = s.market_id
+                        where s.security_id = %s
+                          and s.scoring_version = %s
+                          and s.selection_version = %s
+                        order by s.rank asc
+                        limit %s;
+                        """,
+                        (int(s["id"]), str(res.scoring_version), str(args.selection_version), int(args.diversify_k)),
+                    )
+                    rows = cur.fetchall()
+                else:
+                    # Fetch more than we print so we can diversify without missing good candidates.
+                    fetch_limit = 200 if diversify else 10
+                    cur.execute(
+                        """
+                        select
+                          r.final_score,
+                          r.base_score,
+                          r.quality_multiplier,
+                          m.pm_market_id,
+                          m.question,
+                          m.volume_usd,
+                          m.event_id
+                        from pm_market_security_relevance r
+                        join pm_market m on m.pm_market_id = r.market_id
+                        where r.security_id = %s
+                          and r.scoring_version = %s
+                        order by r.final_score desc
+                        limit %s;
+                        """,
+                        (int(s["id"]), str(res.scoring_version), int(fetch_limit)),
+                    )
+                    rows = cur.fetchall()
 
             print(f"\nTop markets for {s['company_name']} ({s['ticker']}):")
             if not rows:
                 print("- (none)")
                 continue
             shown = rows
-            if diversify:
+            if diversify and not persist_selection:
                 shown = _diversified_top_rows(
                     rows,
                     k=int(args.diversify_k),
