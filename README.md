@@ -24,6 +24,15 @@ Optional:
 - `EMBEDDING_MODEL` (default: `sentence-transformers/all-MiniLM-L6-v2`)
 - `EMBEDDING_DEVICE` (e.g. `mps` or `cpu`)
 
+## Seed security→domain exposures (authority)
+
+Step 4 requires `bit_security_macro_domain_exposure` weights (must sum to 1.0 per security).
+
+This repo keeps the authority weights in `security_domain_exposure_scores.md` and provides a
+seed script that normalizes the 0–3 scores into weights and upserts them into Postgres:
+
+`./venv/bin/python scripts/seed_security_domain_exposure.py`
+
 ## Ingest Polymarket events + markets into Postgres (coverage-first)
 
 After applying migrations (e.g. `supabase db reset`), ingest all **active, non-closed** events (and their embedded markets)
@@ -50,6 +59,9 @@ Two-stage matcher:
 Run:
 `./venv/bin/python scripts/run_family_matching.py --filter-version hard_filters_v8 --matcher-version matcher_v1 --limit 5000 --use-embeddings true`
 
+Tip: matching coverage scales with `--limit`. If you want Step 4 rankings to diversify beyond
+rate/FOMC markets, run Step 3 over *all* kept markets (10k+), not just the top 5k by volume.
+
 Config inputs:
 - `polyscanner/matching/family_keywords.yaml` (discovery keywords/synonyms per family)
 - `polyscanner/signal_family_rules.py` (strict deterministic family rules)
@@ -61,6 +73,33 @@ Outputs:
   - `family_coverage_*.csv`
   - `false_positive_audit_*.md`
   - `missing_family_diagnosis_*.md`
+
+## Step 4: Relevance scoring (markets → families → domains → securities)
+
+Compute a deterministic relevance score for each (security, market) pair:
+- market→family `match_strength` (Step 3)
+- family→domain influence matrix (authority)
+- security→domain exposure weights (authority)
+- optional market quality multiplier (`pm_market_filter_decision.quality_score`)
+
+Run:
+`./venv/bin/python scripts/run_relevance_scoring.py --filter-version hard_filters_v8 --matcher-version matcher_v1 --scoring-version relevance_v1`
+
+Optional (display-only): de-duplicate by event_id and cap rate/FOMC-like markets in printed top lists:
+
+`./venv/bin/python scripts/run_relevance_scoring.py --filter-version hard_filters_v8 --matcher-version matcher_v1 --scoring-version relevance_v1 --diversify true`
+
+Outputs:
+- DB upserts into `pm_market_security_relevance` (keyed by `(security_id, market_id, scoring_version)`)
+
+## Pipeline audit (debug bottlenecks)
+
+To debug why rate/FOMC markets dominate and whether the bottleneck is filters, matching thresholds,
+or relevance concentration, generate a single markdown report:
+
+`./venv/bin/python scripts/run_pipeline_audit.py --filter-version hard_filters_v8 --matcher-version matcher_v1 --scoring-version relevance_v1`
+
+This writes `reports/pipeline_audit_*.md`.
 
 ## One-command refresh (Steps 1→3)
 
@@ -81,6 +120,7 @@ Primary tables produced by this pipeline:
 - `pm_market_filter_decision`: per-market keep/reject decision, keyed by `filter_version`.
 - `pm_market_signal_family_match`: per-market family matches (methods + evidence), keyed by `matcher_version`.
 - `pm_text_embedding_cache`: cached sentence-transformer embeddings (jsonb list of floats).
+- `pm_market_security_relevance`: per-(security, market) relevance scores, keyed by `scoring_version`.
 
 Downstream services typically:
 - join `pm_market` ↔ `pm_event` (context)

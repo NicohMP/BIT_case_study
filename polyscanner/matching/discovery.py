@@ -213,3 +213,134 @@ def embedding_discover_topk(
             out[mid] = cands
 
     return out
+
+
+def embedding_discover_topk_with_stats(
+    *,
+    market_texts_by_id: dict[int, str],
+    families: list[FamilyDescriptor],
+    provider: EmbeddingProvider,
+    db_url: str,
+    top_k: int = 5,
+    min_similarity: float = 0.40,
+    batch_size: int = 256,
+) -> tuple[dict[int, list[DiscoveryCandidate]], dict[int, dict[str, Any]]]:
+    """Embedding discovery + per-market threshold diagnostics.
+
+    Returns:
+      - candidates_by_market: filtered candidates (same semantics as embedding_discover_topk)
+      - best_by_market: unfiltered top-1 stats per market:
+          {
+            "best_signal_family_id": int,
+            "best_slug": str,
+            "best_similarity": float,
+            "top_k": int,
+            "model_name": str,
+          }
+
+    Why this exists:
+    - `pm_market_signal_family_match` only stores candidates above thresholds.
+    - Without per-market "best similarity", it's hard to tell whether embeddings are broken
+      vs thresholds are simply too strict.
+    """
+    if not market_texts_by_id:
+        return {}, {}
+    if not families:
+        return {}, {}
+
+    cache = DBEmbeddingCache(db_url=db_url)
+    family_texts = [f.query_text for f in families]
+    fam_cached = cache.get_many(model_name=provider.model_name, texts=family_texts)
+    fam_vecs: list[list[float]] = []
+    fam_missing_texts: list[str] = []
+    fam_missing_idx: list[int] = []
+    for i, t in enumerate(family_texts):
+        k = cache.key(model_name=provider.model_name, text=t)
+        if k in fam_cached:
+            fam_vecs.append(fam_cached[k])
+        else:
+            fam_vecs.append([])
+            fam_missing_texts.append(t)
+            fam_missing_idx.append(i)
+
+    if fam_missing_texts:
+        new_vecs = provider.embed_texts(fam_missing_texts)
+        cache.put_many(model_name=provider.model_name, texts=fam_missing_texts, embeddings=new_vecs)
+        for idx, vec in zip(fam_missing_idx, new_vecs):
+            fam_vecs[idx] = vec
+
+    fam_matrix = np.array(fam_vecs, dtype=np.float32)
+    norms = np.linalg.norm(fam_matrix, axis=1, keepdims=True)
+    fam_matrix = np.divide(fam_matrix, np.maximum(1e-9, norms))
+
+    out: dict[int, list[DiscoveryCandidate]] = {mid: [] for mid in market_texts_by_id.keys()}
+    best: dict[int, dict[str, Any]] = {}
+
+    market_ids = list(market_texts_by_id.keys())
+    market_texts = [market_texts_by_id[mid] for mid in market_ids]
+
+    for start in range(0, len(market_texts), int(batch_size)):
+        chunk_texts = market_texts[start : start + int(batch_size)]
+        chunk_ids = market_ids[start : start + int(batch_size)]
+
+        cached = cache.get_many(model_name=provider.model_name, texts=chunk_texts)
+        missing_texts: list[str] = []
+        missing_pos: list[int] = []
+        chunk_vecs: list[list[float] | None] = [None] * len(chunk_texts)
+        for j, t in enumerate(chunk_texts):
+            key = cache.key(model_name=provider.model_name, text=t)
+            if key in cached:
+                chunk_vecs[j] = cached[key]
+            else:
+                missing_texts.append(t)
+                missing_pos.append(j)
+
+        if missing_texts:
+            new_vecs = provider.embed_texts(missing_texts)
+            cache.put_many(model_name=provider.model_name, texts=missing_texts, embeddings=new_vecs)
+            for pos, vec in zip(missing_pos, new_vecs):
+                chunk_vecs[pos] = vec
+
+        mat = np.array([v for v in chunk_vecs if v is not None], dtype=np.float32)
+        norms = np.linalg.norm(mat, axis=1, keepdims=True)
+        mat = np.divide(mat, np.maximum(1e-9, norms))
+
+        for i, mid in enumerate(chunk_ids):
+            mv = mat[i]
+            idxs, sims = _topk_cosine(mv, fam_matrix, top_k=int(top_k))
+            best_fi = int(idxs[0])
+            best_sim = float(sims[0])
+            best[mid] = {
+                "best_signal_family_id": int(families[best_fi].signal_family_id),
+                "best_slug": str(families[best_fi].slug),
+                "best_similarity": float(best_sim),
+                "top_k": int(top_k),
+                "model_name": str(provider.model_name),
+                "provider": str(provider.name),
+            }
+
+            cands: list[DiscoveryCandidate] = []
+            for rank, (fi, sim) in enumerate(zip(idxs.tolist(), sims.tolist()), start=1):
+                if float(sim) < float(min_similarity):
+                    continue
+                f = families[int(fi)]
+                cands.append(
+                    DiscoveryCandidate(
+                        signal_family_id=f.signal_family_id,
+                        slug=f.slug,
+                        method="discovery_embedding",
+                        score=float(sim),
+                        evidence={
+                            "similarity": float(sim),
+                            "min_similarity": float(min_similarity),
+                            "rank": int(rank),
+                            "top_k": int(top_k),
+                            "provider": provider.name,
+                            "model_name": provider.model_name,
+                            "family_query_text_hash": f.query_text_hash,
+                        },
+                    )
+                )
+            out[mid] = cands
+
+    return out, best

@@ -93,14 +93,13 @@ RULES_BY_SLUG: dict[str, SignalFamilyRule] = {
         min_hits=2,
     ),
     "crypto_regime_changes": SignalFamilyRule(
+        # Precision note:
+        # We require at least one explicit regulatory/legislative anchor to avoid
+        # classifying pure price-target markets (e.g. "Will XRP reach $4?") as
+        # "regime changes".
         keywords=[
-            # "SEC" is ambiguous (also "Southeastern Conference" in sports markets).
-            # Keep it as a regulator anchor, but require co-occurrence (min_hits>=2)
-            # and exclude obvious sports phrasing below.
             "sec",
             "cftc",
-            # Broaden beyond a few hand-picked phrases so we don't depend on any
-            # single exact wording.
             "crypto regulation",
             "stablecoin",
             "stablecoins",
@@ -109,12 +108,17 @@ RULES_BY_SLUG: dict[str, SignalFamilyRule] = {
             "lawsuit",
             "sues",
             "ban",
+            "approval",
+            "approved",
             "spot etf",
             "bitcoin etf",
             "ethereum etf",
             "crypto etf",
-            "exchange ban",
-            # Common entities in US crypto-regime headlines.
+            "legislation",
+            "bill",
+            "act",
+            "mica",
+            # Entities are allowed as supporting evidence but not sufficient alone.
             "coinbase",
             "binance",
             "kraken",
@@ -141,23 +145,95 @@ RULES_BY_SLUG: dict[str, SignalFamilyRule] = {
             "fifa",
             "world cup",
         ],
-        min_hits=2,
+        anchors=[
+            "sec",
+            "cftc",
+            "etf",
+            "stablecoin",
+            "stablecoins",
+            "regulation",
+            "legislation",
+            "bill",
+            "act",
+            "enforcement",
+            "lawsuit",
+            "sues",
+            "ban",
+            "mica",
+        ],
+        min_anchor_hits=1,
+        min_hits=1,
     ),
     "ai_regulation_big_tech_enforcement": SignalFamilyRule(
+        # Precision note:
+        # This family is about regulation/enforcement, not "who has the best AI model"
+        # or generic Big Tech company chatter.
         keywords=[
             "ai act",
             "ai regulation",
+            "model regulation",
+            "frontier model",
             "antitrust",
             "doj",
+            "department of justice",
             "ftc",
-            "big tech",
+            "federal trade commission",
             "platform regulation",
             "digital services act",
             "digital markets act",
             "dma",
+            "dsa",
             "privacy sandbox",
+            "adtech",
+            "ad tech",
+            "competition",
+            "gatekeeper",
+            "fine",
+            "injunction",
+            "remedy",
+            "settlement",
+            "lawsuit",
+            "sues",
         ],
-        exclusions=[],
+        exclusions=[
+            # Model leaderboard / "best model" templates (not regulation/enforcement)
+            "best ai model",
+            "chatbot arena",
+            "#1 ai model",
+            "first company to have an ai model",
+            # Generic corporate rank/market cap templates
+            "largest company",
+            "market cap",
+            # M&A templates (not regulation/enforcement)
+            "acquired",
+            "acquire",
+            "acquisition",
+            "merger",
+            "ipo",
+        ],
+        anchors=[
+            "antitrust",
+            "doj",
+            "department of justice",
+            "ftc",
+            "federal trade commission",
+            "digital markets act",
+            "dma",
+            "digital services act",
+            "dsa",
+            "ai act",
+            "ai regulation",
+            "regulation",
+            "lawsuit",
+            "sues",
+            "fine",
+            "injunction",
+            "remedy",
+            "settlement",
+            "european commission",
+            "eu commission",
+        ],
+        min_anchor_hits=1,
         min_hits=1,
     ),
     "datacenter_power_grid_constraints": SignalFamilyRule(

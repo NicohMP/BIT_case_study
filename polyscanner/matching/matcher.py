@@ -15,6 +15,7 @@ from __future__ import annotations
 import csv
 import json
 import logging
+import uuid
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -26,10 +27,10 @@ from polyscanner.filtering.hard_filters import load_hard_filter_rules
 from polyscanner.matching.classification import classify_with_rule
 from polyscanner.matching.discovery import (
     DiscoveryCandidate,
-    embedding_discover_topk,
+    embedding_discover_topk_with_stats,
     lexical_discover,
 )
-from polyscanner.matching.embeddings import LocalSentenceTransformerEmbedder
+from polyscanner.matching.embeddings import DBEmbeddingCache, LocalSentenceTransformerEmbedder
 from polyscanner.matching.family_descriptors import build_family_descriptors, load_family_keywords
 from polyscanner.signal_family_rules import RULES_BY_SLUG
 
@@ -74,9 +75,31 @@ class MarketRow:
         ]
         return " ".join([p for p in parts if p]).strip()
 
+    def to_strict_text(self) -> str:
+        """Higher-precision text view for strict rule classification.
+
+        We intentionally exclude category/tags here.
+        Those fields can be noisy or editorial (e.g. "Big Tech") and cause false-positive
+        strict matches. Discovery already uses the full `to_text()`; strict rules should
+        rely primarily on the question and event title context.
+        """
+        parts = [
+            self.question,
+            self.market_slug or "",
+            self.event_title or "",
+            self.event_slug or "",
+        ]
+        return " ".join([p for p in parts if p]).strip()
+
 
 def _utcnow() -> datetime:
     return datetime.now(tz=timezone.utc)
+
+
+def _table_exists(conn, *, table_name: str) -> bool:
+    with conn.cursor() as cur:
+        cur.execute("select to_regclass(%s);", (f"public.{table_name}",))
+        return cur.fetchone()[0] is not None
 
 
 def _fetch_kept_markets(
@@ -201,6 +224,8 @@ def run_family_matching(
     if filter_version is None:
         filter_version = load_hard_filter_rules().filter_version
 
+    run_id = uuid.uuid4()
+
     markets = _fetch_kept_markets(db_url, filter_version=str(filter_version), limit=int(limit))
     if not markets:
         # Provide actionable diagnostics. This failure usually means:
@@ -268,21 +293,76 @@ def run_family_matching(
     family_by_id = {f.signal_family_id: f for f in families}
     market_by_id = {m.market_id: m for m in markets}
 
+    # Optional: persist per-market threshold diagnostics if audit tables exist.
+    audit_tables_ready = False
+    try:
+        conn_audit = connect(db_url)
+        try:
+            audit_tables_ready = _table_exists(conn_audit, table_name="pm_market_family_match_run") and _table_exists(
+                conn_audit, table_name="pm_market_family_match_eval"
+            )
+            if audit_tables_ready:
+                with conn_audit.cursor() as cur:
+                    cur.execute(
+                        """
+                        insert into pm_market_family_match_run (
+                          run_id, filter_version, matcher_version, params, created_at
+                        ) values (
+                          %(run_id)s, %(filter_version)s, %(matcher_version)s, %(params)s::jsonb, now()
+                        );
+                        """,
+                        {
+                            "run_id": str(run_id),
+                            "filter_version": str(filter_version),
+                            "matcher_version": str(matcher_version),
+                            "params": json.dumps(
+                                {
+                                    "limit": int(limit),
+                                    "use_embeddings": bool(use_embeddings),
+                                    "embedding_model": str(embedding_model),
+                                    "embedding_device": embedding_device,
+                                    "embedding_top_k": int(embedding_top_k),
+                                    "embedding_min_similarity": float(embedding_min_similarity),
+                                    "lexical_target_hits": int(lexical_target_hits),
+                                    "lexical_min_score": float(lexical_min_score),
+                                    "max_candidates_per_market": int(max_candidates_per_market),
+                                    "classification_min_score": float(classification_min_score),
+                                },
+                                ensure_ascii=False,
+                            ),
+                        },
+                    )
+                conn_audit.commit()
+        finally:
+            conn_audit.close()
+    except Exception:
+        audit_tables_ready = False
+
     # ----- Discovery: lexical -----
     discovery_by_market: dict[int, list[DiscoveryCandidate]] = {}
+    lexical_best_by_market: dict[int, tuple[float, int] | None] = {}
     discovery_markets_by_family: dict[int, set[int]] = defaultdict(set)
     for m in markets:
         mt = m.to_text()
-        cands: list[DiscoveryCandidate] = []
+        all_cands: list[DiscoveryCandidate] = []
+        kept_cands: list[DiscoveryCandidate] = []
         for f in families:
             dc = lexical_discover(market_text=mt, family=f, target_hits=int(lexical_target_hits))
             if dc is None:
                 continue
+            all_cands.append(dc)
             if dc.score >= float(lexical_min_score):
-                cands.append(dc)
+                kept_cands.append(dc)
+
+        if all_cands:
+            best = max(all_cands, key=lambda x: float(x.score))
+            lexical_best_by_market[m.market_id] = (float(best.score), int(best.signal_family_id))
+        else:
+            lexical_best_by_market[m.market_id] = None
+
         # keep top lexical candidates (score desc, then hit_count)
         cands_sorted = sorted(
-            cands,
+            kept_cands,
             key=lambda x: (float(x.score), int(x.evidence.get("hit_count") or 0)),
             reverse=True,
         )
@@ -293,11 +373,12 @@ def run_family_matching(
 
     # ----- Discovery: embeddings -----
     embedding_by_market: dict[int, list[DiscoveryCandidate]] = {}
+    embedding_best_by_market: dict[int, dict[str, Any]] = {}
     embedding_sim_by_family_market: dict[int, dict[int, float]] = defaultdict(dict)
     if use_embeddings:
         provider = LocalSentenceTransformerEmbedder(model_name=str(embedding_model), device=embedding_device)
         market_texts_by_id = {m.market_id: m.to_text() for m in markets}
-        embedding_by_market = embedding_discover_topk(
+        embedding_by_market, embedding_best_by_market = embedding_discover_topk_with_stats(
             market_texts_by_id=market_texts_by_id,
             families=families,
             provider=provider,
@@ -336,6 +417,8 @@ def run_family_matching(
     discovery_rows_written = 0
     rule_rows_written = 0
     coverage_counts: Counter[int] = Counter()
+    rule_attempts_by_market: Counter[int] = Counter()
+    rule_matches_by_market: Counter[int] = Counter()
 
     # For diagnosis artifact: store best discovery similarity per (family, market).
     best_embedding_by_family: dict[int, list[tuple[float, int, dict[str, Any]]]] = defaultdict(list)
@@ -344,6 +427,7 @@ def run_family_matching(
 
     for m in markets:
         mt = m.to_text()
+        strict_text = m.to_strict_text()
         market_id = int(m.market_id)
 
         # persist discovery candidates
@@ -385,8 +469,9 @@ def run_family_matching(
             rule = RULES_BY_SLUG.get(fam.slug)
             if rule is None:
                 continue
+            rule_attempts_by_market[market_id] += 1
             dec = classify_with_rule(
-                market_text=mt,
+                market_text=strict_text,
                 family_slug=fam.slug,
                 family_id=int(fid),
                 rule=rule,
@@ -417,9 +502,138 @@ def run_family_matching(
                 )
                 rule_rows_written += 1
                 coverage_counts[int(fid)] += 1
+                rule_matches_by_market[market_id] += 1
 
     upserted = _upsert_matches(db_url, match_rows)
     log.info("Upserted %s match rows (matcher_version=%s)", upserted, matcher_version)
+
+    # Persist per-market evaluation diagnostics (optional).
+    if audit_tables_ready:
+        try:
+            cache = DBEmbeddingCache(db_url=db_url)
+            eval_rows: list[dict[str, Any]] = []
+            n_with_lex = 0
+            n_with_emb = 0
+            n_with_any = 0
+
+            for m in markets:
+                mid = int(m.market_id)
+                lex_cands = discovery_by_market.get(mid, []) or []
+                emb_cands = embedding_by_market.get(mid, []) or []
+                union = candidates_by_market.get(mid, []) or []
+
+                if lex_cands:
+                    n_with_lex += 1
+                if emb_cands:
+                    n_with_emb += 1
+                if union:
+                    n_with_any += 1
+
+                lex_best = lexical_best_by_market.get(mid)
+                lex_best_score = float(lex_best[0]) if lex_best is not None else 0.0
+                lex_best_fid = int(lex_best[1]) if lex_best is not None else None
+
+                emb_best = embedding_best_by_market.get(mid) or {}
+                emb_best_sim = emb_best.get("best_similarity")
+                emb_best_fid = emb_best.get("best_signal_family_id")
+
+                mt = m.to_text()
+                eval_rows.append(
+                    {
+                        "run_id": str(run_id),
+                        "market_id": mid,
+                        "market_text_hash": (
+                            str(cache.key(model_name=str(embedding_model), text=mt)) if use_embeddings else ""
+                        ),
+                        "lexical_best_score": float(lex_best_score),
+                        "lexical_best_signal_family_id": int(lex_best_fid) if lex_best_fid is not None else None,
+                        "n_lexical_candidates": int(len(lex_cands)),
+                        "embedding_best_similarity": float(emb_best_sim) if emb_best_sim is not None else None,
+                        "embedding_best_signal_family_id": int(emb_best_fid) if emb_best_fid is not None else None,
+                        "n_embedding_candidates": int(len(emb_cands)),
+                        "n_union_candidates": int(len(union)),
+                        "n_rule_attempts": int(rule_attempts_by_market.get(mid, 0)),
+                        "n_rule_matches": int(rule_matches_by_market.get(mid, 0)),
+                    }
+                )
+
+            conn_audit = connect(db_url)
+            try:
+                with conn_audit.cursor() as cur:
+                    cur.executemany(
+                        """
+                        insert into pm_market_family_match_eval (
+                          run_id,
+                          market_id,
+                          market_text_hash,
+                          lexical_best_score,
+                          lexical_best_signal_family_id,
+                          n_lexical_candidates,
+                          embedding_best_similarity,
+                          embedding_best_signal_family_id,
+                          n_embedding_candidates,
+                          n_union_candidates,
+                          n_rule_attempts,
+                          n_rule_matches,
+                          created_at
+                        ) values (
+                          %(run_id)s,
+                          %(market_id)s,
+                          %(market_text_hash)s,
+                          %(lexical_best_score)s,
+                          %(lexical_best_signal_family_id)s,
+                          %(n_lexical_candidates)s,
+                          %(embedding_best_similarity)s,
+                          %(embedding_best_signal_family_id)s,
+                          %(n_embedding_candidates)s,
+                          %(n_union_candidates)s,
+                          %(n_rule_attempts)s,
+                          %(n_rule_matches)s,
+                          now()
+                        )
+                        on conflict (run_id, market_id) do update set
+                          market_text_hash = excluded.market_text_hash,
+                          lexical_best_score = excluded.lexical_best_score,
+                          lexical_best_signal_family_id = excluded.lexical_best_signal_family_id,
+                          n_lexical_candidates = excluded.n_lexical_candidates,
+                          embedding_best_similarity = excluded.embedding_best_similarity,
+                          embedding_best_signal_family_id = excluded.embedding_best_signal_family_id,
+                          n_embedding_candidates = excluded.n_embedding_candidates,
+                          n_union_candidates = excluded.n_union_candidates,
+                          n_rule_attempts = excluded.n_rule_attempts,
+                          n_rule_matches = excluded.n_rule_matches;
+                        """,
+                        eval_rows,
+                    )
+                    cur.execute(
+                        """
+                        update pm_market_family_match_run
+                        set
+                          n_markets_evaluated = %(n_eval)s,
+                          n_markets_with_any_candidate = %(n_any)s,
+                          n_markets_with_lexical_candidate = %(n_lex)s,
+                          n_markets_with_embedding_candidate = %(n_emb)s,
+                          discovery_rows_written = %(disc_rows)s,
+                          rule_attempt_rows_written = %(rule_attempts)s,
+                          rule_match_rows_written = %(rule_rows)s
+                        where run_id = %(run_id)s;
+                        """,
+                        {
+                            "run_id": str(run_id),
+                            "n_eval": int(len(markets)),
+                            "n_any": int(n_with_any),
+                            "n_lex": int(n_with_lex),
+                            "n_emb": int(n_with_emb),
+                            "disc_rows": int(discovery_rows_written),
+                            "rule_attempts": int(sum(rule_attempts_by_market.values())),
+                            "rule_rows": int(rule_rows_written),
+                        },
+                    )
+                conn_audit.commit()
+            finally:
+                conn_audit.close()
+        except Exception:
+            pass
 
     # ----- Audit artifacts -----
     out_path = Path(out_dir)
