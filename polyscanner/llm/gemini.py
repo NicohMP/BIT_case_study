@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 import time
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -32,6 +33,106 @@ def get_api_key() -> str:
 def get_model() -> str:
     load_env()
     return get_env("GEMINI_MODEL") or get_env("LLM_MODEL") or "gemini-2.0-flash"
+
+
+def _strip_code_fences(text: str) -> str:
+    t = (text or "").strip()
+    if not t.startswith("```"):
+        return t
+    # Remove leading ```json (or any language tag) and trailing ```
+    t = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", t)
+    t = re.sub(r"\s*```$", "", t)
+    return t.strip()
+
+
+def _extract_first_json_substring(text: str) -> str | None:
+    """Extract the first JSON object/array substring using bracket matching.
+
+    Gemini sometimes adds preambles/epilogues (despite JSON mode). This attempts
+    to recover the first well-formed {...} or [...] block while correctly
+    handling strings and escapes.
+    """
+    t = _strip_code_fences(text)
+    start = None
+    for i, ch in enumerate(t):
+        if ch in "{[":
+            start = i
+            break
+    if start is None:
+        return None
+
+    stack: list[str] = []
+    in_str = False
+    esc = False
+
+    for j in range(start, len(t)):
+        ch = t[j]
+
+        if in_str:
+            if esc:
+                esc = False
+                continue
+            if ch == "\\":
+                esc = True
+                continue
+            if ch == '"':
+                in_str = False
+            continue
+
+        if ch == '"':
+            in_str = True
+            continue
+
+        if ch in "{[":
+            stack.append(ch)
+            continue
+        if ch in "}]":
+            if not stack:
+                continue
+            top = stack[-1]
+            if (top == "{" and ch == "}") or (top == "[" and ch == "]"):
+                stack.pop()
+                if not stack:
+                    return t[start : j + 1]
+            else:
+                # Mismatched close; keep scanning.
+                continue
+
+    return None
+
+
+def _remove_trailing_commas(text: str) -> str:
+    # Remove trailing commas before } or ]
+    return re.sub(r",(\s*[}\]])", r"\1", text)
+
+
+def _parse_json_object(text: str) -> dict[str, Any]:
+    """Parse a JSON object, applying minimal safe repairs for common Gemini slips."""
+    raw = _strip_code_fences(text)
+
+    # 1) Strict parse as-is.
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        parsed = None
+
+    # 2) Extract the first JSON substring (if the model added extra text).
+    if parsed is None:
+        sub = _extract_first_json_substring(raw)
+        if sub is not None:
+            try:
+                parsed = json.loads(sub)
+            except json.JSONDecodeError:
+                parsed = None
+
+    # 3) Minimal repair: trailing commas are the most common invalid-JSON failure.
+    if parsed is None:
+        sub = _extract_first_json_substring(raw) or raw
+        parsed = json.loads(_remove_trailing_commas(sub))
+
+    if not isinstance(parsed, dict):
+        raise GeminiError("Gemini JSON response was not an object")
+    return parsed
 
 
 def generate_json(
@@ -122,17 +223,15 @@ def generate_json(
         raise GeminiError(f"Unexpected Gemini response shape: {e}; body={data}") from e
 
     try:
-        parsed = json.loads(text)
-    except json.JSONDecodeError:
-        start = text.find("{")
-        end = text.rfind("}")
-        if start == -1 or end == -1 or end <= start:
-            raise GeminiError(f"Gemini did not return JSON. Text={text[:500]}")
-        parsed = json.loads(text[start : end + 1])
-
-    if not isinstance(parsed, dict):
-        raise GeminiError("Gemini JSON response was not an object")
+        parsed = _parse_json_object(text)
+    except Exception as e:  # noqa: BLE001
+        snippet = _strip_code_fences(text)
+        head = snippet[:800]
+        tail = snippet[-800:] if len(snippet) > 800 else ""
+        msg = f"Gemini returned invalid JSON: {e}. head={head!r}"
+        if tail:
+            msg += f" tail={tail!r}"
+        raise GeminiError(msg) from e
 
     parsed["_raw"] = data
     return parsed
-

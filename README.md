@@ -7,6 +7,7 @@ This repo implements a versioned, auditable data pipeline for scanning Polymarke
 - **Step 3 (Signal-family matching)**: high-recall discovery (lexical + local embeddings) + high-precision deterministic rules, persisted with evidence for auditability.
 - **Step 4 (Relevance scoring)**: deterministic market relevance per BIT security via the authority matrices.
 - **Step 4b (Selection)**: persisted diversified top-K per security (the primary downstream feed).
+- **Step 5 (LLM report, report-time only)**: build a deterministic context pack from Step 4b outputs, then use an LLM to write an analyst-ready report grounded in that pack.
 
 Downstream components (LLM enrichment and/or a web UI) should query the Postgres tables/views produced by this pipeline rather than calling the Gamma API directly.
 
@@ -40,6 +41,14 @@ This repo keeps the authority weights in `security_domain_exposure_scores.md` an
 seed script that normalizes the 0–3 scores into weights and upserts them into Postgres:
 
 `./venv/bin/python scripts/seed_security_domain_exposure.py`
+
+## Seed family→domain influence rationales (authority)
+
+Step 5 report quality depends on `signal_family_domain_influence.rationale_md` (the “why” for each edge).
+The repo keeps the source-of-truth rationale matrix in `event_domain_rationale.md`.
+
+Seed/upsert into Postgres:
+`./venv/bin/python scripts/seed_signal_family_domain_influence_rationales.py`
 
 ## Ingest Polymarket events + markets into Postgres (coverage-first)
 
@@ -111,6 +120,27 @@ Run (also enabled by default in `scripts/run_relevance_scoring.py`):
 
 Outputs:
 - DB upserts into `pm_market_security_relevance_selection` (keyed by `(security_id, market_id, scoring_version, selection_version)`)
+
+## Step 5: LLM security report (report-time only)
+
+The LLM is **not** used in ingestion/filtering/matching/scoring. It is only called at report time and only sees a
+structured, deterministic context pack built from the DB.
+
+Migration (table to persist reports):
+`psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/20260225210000_add_pm_security_signal_report.sql`
+
+Build + validate a context pack for one security:
+`./venv/bin/python scripts/build_security_report_pack.py --ticker NVDA`
+`./venv/bin/python scripts/validate_security_report_pack.py --pack reports/context_pack_NVDA_<ts>.json`
+
+If validation fails with “missing market_card/buckets”, rebuild the pack (older packs are not forward-compatible).
+
+Generate report JSON via Gemini (requires `GOOGLE_API_KEY` in `.env`):
+`./venv/bin/python scripts/generate_security_signal_report.py --pack reports/context_pack_NVDA_<ts>.json`
+
+Render markdown + audit grounding:
+`./venv/bin/python scripts/render_security_signal_report_md.py --report-json reports/security_signal_report_NVDA_<ts>.json`
+`./venv/bin/python scripts/audit_security_signal_report.py --pack reports/context_pack_NVDA_<ts>.json --report-json reports/security_signal_report_NVDA_<ts>.json`
 
 ## Pipeline audit (debug bottlenecks)
 
