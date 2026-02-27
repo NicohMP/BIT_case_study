@@ -62,6 +62,10 @@ def main() -> None:
     p.add_argument("--selection-k", type=int, default=20, help="K for stored diversified selection per security.")
     p.add_argument("--selection-max-per-event", type=int, default=1, help="Max markets per event_id in stored selection.")
     p.add_argument("--selection-max-rate-like", type=int, default=3, help="Max rate-like markets in stored selection.")
+    # Daily snapshots
+    p.add_argument("--record-daily-snapshots", type=str, default="false", help="true/false to snapshot current pricing once per UTC day.")
+    p.add_argument("--snapshot-scope", type=str, default="kept", choices=["kept", "all"], help="Snapshot universe: kept (post Step 2) or all active.")
+    p.add_argument("--snapshot-limit", type=int, default=None, help="Optional cap on markets snapshotted.")
     # Audit
     p.add_argument("--run-audit", type=str, default="true", help="true/false to write a pipeline audit markdown.")
     p.add_argument("--audit-top-n", type=int, default=20, help="Top-N to display per security in audit.")
@@ -105,6 +109,9 @@ def main() -> None:
         selection_k=int(args.selection_k),
         selection_max_per_event=int(args.selection_max_per_event),
         selection_max_rate_like=int(args.selection_max_rate_like),
+        record_daily_snapshots=_parse_bool(args.record_daily_snapshots),
+        snapshot_scope=str(args.snapshot_scope),
+        snapshot_limit=args.snapshot_limit,
         run_audit=_parse_bool(args.run_audit),
         audit_top_n=int(args.audit_top_n),
         out_dir="reports",
@@ -116,6 +123,7 @@ def main() -> None:
             "ingestion": out.ingestion,
             "hard_filters": out.hard_filters,
             "matching": out.matching,
+            "daily_snapshots": out.daily_snapshots,
             "relevance_scoring": out.relevance_scoring,
             "relevance_selection": out.relevance_selection,
             "pipeline_audit": out.pipeline_audit,

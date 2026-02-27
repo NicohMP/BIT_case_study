@@ -21,3 +21,8 @@ logs/
 # Local debugging artifacts
 terminal_output*.txt
 terminal_ouput*.txt
+
+
+# Instructions and report
+project_instructions.txt
+project_report.txt

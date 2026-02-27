@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.bit.daily_snapshot</string>
+
+    <key>WorkingDirectory</key>
+    <string>__REPO_ROOT__</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/bin/zsh</string>
+      <string>-lc</string>
+      <string>mkdir -p logs &amp;&amp; cd "__REPO_ROOT__" &amp;&amp; set -a &amp;&amp; source .env &amp;&amp; set +a &amp;&amp; "__PYTHON__" scripts/record_daily_market_snapshots.py --scope kept --filter-version hard_filters_v8</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+      <key>Hour</key><integer>0</integer>
+      <key>Minute</key><integer>10</integer>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>__REPO_ROOT__/logs/daily_snapshot.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>__REPO_ROOT__/logs/daily_snapshot.err.log</string>
+  </dict>
+</plist>
+

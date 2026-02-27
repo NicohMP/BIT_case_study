@@ -110,6 +110,7 @@ def main() -> None:
         sel = persist_relevance_selection(
             db_url=db_url,
             scoring_version=str(res.scoring_version),
+            filter_version=str(res.filter_version),
             selection_version=str(args.selection_version),
             top_k=int(args.selection_k),
             max_per_event=int(args.selection_max_per_event),
