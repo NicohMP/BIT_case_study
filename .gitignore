@@ -16,6 +16,7 @@ venv/
 
 reports/
 notebooks/reports/
+logs/
 
 # Local debugging artifacts
 terminal_output*.txt

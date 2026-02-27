@@ -165,6 +165,19 @@ This:
 - writes diversified selections into `pm_market_security_relevance_selection`
 - optionally writes a `reports/pipeline_audit_*.md`
 
+## Daily market snapshots (pricing history storage)
+
+To support later Δp / sentiment-intensity features, record one daily snapshot row per market (UTC day).
+
+Migration:
+`psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/20260226170000_add_pm_market_daily_snapshot.sql`
+
+Record daily snapshots for the kept universe (post Step 2, latest run):
+`./venv/bin/python scripts/record_daily_market_snapshots.py --scope kept`
+
+Or integrate into the scheduled refresh:
+`./venv/bin/python scripts/run_polymarket_refresh.py --ingest-max-pages 200 --matcher-version matcher_v10 --record-daily-snapshots true --snapshot-scope kept`
+
 ## Data contract (downstream LLM / web UI)
 
 Primary tables produced by this pipeline:

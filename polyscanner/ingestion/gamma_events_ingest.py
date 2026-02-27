@@ -12,6 +12,7 @@ Design goals:
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from dataclasses import dataclass
@@ -116,6 +117,24 @@ def _jsonb(value: Any) -> Any:
     if Jsonb is None:
         return value
     return Jsonb(value)
+
+
+def _coerce_json_container(x: Any) -> Any:
+    """If x is a JSON-encoded string, parse it. Otherwise return x.
+
+    Gamma sometimes returns list/dict fields as strings like '["Yes","No"]'.
+    """
+    if not isinstance(x, str):
+        return x
+    s = x.strip()
+    if not s:
+        return x
+    if not (s.startswith("[") or s.startswith("{")):
+        return x
+    try:
+        return json.loads(s)
+    except Exception:
+        return x
 
 
 def _get_with_retries(
@@ -251,20 +270,48 @@ def _normalize_market(raw: dict[str, Any], *, event_id: int, event_tags: list[An
         raw.get("liquidityUsd") or raw.get("liquidityUSD") or raw.get("liquidity") or raw.get("liquidityNum")
     )
 
-    # Common "current probability"/price fields
-    probability = _safe_float(raw.get("probability"))
-    if probability is None:
-        probability = _safe_float(raw.get("yesPrice") or raw.get("yes_price") or raw.get("price"))
-
-    # Common list-ish fields (schema varies by market type)
-    outcomes = raw.get("outcomes") or raw.get("outcome") or raw.get("outcomePrices") or raw.get("outcome_prices")
+    # Outcomes vs prices:
+    # - Gamma commonly provides outcome labels in `outcomes` and outcome prices in `outcomePrices`.
+    # - For binary markets, the "Yes" price is effectively the implied probability.
+    outcomes = _coerce_json_container(raw.get("outcomes") or raw.get("outcome"))
     if not isinstance(outcomes, list):
         outcomes = None
+
+    outcome_prices = _coerce_json_container(raw.get("outcomePrices") or raw.get("outcome_prices"))
+    if not isinstance(outcome_prices, list):
+        outcome_prices = None
 
     tokens = raw.get("clobTokenIds") or raw.get("clob_token_ids") or raw.get("tokens")
 
     prices = raw.get("prices") or raw.get("priceHistory") or raw.get("price_history")
-    probabilities = raw.get("probabilities") or raw.get("impliedProbabilities") or raw.get("implied_probabilities")
+    probabilities = _coerce_json_container(raw.get("probabilities") or raw.get("impliedProbabilities") or raw.get("implied_probabilities"))
+    if probabilities is None and outcome_prices is not None:
+        # For most Polymarket market types, "price" is the implied probability.
+        parsed = [_safe_float(x) for x in outcome_prices]
+        probabilities = parsed if any(p is not None for p in parsed) else None
+
+    # Common "current probability"/price fields (binary convenience)
+    probability = _safe_float(raw.get("probability"))
+    if probability is None:
+        probability = _safe_float(raw.get("yesPrice") or raw.get("yes_price") or raw.get("price"))
+    if probability is None and outcomes and isinstance(probabilities, list) and len(outcomes) == len(probabilities):
+        # If this is a Yes/No market, derive the Yes probability from the outcome vector.
+        try:
+            idx = None
+            for i, o in enumerate(outcomes):
+                label = None
+                if isinstance(o, str):
+                    label = o
+                elif isinstance(o, dict):
+                    label = o.get("outcome") or o.get("name") or o.get("title")
+                label = (str(label) if label is not None else "").strip().lower()
+                if label == "yes":
+                    idx = i
+                    break
+            if idx is not None:
+                probability = _safe_float(probabilities[idx])
+        except Exception:
+            pass
 
     tags = raw.get("tags")
     if not isinstance(tags, list):
