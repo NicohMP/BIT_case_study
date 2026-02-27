@@ -21,12 +21,18 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from polyscanner.db.pg import connect, fetch_macro_domains, fetch_signal_families, fetch_signal_family_domain_influence
 from polyscanner.filtering.hard_filters import load_hard_filter_rules
 from polyscanner.relevance.rate_like import is_rate_like
+from polyscanner.sentiment.market_intensity_v1 import (
+    SentimentIntensityParamsV1,
+    delta_p_abs,
+    sentiment_intensity_g_v1_practical,
+    tau_days_from_end_date,
+)
 
 log = logging.getLogger(__name__)
 
@@ -263,18 +269,30 @@ def persist_relevance_selection(
     *,
     db_url: str,
     scoring_version: str,
+    filter_version: str | None = None,
     selection_version: str = "selected_v1",
     top_k: int = 20,
     max_per_event: int = 1,
     max_rate_like: int = 3,
     limit_securities: int | None = None,
     candidate_pool: int = 500,
+    use_sentiment_g_v1: bool = True,
+    sentiment_alpha: float = 0.30,
+    sentiment_params: SentimentIntensityParamsV1 | None = None,
+    include_movement_in_g: bool = False,
 ) -> dict[str, Any]:
     """Persist a diversified top-K selection per security (Step 4b).
 
     This reads from `pm_market_security_relevance` (raw scores) and writes a
     deterministic selection into `pm_market_security_relevance_selection`.
     """
+    if filter_version is None:
+        filter_version = load_hard_filter_rules().filter_version
+
+    now = datetime.now(tz=timezone.utc)
+    prev_snapshot_date = (now.date() - timedelta(days=1)).isoformat()
+    sparams = sentiment_params or SentimentIntensityParamsV1()
+
     conn = connect(db_url)
     try:
         if not _table_exists(conn, table_name="pm_market_security_relevance_selection"):
@@ -293,10 +311,18 @@ def persist_relevance_selection(
             "max_per_event": int(max_per_event),
             "max_rate_like": int(max_rate_like),
             "candidate_pool": int(candidate_pool),
+            "use_sentiment_g_v1": bool(use_sentiment_g_v1),
+            "sentiment_alpha": float(sentiment_alpha),
+            "sentiment_prev_snapshot_date": str(prev_snapshot_date),
+            "sentiment_tau0_days": float(sparams.tau0_days),
+            "sentiment_delta_p_half_life": float(sparams.delta_p_half_life),
+            "sentiment_include_movement_in_g": bool(include_movement_in_g),
         }
 
         rows_out: list[dict[str, Any]] = []
         sec_ids = [int(s["id"]) for s in securities]
+
+        vol95_kept = _fetch_volume_p95_kept(conn, filter_version=str(filter_version)) or 1_000_000.0
 
         for s in securities:
             sid = int(s["id"])
@@ -307,7 +333,10 @@ def persist_relevance_selection(
                       r.final_score,
                       r.market_id,
                       m.event_id,
-                      m.question
+                      m.question,
+                      m.volume_usd,
+                      m.end_date,
+                      m.probability
                     from pm_market_security_relevance r
                     join pm_market m on m.pm_market_id = r.market_id
                     where r.security_id = %s
@@ -319,18 +348,82 @@ def persist_relevance_selection(
                 )
                 candidates = cur.fetchall()
 
-            picked: list[tuple[float, int, int | None, str]] = []
+            cand_ids = [int(mid) for _final, mid, _event_id, _question, _vol, _end_date, _prob in candidates]
+            prev_probs = _fetch_daily_snapshot_probabilities(conn, market_ids=cand_ids, snapshot_date_iso=str(prev_snapshot_date))
+
+            scored: list[dict[str, Any]] = []
+            for relevance_final, mid, event_id, question, volume_usd, end_date, probability in candidates:
+                q = str(question or "")
+
+                dp = None
+                tau_days = None
+                g = None
+                g_components = None
+
+                selection_score = float(relevance_final)
+                if use_sentiment_g_v1:
+                    dp = delta_p_abs(
+                        p_now=(float(probability) if probability is not None else None),
+                        p_then=prev_probs.get(int(mid)),
+                    )
+                    tau_days = tau_days_from_end_date(
+                        end_date_iso=(end_date.isoformat() if end_date is not None else None),
+                        now=now,
+                    )
+                    g_full = sentiment_intensity_g_v1_practical(
+                        volume_usd=(float(volume_usd) if volume_usd is not None else None),
+                        vol95_usd=float(vol95_kept),
+                        tau_days=tau_days,
+                        delta_p=dp,
+                        params=sparams,
+                        include_movement=bool(include_movement_in_g),
+                    )
+                    g = float(g_full["g"])
+                    g_components = g_full.get("components") if isinstance(g_full, dict) else None
+                    g_with_movement = float(g_full.get("g_with_movement")) if isinstance(g_full, dict) and g_full.get("g_with_movement") is not None else None
+                    a = float(max(0.0, min(1.0, float(sentiment_alpha))))
+                    selection_score = float(relevance_final) * (a + (1.0 - a) * float(g))
+                else:
+                    g_with_movement = None
+
+                scored.append(
+                    {
+                        "selection_score": float(selection_score),
+                        "relevance_final_score": float(relevance_final),
+                        "market_id": int(mid),
+                        "event_id": int(event_id) if event_id is not None else None,
+                        "question": q,
+                        "is_rate_like": bool(is_rate_like(q)),
+                        "sentiment_g_v1": g,
+                        "sentiment_g_v1_with_movement": g_with_movement,
+                        "sentiment_components": g_components,
+                        "delta_p_abs": dp,
+                        "tau_days": tau_days,
+                    }
+                )
+
+            scored.sort(
+                key=lambda x: (
+                    -float(x.get("selection_score") or 0.0),
+                    -float(x.get("relevance_final_score") or 0.0),
+                    int(x.get("market_id") or 0),
+                )
+            )
+
+            picked: list[dict[str, Any]] = []
             event_counts: dict[int, int] = {}
             rate_n = 0
-            for final_score, mid, event_id, question in candidates:
+            for c in scored:
+                mid = int(c["market_id"])
+                event_id = c.get("event_id")
                 eid = int(event_id) if event_id is not None else -1
-                q = str(question or "")
-                rate_like = is_rate_like(q)
+                q = str(c.get("question") or "")
+                rate_like = bool(c.get("is_rate_like"))
                 if eid != -1 and event_counts.get(eid, 0) >= int(max_per_event):
                     continue
                 if rate_like and rate_n >= int(max_rate_like):
                     continue
-                picked.append((float(final_score), int(mid), int(event_id) if event_id is not None else None, q))
+                picked.append(c)
                 if eid != -1:
                     event_counts[eid] = event_counts.get(eid, 0) + 1
                 if rate_like:
@@ -338,7 +431,10 @@ def persist_relevance_selection(
                 if len(picked) >= int(top_k):
                     break
 
-            for i, (final_score, mid, event_id, q) in enumerate(picked, start=1):
+            for i, c in enumerate(picked, start=1):
+                mid = int(c["market_id"])
+                event_id = c.get("event_id")
+                q = str(c.get("question") or "")
                 rows_out.append(
                     {
                         "security_id": sid,
@@ -346,12 +442,24 @@ def persist_relevance_selection(
                         "scoring_version": str(scoring_version),
                         "selection_version": str(selection_version),
                         "rank": int(i),
-                        "final_score": float(final_score),
+                        "final_score": float(c.get("selection_score") or 0.0),
                         "event_id": int(event_id) if event_id is not None else None,
                         "is_rate_like": bool(is_rate_like(q)),
                         "selection_params": json.dumps(params, ensure_ascii=False),
                         "selection_reason": json.dumps(
-                            {"event_counts": event_counts, "rate_like_picked": int(rate_n)},
+                            {
+                                "event_counts": event_counts,
+                                "rate_like_picked": int(rate_n),
+                                "relevance_final_score": float(c.get("relevance_final_score") or 0.0),
+                                "selection_score": float(c.get("selection_score") or 0.0),
+                                "sentiment_g_v1": c.get("sentiment_g_v1"),
+                                "sentiment_g_v1_with_movement": c.get("sentiment_g_v1_with_movement"),
+                                "sentiment_components": c.get("sentiment_components"),
+                                "delta_p_abs": c.get("delta_p_abs"),
+                                "tau_days": c.get("tau_days"),
+                                "prev_snapshot_date": str(prev_snapshot_date),
+                        "vol95_kept_usd": float(vol95_kept),
+                            },
                             ensure_ascii=False,
                         ),
                     }
@@ -416,6 +524,60 @@ def persist_relevance_selection(
         }
     finally:
         conn.close()
+
+
+def _fetch_volume_p95_kept(conn, *, filter_version: str) -> float:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select percentile_cont(0.95) within group (order by m.volume_usd)
+            from pm_market m
+            join pm_market_filter_decision d
+              on d.market_id = m.pm_market_id
+             and d.filter_version = %s
+            where d.is_rejected = false
+              and m.volume_usd is not null
+              and m.volume_usd > 0;
+            """,
+            (str(filter_version),),
+        )
+        row = cur.fetchone()
+    try:
+        return float(row[0] or 0.0)
+    except Exception:
+        return 0.0
+
+
+def _fetch_daily_snapshot_probabilities(
+    conn,
+    *,
+    market_ids: list[int],
+    snapshot_date_iso: str,
+) -> dict[int, float]:
+    if not market_ids:
+        return {}
+    if not _table_exists(conn, table_name="pm_market_daily_snapshot"):
+        return {}
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select market_id, probability
+            from pm_market_daily_snapshot
+            where snapshot_date = %s
+              and market_id = any(%s);
+            """,
+            (str(snapshot_date_iso), market_ids),
+        )
+        rows = cur.fetchall()
+    out: dict[int, float] = {}
+    for mid, prob in rows:
+        if mid is None or prob is None:
+            continue
+        try:
+            out[int(mid)] = float(prob)
+        except Exception:
+            continue
+    return out
 
 
 def compute_market_security_relevance(

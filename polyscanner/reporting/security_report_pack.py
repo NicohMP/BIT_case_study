@@ -12,12 +12,18 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 from polyscanner.db.pg import connect
 from polyscanner.relevance.rate_like import is_rate_like
+from polyscanner.sentiment.market_intensity_v1 import (
+    SentimentIntensityParamsV1,
+    delta_p_abs,
+    sentiment_intensity_g_v1_practical,
+    tau_days_from_end_date,
+)
 
 
 def _utcnow() -> datetime:
@@ -335,6 +341,7 @@ def _fetch_selected_markets_enriched(
               m.outcomes,
               m.tags,
               e.title as event_title,
+              r.final_score as structural_final_score,
               r.base_score,
               r.quality_multiplier,
               r.score_breakdown
@@ -358,7 +365,7 @@ def _fetch_selected_markets_enriched(
     for r in rows:
         # Columns:
         #  0 rank
-        #  1 final_score
+        #  1 final_score (selection score)
         #  2 market_id
         #  3 event_id
         #  4 is_rate_like
@@ -372,10 +379,11 @@ def _fetch_selected_markets_enriched(
         # 12 outcomes
         # 13 tags
         # 14 event_title
-        # 15 base_score
-        # 16 quality_multiplier
-        # 17 score_breakdown
-        breakdown = r[17] if isinstance(r[17], dict) else {}
+        # 15 structural_final_score (relevance score)
+        # 16 base_score
+        # 17 quality_multiplier
+        # 18 score_breakdown
+        breakdown = r[18] if isinstance(r[18], dict) else {}
         out.append(
             {
                 "rank": int(r[0]),
@@ -393,8 +401,9 @@ def _fetch_selected_markets_enriched(
                 "outcomes": r[12] if isinstance(r[12], list) else None,
                 "tags": r[13] if isinstance(r[13], list) else [],
                 "event_title": str(r[14]) if r[14] is not None else None,
-                "base_score": float(r[15]) if r[15] is not None else None,
-                "quality_multiplier": float(r[16]) if r[16] is not None else 1.0,
+                "structural_final_score": float(r[15]) if r[15] is not None else None,
+                "base_score": float(r[16]) if r[16] is not None else None,
+                "quality_multiplier": float(r[17]) if r[17] is not None else 1.0,
                 "score_breakdown": breakdown,
             }
         )
@@ -550,6 +559,60 @@ def _market_strength(
     return float(max(0.0, min(1.0, strength)))
 
 
+def _fetch_volume_p95_kept(conn, *, filter_version: str) -> float:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select percentile_cont(0.95) within group (order by m.volume_usd)
+            from pm_market m
+            join pm_market_filter_decision d
+              on d.market_id = m.pm_market_id
+             and d.filter_version = %s
+            where d.is_rejected = false
+              and m.volume_usd is not null
+              and m.volume_usd > 0;
+            """,
+            (str(filter_version),),
+        )
+        row = cur.fetchone()
+    try:
+        return float(row[0] or 0.0)
+    except Exception:
+        return 0.0
+
+
+def _fetch_daily_snapshot_probabilities(
+    conn,
+    *,
+    market_ids: list[int],
+    snapshot_date_iso: str,
+) -> dict[int, float]:
+    if not market_ids:
+        return {}
+    if not _table_exists(conn, table_name="pm_market_daily_snapshot"):
+        return {}
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select market_id, probability
+            from pm_market_daily_snapshot
+            where snapshot_date = %s
+              and market_id = any(%s);
+            """,
+            (snapshot_date_iso, market_ids),
+        )
+        rows = cur.fetchall()
+    out: dict[int, float] = {}
+    for mid, prob in rows:
+        if mid is None or prob is None:
+            continue
+        try:
+            out[int(mid)] = float(prob)
+        except Exception:
+            continue
+    return out
+
+
 def build_security_context_pack(
     *,
     db_url: str,
@@ -615,6 +678,9 @@ def build_security_context_pack(
             )
 
         market_ids = [int(m["market_id"]) for m in markets]
+        vol95_kept = _fetch_volume_p95_kept(conn, filter_version=str(versions.filter_version)) or 1_000_000.0
+        prev_date_iso = (now.date() - timedelta(days=1)).isoformat()
+        prev_probs = _fetch_daily_snapshot_probabilities(conn, market_ids=market_ids, snapshot_date_iso=prev_date_iso)
         decisions = _fetch_filter_decisions(conn, market_ids=market_ids, filter_version=str(versions.filter_version))
         matches = _fetch_market_family_matches(
             conn, market_ids=market_ids, matcher_version=str(versions.matcher_version), top_k=int(top_k_matches_per_market)
@@ -697,6 +763,17 @@ def build_security_context_pack(
                 "pricing_available": "Yes" if (pricing.get("kind") != "unknown") else "No",
             }
 
+            dp = delta_p_abs(p_now=m.get("probability"), p_then=prev_probs.get(int(mid)))
+            tau_days = tau_days_from_end_date(end_date_iso=m.get("end_date"), now=now)
+            g = sentiment_intensity_g_v1_practical(
+                volume_usd=m.get("volume_usd"),
+                vol95_usd=float(vol95_kept),
+                tau_days=tau_days,
+                delta_p=dp,
+                params=SentimentIntensityParamsV1(),
+                include_movement=False,
+            )
+
             packed_markets.append(
                 {
                     "rank": int(m["rank"]),
@@ -729,6 +806,7 @@ def build_security_context_pack(
                     },
                     "scores": {
                         "final_score": float(m.get("final_score") or 0.0),
+                        "structural_final_score": float(m.get("structural_final_score") or 0.0),
                         "base_score": float(m.get("base_score") or 0.0),
                         "quality_multiplier": float(m.get("quality_multiplier") or 1.0),
                         "market_strength": _market_strength(
@@ -738,6 +816,13 @@ def build_security_context_pack(
                             end_date_iso=m.get("end_date"),
                             now=now,
                         ),
+                        "sentiment_intensity_g_v1": float(g["g"]),
+                    },
+                    "sentiment": {
+                        "version": "g_v1",
+                        "prev_snapshot_date": prev_date_iso,
+                        "prev_probability": prev_probs.get(int(mid)),
+                        **g,
                     },
                     "filter_decision": {
                         "quality_score": dec.get("quality_score"),

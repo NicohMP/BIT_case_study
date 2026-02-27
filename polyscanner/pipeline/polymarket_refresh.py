@@ -29,6 +29,7 @@ from polyscanner.pipeline.run_tracking import (
     update_pipeline_run,
 )
 from polyscanner.relevance.security_market_relevance import compute_market_security_relevance, persist_relevance_selection
+from polyscanner.snapshots.daily_market_snapshot import record_daily_market_snapshots
 from polyscanner.db.pg import connect
 
 
@@ -38,6 +39,7 @@ class RefreshResult:
     ingestion: dict[str, Any]
     hard_filters: dict[str, Any]
     matching: dict[str, Any]
+    daily_snapshots: dict[str, Any] | None
     relevance_scoring: dict[str, Any] | None
     relevance_selection: dict[str, Any] | None
     pipeline_audit: dict[str, Any] | None
@@ -76,6 +78,10 @@ def run_polymarket_refresh(
     selection_k: int = 20,
     selection_max_per_event: int = 1,
     selection_max_rate_like: int = 3,
+    # Daily snapshots (for later Δp / sentiment intensity)
+    record_daily_snapshots: bool = False,
+    snapshot_scope: str = "kept",  # kept | all
+    snapshot_limit: int | None = None,
     # Optional pipeline audit
     run_audit: bool = True,
     audit_top_n: int = 20,
@@ -180,6 +186,25 @@ def run_polymarket_refresh(
         if run_id is not None:
             update_pipeline_run(conn, run_id=str(run_id), matching_summary=matching_summary)
 
+        daily_snapshots_summary: dict[str, Any] | None = None
+        if record_daily_snapshots:
+            snap = record_daily_market_snapshots(
+                db_url=db_url,
+                snapshot_date=None,
+                scope=("kept" if str(snapshot_scope).strip().lower() != "all" else "all"),  # type: ignore[arg-type]
+                filter_version=str(hf.filter_version) if str(snapshot_scope).strip().lower() != "all" else None,
+                run_id=str(run_id) if run_id is not None else None,
+                limit=snapshot_limit,
+            )
+            daily_snapshots_summary = {
+                "snapshot_date": snap.snapshot_date,
+                "scope": snap.scope,
+                "filter_version": snap.filter_version,
+                "markets_selected": snap.markets_selected,
+                "rows_upserted": snap.rows_upserted,
+                "runtime_s": snap.runtime_s,
+            }
+
         rel = compute_market_security_relevance(
             db_url=db_url,
             matcher_version=str(matcher_version),
@@ -205,6 +230,7 @@ def run_polymarket_refresh(
             relevance_selection_summary = persist_relevance_selection(
                 db_url=db_url,
                 scoring_version=str(rel.scoring_version),
+                filter_version=str(hf.filter_version),
                 selection_version=str(selection_version),
                 top_k=int(selection_k),
                 max_per_event=int(selection_max_per_event),
@@ -241,6 +267,7 @@ def run_polymarket_refresh(
             ingestion=ingestion_summary,
             hard_filters=hard_filters_summary,
             matching=matching_summary,
+            daily_snapshots=daily_snapshots_summary,
             relevance_scoring=relevance_scoring_summary,
             relevance_selection=relevance_selection_summary,
             pipeline_audit=audit_summary,
