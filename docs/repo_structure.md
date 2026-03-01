@@ -3,7 +3,7 @@
 This repo is still in a development phase, but it follows a stable separation between:
 
 - **Core library code** (`polyscanner/`): ingestion, filtering, matching, scoring, reporting, and the web UI.
-- **Operational entrypoints** (`scripts/`, `ops/`): CLI scripts and local schedulers to run Steps 1→4b and generate reports.
+- **Operational entrypoints** (`scripts/`, `ops/`): CLI scripts and a Docker-based scheduler to run Steps 1→4b and generate reports.
 - **Database schema** (`supabase/`): migrations and seeds.
 - **Authorities (explicit assumptions)** (repo root markdown files): small matrices + rationales that encode the fund’s priors.
 - **Reviewer docs** (`docs/`): navigation, reproducibility, and reading notes.

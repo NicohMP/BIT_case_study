@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from polyscanner.clients.gamma import GAMMA_BASE_URL_DEFAULT  # noqa: E402
+from polyscanner.db.pg import connect  # noqa: E402
 from polyscanner.env import get_env, load_env  # noqa: E402
 from polyscanner.pipeline.polymarket_refresh import run_polymarket_refresh  # noqa: E402
 
@@ -69,6 +70,15 @@ def main() -> None:
     # Audit
     p.add_argument("--run-audit", type=str, default="true", help="true/false to write a pipeline audit markdown.")
     p.add_argument("--audit-top-n", type=int, default=20, help="Top-N to display per security in audit.")
+    # Reliability: optional DB lock to prevent overlapping runs.
+    p.add_argument(
+        "--db-lock",
+        type=str,
+        default="none",
+        choices=["none", "try", "wait"],
+        help="Acquire a Postgres advisory lock before running (none|try|wait).",
+    )
+    p.add_argument("--db-lock-key", type=int, default=913274001, help="Advisory lock key (bigint).")
     args = p.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -82,40 +92,97 @@ def main() -> None:
     emb_model = args.embedding_model or get_env("EMBEDDING_MODEL") or "sentence-transformers/all-MiniLM-L6-v2"
     emb_device = args.embedding_device or get_env("EMBEDDING_DEVICE")
 
-    out = run_polymarket_refresh(
-        db_url=db_url,
-        base_url=base_url,
-        ingest_limit=int(args.ingest_limit),
-        ingest_max_pages=args.ingest_max_pages,
-        ingest_sleep_s=float(args.ingest_sleep_s),
-        ingest_since_ts=args.since_ts,
-        ingest_timeout_s=float(args.timeout_s),
-        hard_filters_limit=args.hard_filters_limit,
-        hard_filters_batch_size=int(args.hard_filters_batch_size),
-        matcher_version=str(args.matcher_version),
-        match_limit=int(args.match_limit),
-        use_embeddings=_parse_bool(args.use_embeddings),
-        embedding_model=str(emb_model),
-        embedding_device=emb_device,
-        embedding_top_k=int(args.top_k),
-        embedding_min_similarity=float(args.similarity_threshold),
-        lexical_min_score=float(args.lexical_min_score),
-        classification_min_score=float(args.rule_threshold),
-        scoring_version=str(args.scoring_version),
-        trusted_only=_parse_bool(args.trusted_only),
-        min_base_score=float(args.min_base_score),
-        persist_selection=_parse_bool(args.persist_selection),
-        selection_version=str(args.selection_version),
-        selection_k=int(args.selection_k),
-        selection_max_per_event=int(args.selection_max_per_event),
-        selection_max_rate_like=int(args.selection_max_rate_like),
-        record_daily_snapshots=_parse_bool(args.record_daily_snapshots),
-        snapshot_scope=str(args.snapshot_scope),
-        snapshot_limit=args.snapshot_limit,
-        run_audit=_parse_bool(args.run_audit),
-        audit_top_n=int(args.audit_top_n),
-        out_dir="reports",
-    )
+    lock_mode = str(args.db_lock or "none").strip().lower()
+    lock_key = int(args.db_lock_key)
+    lock_conn = None
+    if lock_mode != "none":
+        lock_conn = connect(db_url)
+        try:
+            with lock_conn.cursor() as cur:
+                if lock_mode == "try":
+                    cur.execute("select pg_try_advisory_lock(%s);", (lock_key,))
+                    ok = bool(cur.fetchone()[0])
+                    if not ok:
+                        logging.warning("DB lock busy (another refresh is running); skipping this run.")
+                        return
+                else:
+                    cur.execute("select pg_advisory_lock(%s);", (lock_key,))
+            out = run_polymarket_refresh(
+                db_url=db_url,
+                base_url=base_url,
+                ingest_limit=int(args.ingest_limit),
+                ingest_max_pages=args.ingest_max_pages,
+                ingest_sleep_s=float(args.ingest_sleep_s),
+                ingest_since_ts=args.since_ts,
+                ingest_timeout_s=float(args.timeout_s),
+                hard_filters_limit=args.hard_filters_limit,
+                hard_filters_batch_size=int(args.hard_filters_batch_size),
+                matcher_version=str(args.matcher_version),
+                match_limit=int(args.match_limit),
+                use_embeddings=_parse_bool(args.use_embeddings),
+                embedding_model=str(emb_model),
+                embedding_device=emb_device,
+                embedding_top_k=int(args.top_k),
+                embedding_min_similarity=float(args.similarity_threshold),
+                lexical_min_score=float(args.lexical_min_score),
+                classification_min_score=float(args.rule_threshold),
+                scoring_version=str(args.scoring_version),
+                trusted_only=_parse_bool(args.trusted_only),
+                min_base_score=float(args.min_base_score),
+                persist_selection=_parse_bool(args.persist_selection),
+                selection_version=str(args.selection_version),
+                selection_k=int(args.selection_k),
+                selection_max_per_event=int(args.selection_max_per_event),
+                selection_max_rate_like=int(args.selection_max_rate_like),
+                record_daily_snapshots=_parse_bool(args.record_daily_snapshots),
+                snapshot_scope=str(args.snapshot_scope),
+                snapshot_limit=args.snapshot_limit,
+                run_audit=_parse_bool(args.run_audit),
+                audit_top_n=int(args.audit_top_n),
+                out_dir="reports",
+            )
+        finally:
+            try:
+                with lock_conn.cursor() as cur:
+                    cur.execute("select pg_advisory_unlock(%s);", (lock_key,))
+                lock_conn.commit()
+            finally:
+                lock_conn.close()
+    else:
+        out = run_polymarket_refresh(
+            db_url=db_url,
+            base_url=base_url,
+            ingest_limit=int(args.ingest_limit),
+            ingest_max_pages=args.ingest_max_pages,
+            ingest_sleep_s=float(args.ingest_sleep_s),
+            ingest_since_ts=args.since_ts,
+            ingest_timeout_s=float(args.timeout_s),
+            hard_filters_limit=args.hard_filters_limit,
+            hard_filters_batch_size=int(args.hard_filters_batch_size),
+            matcher_version=str(args.matcher_version),
+            match_limit=int(args.match_limit),
+            use_embeddings=_parse_bool(args.use_embeddings),
+            embedding_model=str(emb_model),
+            embedding_device=emb_device,
+            embedding_top_k=int(args.top_k),
+            embedding_min_similarity=float(args.similarity_threshold),
+            lexical_min_score=float(args.lexical_min_score),
+            classification_min_score=float(args.rule_threshold),
+            scoring_version=str(args.scoring_version),
+            trusted_only=_parse_bool(args.trusted_only),
+            min_base_score=float(args.min_base_score),
+            persist_selection=_parse_bool(args.persist_selection),
+            selection_version=str(args.selection_version),
+            selection_k=int(args.selection_k),
+            selection_max_per_event=int(args.selection_max_per_event),
+            selection_max_rate_like=int(args.selection_max_rate_like),
+            record_daily_snapshots=_parse_bool(args.record_daily_snapshots),
+            snapshot_scope=str(args.snapshot_scope),
+            snapshot_limit=args.snapshot_limit,
+            run_audit=_parse_bool(args.run_audit),
+            audit_top_n=int(args.audit_top_n),
+            out_dir="reports",
+        )
     print(
         "polymarket_refresh:",
         {

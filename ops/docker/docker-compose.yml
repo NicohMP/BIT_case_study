@@ -1,0 +1,24 @@
+services:
+  refresh_scheduler:
+    build:
+      context: ../..
+      dockerfile: ops/docker/Dockerfile.refresh
+    restart: unless-stopped
+    env_file:
+      - ../../.env
+    environment:
+      # Docker doesn't support macOS `mps`; force CPU to avoid surprising failures
+      # when local one-off runs set EMBEDDING_DEVICE=mps in `.env`.
+      EMBEDDING_DEVICE: "cpu"
+    extra_hosts:
+      # Linux needs this mapping for containers to reach services exposed on the host.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../../logs:/app/logs
+      - ../../reports:/app/reports
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+
+volumes:
+  hf_cache:
+  torch_cache:

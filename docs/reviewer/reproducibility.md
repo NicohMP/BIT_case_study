@@ -69,6 +69,32 @@ For best Step 3 discovery coverage (embeddings enabled), use:
 ./venv/bin/python scripts/refresh_embeddings.py
 ```
 
+### Optional: scheduled refresh (cross‑OS via Docker)
+
+If you want the background state to refresh on an interval (instead of a one‑off run), use the
+Docker scheduler under `ops/docker/`.
+
+Start:
+```bash
+bash ops/docker/install.sh
+```
+
+By default this runs every ~2 hours and enables embeddings + daily snapshots. You can configure the interval / daily snapshots via `.env`:
+- `REFRESH_INTERVAL_SECONDS=7200`
+- `REFRESH_USE_EMBEDDINGS=true` (default: `true`)
+- `REFRESH_RECORD_DAILY_SNAPSHOTS=false`
+- `REFRESH_SNAPSHOT_SCOPE=kept` (or `all`)
+
+Logs:
+```bash
+cd ops/docker && docker compose logs -f refresh_scheduler
+```
+
+Stop:
+```bash
+bash ops/docker/uninstall.sh
+```
+
 ## 2b) Advanced: run each step separately (single-step scripts)
 
 This section is for reviewers who want to inspect intermediate outputs, rerun a single step, or tweak versions/thresholds.

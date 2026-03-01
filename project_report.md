@@ -276,7 +276,7 @@ The preceding sections describe the conceptual and quantitative framework of the
 
 **Scheduling mechanism (local demo):**
 
-The background refresh runs every ~2 hours via `launchd` (macOS LaunchAgent template with `StartInterval=7200`). Each run performs ingestion, filtering, matching, scoring, and selection. LLM inference is performed **only at report generation time**.
+The background refresh runs every ~2 hours via a Docker scheduler container (`ops/docker/`). Each run performs ingestion, filtering, matching, scoring, and selection. LLM inference is performed **only at report generation time**.
 
 ### Database Queryability (Proof of System Reality)
 

@@ -19,7 +19,12 @@ Versioned pipeline that ingests Polymarket markets into Postgres, applies determ
 
 ## Quickstart (minimal steps)
 
-### 1) Python
+### 0) Prereqs
+- Supabase CLI installed (`supabase` in PATH)
+- Postgres client optional (`psql`) for quick sanity checks
+- Docker installed (only needed for the scheduled refresh)
+
+### 1) Python (for one‑off runs + Web UI)
 `python3 -m venv venv`
 `./venv/bin/pip install -r requirements.txt`
 
@@ -29,6 +34,9 @@ Versioned pipeline that ingests Polymarket markets into Postgres, applies determ
 Required:
 - `DATABASE_URL`
 
+If you use Supabase local, the default is:
+- `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
 Optional (only if you enable embeddings):
 - `EMBEDDING_DEVICE`: `cpu` (default), `mps` (macOS), `cuda`/`cuda:0` (Linux/NVIDIA)
 - Linux/NVIDIA: install a CUDA-enabled PyTorch first, then `./venv/bin/pip install -r requirements-nontorch.txt`
@@ -37,14 +45,42 @@ Optional (only if you enable embeddings):
 `supabase start`
 `supabase db reset`
 
-### 4) Ingest + filter (+ rest of pipeline)
+### 4) One‑off refresh (Steps 1→4b)
 Basic run (no embeddings):
 `./venv/bin/python scripts/refresh_basic.py`
 
 Run with embeddings:
 `./venv/bin/python scripts/refresh_embeddings.py`
 
-### 5) Launch the Web UI
+### 5) Scheduled refresh (cross‑OS via Docker)
+Runs the refresh pipeline on an interval (default: every 2 hours) in a background Docker container.
+This is intended as the “scheduled pipeline, not a one‑off script” mode from the case study instructions.
+
+Prereq: make sure Supabase is running (`supabase start`) and your `.env` has a working `DATABASE_URL`.
+
+Start:
+`bash ops/docker/install.sh`
+
+Defaults (without any extra config):
+- embeddings enabled
+- daily snapshots enabled (`pm_market_daily_snapshot`)
+- pipeline audit disabled (to keep logs/artifacts small)
+
+Configure (optional, in `.env`):
+- `REFRESH_INTERVAL_SECONDS=7200`
+- `REFRESH_USE_EMBEDDINGS=true` (default: `true`)
+- `REFRESH_RECORD_DAILY_SNAPSHOTS=false` (disable daily snapshot upserts)
+- `REFRESH_SNAPSHOT_SCOPE=kept` (or `all`)
+
+Note: the scheduled Docker refresh forces `EMBEDDING_DEVICE=cpu` (Docker doesn’t support macOS `mps`).
+
+Logs:
+`cd ops/docker && docker compose logs -f refresh_scheduler`
+
+Stop:
+`bash ops/docker/uninstall.sh`
+
+### 6) Launch the Web UI
 `./venv/bin/python scripts/run_webui.py`
 
 More (flags/versions, audits, report generation): `docs/reviewer/reproducibility.md`.
