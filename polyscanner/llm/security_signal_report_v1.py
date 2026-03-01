@@ -137,6 +137,13 @@ def build_prompt(
             f"Select at most MAX_MARKETS={int(max_markets)} markets.",
             f"Select at most MAX_RATE_LIKE={int(max_rate_like)} markets where is_rate_like=true.",
             "Do not invent causal stories: for domain impact explanations, only use influence_matrix_slice.rationale_md and exposure_vector.rationale.",
+            "For each selected market, explicitly state the directional implication for the stock conditional on outcomes. "
+            "Put this inside the market.structural_relevance string (do NOT add new keys for it). "
+            "Include a sentence that starts with exactly 'Directional impact (YES): ' and then one of "
+            "'bullish', 'bearish', 'mixed', or 'unclear', followed by a short justification grounded in the provided "
+            "transmission chain (signal family → macro domain(s) → security exposure). If helpful, you may add "
+            "'Directional impact (NO): ...' as a second sentence. If the pack does not contain enough to sign the impact, "
+            "use 'unclear' and explain what is missing (do not guess).",
             "For each selected market, include at least 1 family_match evidence and at least 1 influence_edge evidence ref.",
             "Do NOT include raw numeric scoring values (final_score/base_score/quality_multiplier/market_strength) inside narrative strings (top_take, structural_relevance, actionability, themes.why, monitor_next). Use market.buckets labels instead.",
             "Structural relevance must reference the transmission_chain and market.buckets.structural_relevance, not raw base_score numbers.",

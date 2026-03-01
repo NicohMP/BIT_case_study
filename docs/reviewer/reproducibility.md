@@ -12,6 +12,13 @@ All intermediate decisions are written to Postgres tables with explicit version 
 - A `.env` file with at least `DATABASE_URL`. For report generation via Gemini, also set `GOOGLE_API_KEY`.
 - Python environment (the repo uses `./venv/bin/python` in examples).
 
+Recommended fast path:
+
+```bash
+bash scripts/bootstrap.sh
+./venv/bin/python scripts/doctor.py
+```
+
 ## Pipeline steps (nomenclature)
 
 - **Step 1 (Ingestion):** ingest all active Polymarket events + markets from Gamma `/events` into Postgres (`pm_event`, `pm_market`).

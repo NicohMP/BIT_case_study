@@ -28,6 +28,7 @@ Quick entrypoint:
 ## Reviewer runbook
 
 - `docs/reviewer/reproducibility.md`: how to reproduce one refresh + one report + audits locally, and where evidence artifacts are written.
+  - Tip: `./venv/bin/python scripts/doctor.py` runs quick local sanity checks (env + DB + migrations).
 
 ## Repo map
 

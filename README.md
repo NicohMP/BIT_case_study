@@ -20,15 +20,22 @@ Versioned pipeline that ingests Polymarket markets into Postgres, applies determ
 ## Quickstart (minimal steps)
 
 ### 0) Prereqs
+- Python 3.11+ (recommended: 3.12/3.13; last tested with 3.14.3 on 2026-03-01)
 - Supabase CLI installed (`supabase` in PATH)
 - Postgres client optional (`psql`) for quick sanity checks
 - Docker installed (only needed for the scheduled refresh)
 
 ### 1) Python (for one‑off runs + Web UI)
+Fast path:
+`bash scripts/bootstrap.sh`
+
+Or manually:
 `python3 -m venv venv`
 `./venv/bin/pip install -r requirements.txt`
 
 ### 2) `.env`
+If you ran `bash scripts/bootstrap.sh`, this is already created.
+
 `cp .env.example .env`
 
 Required:
@@ -45,9 +52,15 @@ Optional (only if you enable embeddings):
 `supabase start`
 `supabase db reset`
 
+Sanity check (optional but recommended):
+`./venv/bin/python scripts/doctor.py`
+
 ### 4) One‑off refresh (Steps 1→4b)
 Basic run (no embeddings):
 `./venv/bin/python scripts/refresh_basic.py`
+
+Smoke test (fast, small ingest):
+`./venv/bin/python scripts/refresh_basic.py --ingest-max-pages 2 --match-limit 500`
 
 Run with embeddings:
 `./venv/bin/python scripts/refresh_embeddings.py`
