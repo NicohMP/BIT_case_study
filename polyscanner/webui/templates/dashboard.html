@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Dashboard</h1>
+
+  <div class="grid">
+    <div class="card">
+      <div class="k">Latest pipeline run</div>
+      {% if run %}
+        <div class="muted">finished_at: <code>{{ run.finished_at }}</code></div>
+        <div class="muted">
+          versions: filter <code>{{ run.filter_version }}</code>, matcher <code>{{ run.matcher_version }}</code>, scoring <code>{{ run.scoring_version }}</code>, selection <code>{{ run.selection_version }}</code>
+        </div>
+      {% else %}
+        <div class="muted">No successful runs found.</div>
+      {% endif %}
+      {% if llm %}
+        <div class="row" style="margin-top:10px">
+          <span class="pill">prompt: <code>{{ llm.prompt_version }}</code></span>
+          <span class="pill">backend: <code>{{ llm.backend }}</code></span>
+          <span class="pill">model: <code>{{ llm.model }}</code></span>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="k">Counts</div>
+      <ul class="list">
+        <li>events: <b>{{ counts.pm_event }}</b></li>
+        <li>markets: <b>{{ counts.pm_market }}</b></li>
+        <li>kept (latest): <b>{{ counts.kept_latest }}</b></li>
+        <li>selected (latest): <b>{{ counts.selected_latest }}</b></li>
+        <li>reports: <b>{{ counts.reports }}</b></li>
+      </ul>
+    </div>
+  </div>
+
+  {% if not watchlist %}
+    <div class="card card-warn">
+      No watched securities yet. Go to <a href="/watchlist">Watchlist</a> to select stocks.
+    </div>
+  {% endif %}
+
+  {% if toast %}
+    <div class="card card-ok">{{ toast }}</div>
+  {% endif %}
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <div class="k">Watched securities</div>
+        <div class="muted">Inline preview shows the top selected markets (Step 4b) used to build the LLM context pack.</div>
+      </div>
+      <div class="row">
+        <a class="muted" href="/generate">Bulk generate</a>
+        <a class="muted" href="/reports">Browse reports →</a>
+      </div>
+    </div>
+  </div>
+
+  {% for s in watchlist %}
+    <div class="card">
+      <div class="row" style="justify-content:space-between; align-items:center">
+        <div>
+          <div class="v"><code>{{ s.ticker }}</code> — {{ s.company_name }}</div>
+          <div class="muted">
+            {% if s.total_value is not none %}
+              holding value: <code>{{ s.total_value }}</code> {{ s.value_currency or '' }} ·
+            {% endif %}
+            watched_at: <code>{{ s.as_of }}</code>
+          </div>
+        </div>
+        <div class="row">
+          <form method="post" action="/actions/generate_and_open">
+            <input type="hidden" name="ticker" value="{{ s.ticker }}" />
+            <input type="hidden" name="temperature" value="0.0" />
+            <input type="hidden" name="max_markets" value="8" />
+            <button type="submit">Generate report</button>
+          </form>
+          {% set rep = (latest_reports.get(s.security_id) if latest_reports else None) %}
+          {% if rep %}
+            <a href="/reports/{{ rep.report_id }}">Open latest report</a>
+          {% else %}
+            <span class="muted">No report yet</span>
+          {% endif %}
+          <a class="muted" href="/signals?ticker={{ s.ticker }}">View top markets</a>
+        </div>
+      </div>
+
+      {% set preview = previews.get(s.ticker) if previews else [] %}
+      {% if preview %}
+        <table class="table" style="margin-top:10px">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Market</th>
+              <th>Prob</th>
+              <th>End</th>
+              <th>Vol</th>
+              <th>Liq</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in preview %}
+              <tr>
+                <td><b>{{ r.rank }}</b></td>
+                <td>
+                  <a href="{{ request.url_for('market_detail', market_id=r.market_id) }}?ticker={{ s.ticker }}">{{ r.question }}</a>
+                  {% if r.event_title %}<div class="muted">{{ r.event_title }}</div>{% endif %}
+                </td>
+                <td><span class="pill">{{ r.probability | fmt_prob }}</span></td>
+                <td class="muted">
+                  <code>{{ r.end_date | fmt_date }}</code>
+                  <div class="muted">in {{ r.end_date | fmt_ends_in }}</div>
+                </td>
+                <td><code>{{ r.volume_usd | fmt_usd }}</code></td>
+                <td><code>{{ r.liquidity_usd | fmt_usd }}</code></td>
+                <td><code>{{ '%.3f'|format(r.selection_score) }}</code></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted" style="margin-top:10px">No selected markets found (run the pipeline refresh).</div>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% endblock %}

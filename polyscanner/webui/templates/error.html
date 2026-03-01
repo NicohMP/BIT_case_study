@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Error · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <div class="card card-warn">
+    <div class="k">Error</div>
+    <div class="v">{{ title }}</div>
+    <p class="muted">{{ message }}</p>
+    {% if detail %}
+      <pre class="pre">{{ detail }}</pre>
+    {% endif %}
+    <div class="row" style="margin-top:10px">
+      <a href="/">Back to dashboard</a>
+      <a class="muted" href="/reports">Browse reports</a>
+    </div>
+  </div>
+{% endblock %}
+

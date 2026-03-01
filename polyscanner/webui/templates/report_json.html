@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Report JSON · {{ rep.ticker }}{% endblock %}
+{% block content %}
+  <h1>{{ rep.company_name }} <span class="muted">({{ rep.ticker }})</span></h1>
+  <div class="card">
+    <div class="muted">report_id <code>{{ rep.report_id }}</code> · model <code>{{ rep.model }}</code> · prompt <code>{{ rep.prompt_version }}</code></div>
+    <div class="muted">created_at <code>{{ rep.created_at }}</code></div>
+  </div>
+  <div class="card">
+    <div class="k">JSON</div>
+    <pre class="pre">{{ pretty }}</pre>
+  </div>
+{% endblock %}
+

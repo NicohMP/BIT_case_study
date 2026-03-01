@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Signals · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Signals</h1>
+
+  <div class="card">
+    <form method="get" action="/signals" class="row">
+      <label>
+        Ticker
+        <select name="ticker">
+          {% for s in securities %}
+            <option value="{{ s.ticker }}" {% if s.ticker == ticker %}selected{% endif %}>{{ s.ticker }} — {{ s.company_name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Domain filter (optional)
+        <select name="domain_id">
+          <option value="">All</option>
+          {% for d in macro_domains %}
+            <option value="{{ d.macro_domain_id }}" {% if request.query_params.get('domain_id') == (d.macro_domain_id|string) %}selected{% endif %}>{{ d.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="cb-inline">
+        <input type="hidden" name="hide_rate_like" value="0" />
+        <input type="checkbox" name="hide_rate_like" value="1" {% if hide_rate_like %}checked{% endif %} />
+        Hide rate-like
+      </label>
+      <label>
+        Limit
+        <input type="number" name="limit" value="{{ limit }}" min="1" max="200" />
+      </label>
+      <button type="submit">Load</button>
+    </form>
+    <p class="muted">
+      Selected markets for <code>{{ ticker }}</code> (diversified Step 4b selection). Click a market to open the audit view.
+    </p>
+  </div>
+
+  <div class="card">
+    <table class="table table-compact">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Market</th>
+          <th>Prob</th>
+          <th>Ends</th>
+          <th>Volume / Liquidity</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td><b>{{ r.rank }}</b></td>
+          <td>
+            <div><a href="{{ request.url_for('market_detail', market_id=r.market_id) }}?ticker={{ ticker }}">{{ r.question }}</a></div>
+            {% if r.event_title %}<div class="muted">{{ r.event_title }}</div>{% endif %}
+            <div class="muted">
+              market_id <code>{{ r.market_id }}</code>
+              {% if r.event_id %} · event_id <code>{{ r.event_id }}</code>{% endif %}
+              {% if r.is_rate_like %} · <span class="pill">rate-like</span>{% endif %}
+            </div>
+          </td>
+          <td><span class="pill">{{ r.probability | fmt_prob }}</span></td>
+          <td>
+            <div class="muted"><code>{{ r.end_date | fmt_date }}</code></div>
+            <div class="muted">in {{ r.end_date | fmt_ends_in }}</div>
+          </td>
+          <td class="muted">
+            vol <code>{{ r.volume_usd | fmt_usd }}</code> · liq <code>{{ r.liquidity_usd | fmt_usd }}</code>
+          </td>
+          <td>
+            <details class="details">
+              <summary class="muted">metrics</summary>
+              <div class="row" style="margin-top:8px">
+                <span class="pill">selection <code>{{ '%.3f'|format(r.selection_score) }}</code></span>
+                <span class="pill">relevance <code>{{ '%.3f'|format(r.relevance_final_score) }}</code></span>
+                {% set sr = r.selection_reason or {} %}
+                {% if sr.sentiment_g_v1 is defined %}
+                  <span class="pill">g <code>{{ '%.3f'|format(sr.sentiment_g_v1) }}</code></span>
+                  {% if sr.tau_days is defined %}<span class="pill">tau <code>{{ '%.1f'|format(sr.tau_days) }}d</code></span>{% endif %}
+                {% endif %}
+              </div>
+              {% if sr and sr.sentiment_components %}
+                <div class="muted" style="margin-top:8px">
+                  components:
+                  {% if sr.sentiment_components.participation is defined %} participation <code>{{ '%.2f'|format(sr.sentiment_components.participation) }}</code>{% endif %}
+                  {% if sr.sentiment_components.urgency is defined %} · urgency <code>{{ '%.2f'|format(sr.sentiment_components.urgency) }}</code>{% endif %}
+                  {% if sr.sentiment_components.movement is defined and sr.sentiment_components.movement is not none %} · movement <code>{{ '%.2f'|format(sr.sentiment_components.movement) }}</code>{% endif %}
+                </div>
+              {% endif %}
+            </details>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

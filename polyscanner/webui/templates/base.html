@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Polymarket Signal Scanner{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="brand">
+          <a href="/">Polymarket Signal Scanner</a>
+          <span class="muted">local demo</span>
+        </div>
+        <nav class="nav">
+          <a href="/">Dashboard</a>
+          <a href="/watchlist">Watchlist</a>
+          <a href="/reports">Reports</a>
+          <details class="nav-more">
+            <summary class="muted">Debug</summary>
+            <div class="nav-menu">
+              <a href="/generate">Bulk generate</a>
+              <a href="/signals">Signals</a>
+              <a href="/pipeline">Pipeline</a>
+              <a href="/markets">Kept</a>
+              <a href="/securities">All securities</a>
+            </div>
+          </details>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      {% if error %}
+      <div class="card card-warn">{{ error }}</div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer container">
+      <span class="muted">Reads from Postgres views; LLM is on-demand.</span>
+    </footer>
+  </body>
+</html>

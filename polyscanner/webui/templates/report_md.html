@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Report · {{ rep.ticker }}{% endblock %}
+{% block content %}
+  <h1>{{ rep.company_name }} <span class="muted">({{ rep.ticker }})</span></h1>
+  <div class="card">
+    <div class="muted">report_id <code>{{ rep.report_id }}</code> · model <code>{{ rep.model }}</code> · prompt <code>{{ rep.prompt_version }}</code></div>
+    <div class="muted">created_at <code>{{ rep.created_at }}</code></div>
+    <div class="row">
+      <a href="/reports/{{ rep.report_id }}">rendered</a>
+      <a class="muted" href="/reports/{{ rep.report_id }}?view=raw">raw</a>
+      <a class="muted" href="/reports/{{ rep.report_id }}?view=json">json</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="k">Report</div>
+    {% if md_html %}
+      <div class="prose">{{ md_html | safe }}</div>
+    {% else %}
+      <pre class="pre">{{ md }}</pre>
+    {% endif %}
+  </div>
+{% endblock %}

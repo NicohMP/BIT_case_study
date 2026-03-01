@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Pipeline · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Pipeline status</h1>
+  <div class="card">
+    {% if run %}
+      <div class="k">Latest successful run</div>
+      <table class="table">
+        <tr><th>run_id</th><td><code>{{ run.run_id }}</code></td></tr>
+        <tr><th>finished_at</th><td><code>{{ run.finished_at }}</code></td></tr>
+        <tr><th>filter_version</th><td><code>{{ run.filter_version }}</code></td></tr>
+        <tr><th>matcher_version</th><td><code>{{ run.matcher_version }}</code></td></tr>
+        <tr><th>scoring_version</th><td><code>{{ run.scoring_version }}</code></td></tr>
+        <tr><th>selection_version</th><td><code>{{ run.selection_version }}</code></td></tr>
+      </table>
+    {% else %}
+      <div class="muted">No successful runs found. Run the refresh pipeline first.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="k">Counts</div>
+    <ul class="list">
+      <li>events: <b>{{ counts.pm_event }}</b></li>
+      <li>markets: <b>{{ counts.pm_market }}</b></li>
+      <li>kept (latest): <b>{{ counts.kept_latest }}</b></li>
+      <li>selected (latest): <b>{{ counts.selected_latest }}</b></li>
+      <li>reports: <b>{{ counts.reports }}</b></li>
+    </ul>
+  </div>
+{% endblock %}
+

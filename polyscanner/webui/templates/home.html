@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Home · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Overview</h1>
+
+  <div class="grid">
+    <div class="card">
+      <div class="k">Latest pipeline run</div>
+      {% if run %}
+        <div class="v"><code>{{ run.run_id }}</code></div>
+        <div class="muted">finished_at: <code>{{ run.finished_at }}</code></div>
+        <div class="muted">versions: filter <code>{{ run.filter_version }}</code>, matcher <code>{{ run.matcher_version }}</code>, scoring <code>{{ run.scoring_version }}</code>, selection <code>{{ run.selection_version }}</code></div>
+      {% else %}
+        <div class="muted">No successful runs found.</div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="k">Database counts</div>
+      <ul class="list">
+        <li>events: <b>{{ counts.pm_event }}</b></li>
+        <li>markets: <b>{{ counts.pm_market }}</b></li>
+        <li>kept (latest): <b>{{ counts.kept_latest }}</b></li>
+        <li>selected (latest): <b>{{ counts.selected_latest }}</b></li>
+        <li>reports: <b>{{ counts.reports }}</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="k">Next</div>
+    <p class="muted">Use <a href="/signals">Signals</a> to browse selected markets per ticker, or <a href="/reports">Reports</a> to read past signal reports.</p>
+  </div>
+{% endblock %}
+

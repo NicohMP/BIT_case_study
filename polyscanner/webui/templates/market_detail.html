@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Market · {{ market.market_id }}{% endblock %}
+{% block content %}
+  <h1>Market <span class="muted"><code>{{ market.market_id }}</code></span></h1>
+
+  <div class="card">
+    <div class="v">{{ market.question }}</div>
+    <div class="muted">
+      {% if market.event_id %}event_id <code>{{ market.event_id }}</code>{% endif %}
+      {% if market.event_title %} · {{ market.event_title }}{% endif %}
+    </div>
+    {% if market.market_slug %}
+      <div class="muted" style="margin-top:6px">
+        Polymarket: <a href="https://polymarket.com/market/{{ market.market_slug }}" target="_blank" rel="noopener">open market</a>
+        <span class="muted">(slug <code>{{ market.market_slug }}</code>)</span>
+      </div>
+    {% endif %}
+    <div class="row" style="margin-top:10px">
+      <span class="pill">prob <code>{{ market.probability | fmt_prob }}</code></span>
+      <span class="pill">vol <code>{{ market.volume_usd | fmt_usd }}</code></span>
+      <span class="pill">liq <code>{{ market.liquidity_usd | fmt_usd }}</code></span>
+      <span class="pill">end <code>{{ market.end_date | fmt_date }}</code> · {{ market.end_date | fmt_ends_in }}</span>
+    </div>
+    {% if ticker %}
+      <div class="muted" style="margin-top:10px">Context: <code>{{ ticker }}</code></div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="k">Why this market is in the pack</div>
+    {% if selected %}
+      <div class="row">
+        <span class="pill">rank <code>{{ selected.rank }}</code></span>
+        <span class="pill">selection <code>{{ '%.3f'|format(selected.selection_score) }}</code></span>
+        <span class="pill">relevance <code>{{ '%.3f'|format(selected.relevance_final_score) }}</code></span>
+        {% if selected.is_rate_like %}<span class="pill">rate-like</span>{% endif %}
+      </div>
+
+      {% set bd = selected.score_breakdown or {} %}
+      {% set top = (bd.top_domains or []) if bd is mapping else [] %}
+      {% if top and (top[0].macro_domain_name is defined) %}
+        <div class="muted" style="margin-top:10px">Primary domain: <code>{{ top[0].macro_domain_name }}</code></div>
+      {% endif %}
+
+      {% set sr = selected.selection_reason or {} %}
+      {% if sr and sr.sentiment_g_v1 is defined %}
+        <div class="muted" style="margin-top:10px">
+          sentiment intensity: <code>{{ '%.3f'|format(sr.sentiment_g_v1) }}</code>
+          {% if sr.sentiment_components %} · components
+            {% if sr.sentiment_components.participation is defined %} participation <code>{{ '%.2f'|format(sr.sentiment_components.participation) }}</code>{% endif %}
+            {% if sr.sentiment_components.urgency is defined %} · urgency <code>{{ '%.2f'|format(sr.sentiment_components.urgency) }}</code>{% endif %}
+            {% if sr.sentiment_components.movement is defined and sr.sentiment_components.movement is not none %} · movement <code>{{ '%.2f'|format(sr.sentiment_components.movement) }}</code>{% endif %}
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <details class="details" style="margin-top:10px">
+        <summary class="muted">Show full selection_reason + score_breakdown</summary>
+        {% if sr %}
+          <div class="muted" style="margin-top:10px">selection_reason:</div>
+          <pre class="pre">{{ sr | tojson(indent=2) }}</pre>
+        {% endif %}
+        {% if bd %}
+          <div class="muted" style="margin-top:10px">score_breakdown:</div>
+          <pre class="pre">{{ bd | tojson(indent=2) }}</pre>
+        {% endif %}
+      </details>
+    {% else %}
+      <div class="muted">
+        No stock context. Open from a ticker page, e.g.
+        <code>{{ request.url_for('market_detail', market_id=market.market_id) }}?ticker=NVDA</code>.
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="k">Filter decision (latest)</div>
+    {% if decision %}
+      <div class="row">
+        <span class="pill">filter <code>{{ decision.filter_version }}</code></span>
+        {% if decision.is_rejected %}
+          <span class="pill">rejected</span>
+        {% else %}
+          <span class="pill">kept</span>
+        {% endif %}
+        {% if decision.decided_at %}<span class="pill">decided_at <code>{{ decision.decided_at | fmt_date }}</code></span>{% endif %}
+      </div>
+      {% if decision.rejection_reasons %}
+        <div class="muted" style="margin-top:10px">reasons: <code>{{ decision.rejection_reasons }}</code></div>
+      {% endif %}
+      {% if decision.keep_reasons %}
+        <div class="muted" style="margin-top:10px">keep: <code>{{ decision.keep_reasons }}</code></div>
+      {% endif %}
+      <div class="muted" style="margin-top:10px">
+        quality <code>{{ decision.quality_score }}</code> · template <code>{{ decision.template_score }}</code> · equity <code>{{ decision.equity_relevance_score }}</code>
+      </div>
+    {% else %}
+      <div class="muted">No decision row found for latest filter_version.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="k">Signal-family matches (latest)</div>
+    {% if matches %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Family</th>
+            <th>Method</th>
+            <th>Strength</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for x in matches %}
+            <tr>
+              <td><code>{{ x.slug }}</code>{% if x.title %}<div class="muted">{{ x.title }}</div>{% endif %}</td>
+              <td class="muted"><code>{{ x.method }}</code></td>
+              <td><code>{{ '%.3f'|format(x.match_strength) }}</code></td>
+            </tr>
+            {% if x.evidence %}
+              <tr>
+                <td colspan="3">
+                  <details>
+                    <summary class="muted">evidence</summary>
+                    <pre class="pre">{{ x.evidence | tojson(indent=2) }}</pre>
+                  </details>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="muted">No match rows found for latest matcher_version.</div>
+    {% endif %}
+  </div>
+{% endblock %}

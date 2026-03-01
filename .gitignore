@@ -7,10 +7,22 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
+.ipynb_checkpoints/
 
 venv/
 .venv/
 
 .DS_Store
 
-poly_api.ipynb
+reports/
+notebooks/reports/
+logs/
+
+# Local debugging artifacts
+terminal_output*.txt
+terminal_ouput*.txt
+
+
+# Instructions and report
+project_instructions.txt
+project_report.txt

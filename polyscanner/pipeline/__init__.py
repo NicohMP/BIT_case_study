@@ -1,8 +1,5 @@
-"""Pipeline/orchestration package (skeleton).
+"""Pipeline entrypoints.
 
-This package will eventually contain scheduled tasks for:
-- ingestion
-- classification
-- report generation
+Operational refresh:
+- `polyscanner.pipeline.polymarket_refresh.run_polymarket_refresh`
 """
-

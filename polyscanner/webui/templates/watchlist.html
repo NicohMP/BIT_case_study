@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Watchlist · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Watchlist</h1>
+
+  {% if toast %}
+    <div class="card card-ok">{{ toast }}</div>
+  {% endif %}
+
+  <div class="card">
+    <div class="muted">Stocks shown on the dashboard. Stored in <code>bit_holding</code>.</div>
+
+    <form method="post" action="/watchlist" class="stack" style="margin-top:10px">
+      {% set any_selected = (watchlist and (watchlist|length > 0)) %}
+
+      {% if any_selected %}
+        <table class="table table-compact">
+          <thead>
+            <tr>
+              <th>Watch</th>
+              <th>Security</th>
+              <th>Exchange</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in securities %}
+              {% if s.security_id in watchlist %}
+                <tr>
+                  <td><input class="cb-box" type="checkbox" name="security_id" value="{{ s.security_id }}" checked /></td>
+                  <td><code>{{ s.ticker }}</code> — {{ s.company_name }}</td>
+                  <td class="muted"><code>{{ s.exchange_mic }}</code></td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">No stocks selected yet.</div>
+      {% endif %}
+
+      <div class="row">
+        <button type="submit">Save watchlist</button>
+        <a class="muted" href="/">Back to dashboard →</a>
+      </div>
+    </form>
+  </div>
+
+  <details class="card">
+    <summary class="muted">Edit watchlist (show all securities)</summary>
+    <form method="post" action="/watchlist" class="stack" style="margin-top:10px">
+      <div class="checkbox-grid checkbox-grid-compact">
+        {% for s in securities %}
+          {% set checked = (s.security_id in watchlist) %}
+          <label class="cb">
+            <input type="checkbox" name="security_id" value="{{ s.security_id }}" {% if checked %}checked{% endif %} />
+            <span><code>{{ s.ticker }}</code> — {{ s.company_name }} <span class="muted">({{ s.exchange_mic }})</span></span>
+          </label>
+        {% endfor %}
+      </div>
+      <div class="row">
+        <button type="submit">Save watchlist</button>
+      </div>
+    </form>
+  </details>
+
+  <div class="grid">
+    <div class="card">
+      <div class="k">Latest pipeline run</div>
+      {% if run %}
+        <div class="muted">finished_at: <code>{{ run.finished_at }}</code></div>
+        <div class="muted">versions: filter <code>{{ run.filter_version }}</code>, matcher <code>{{ run.matcher_version }}</code>, scoring <code>{{ run.scoring_version }}</code>, selection <code>{{ run.selection_version }}</code></div>
+      {% else %}
+        <div class="muted">No successful runs found.</div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="k">Counts</div>
+      <ul class="list">
+        <li>events: <b>{{ counts.pm_event }}</b></li>
+        <li>markets: <b>{{ counts.pm_market }}</b></li>
+        <li>kept (latest): <b>{{ counts.kept_latest }}</b></li>
+        <li>selected (latest): <b>{{ counts.selected_latest }}</b></li>
+        <li>reports: <b>{{ counts.reports }}</b></li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}
