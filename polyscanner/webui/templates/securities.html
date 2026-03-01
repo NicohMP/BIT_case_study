@@ -18,11 +18,10 @@
           <td><code>{{ s.ticker }}</code></td>
           <td>{{ s.company_name }}</td>
           <td class="muted">{{ s.exchange_mic }}</td>
-          <td><a href="/securities/{{ s.security_id }}">exposure</a> · <a href="/signals?ticker={{ s.ticker }}">signals</a></td>
+          <td><a href="/securities/{{ s.security_id }}">exposure</a> · <a href="/signals?security_id={{ s.security_id }}">signals</a></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 {% endblock %}
-

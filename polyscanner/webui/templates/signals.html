@@ -6,10 +6,12 @@
   <div class="card">
     <form method="get" action="/signals" class="row">
       <label>
-        Ticker
-        <select name="ticker">
+        Security
+        <select name="security_id">
           {% for s in securities %}
-            <option value="{{ s.ticker }}" {% if s.ticker == ticker %}selected{% endif %}>{{ s.ticker }} — {{ s.company_name }}</option>
+            <option value="{{ s.security_id }}" {% if s.security_id == security_id %}selected{% endif %}>
+              {{ s.ticker }}{% if s.exchange_mic %}@{{ s.exchange_mic }}{% endif %} — {{ s.company_name }}
+            </option>
           {% endfor %}
         </select>
       </label>
@@ -34,7 +36,7 @@
       <button type="submit">Load</button>
     </form>
     <p class="muted">
-      Selected markets for <code>{{ ticker }}</code> (diversified Step 4b selection). Click a market to open the audit view.
+      Selected markets for <code>{{ context }}</code> (diversified Step 4b selection). Click a market to open the audit view.
     </p>
   </div>
 
@@ -55,7 +57,7 @@
         <tr>
           <td><b>{{ r.rank }}</b></td>
           <td>
-            <div><a href="{{ request.url_for('market_detail', market_id=r.market_id) }}?ticker={{ ticker }}">{{ r.question }}</a></div>
+            <div><a href="{{ request.url_for('market_detail', market_id=r.market_id) }}?security_id={{ security_id }}">{{ r.question }}</a></div>
             {% if r.event_title %}<div class="muted">{{ r.event_title }}</div>{% endif %}
             <div class="muted">
               market_id <code>{{ r.market_id }}</code>

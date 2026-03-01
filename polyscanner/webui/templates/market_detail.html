@@ -21,8 +21,8 @@
       <span class="pill">liq <code>{{ market.liquidity_usd | fmt_usd }}</code></span>
       <span class="pill">end <code>{{ market.end_date | fmt_date }}</code> · {{ market.end_date | fmt_ends_in }}</span>
     </div>
-    {% if ticker %}
-      <div class="muted" style="margin-top:10px">Context: <code>{{ ticker }}</code></div>
+    {% if context %}
+      <div class="muted" style="margin-top:10px">Context: <code>{{ context }}</code></div>
     {% endif %}
   </div>
 
@@ -67,8 +67,8 @@
       </details>
     {% else %}
       <div class="muted">
-        No stock context. Open from a ticker page, e.g.
-        <code>{{ request.url_for('market_detail', market_id=market.market_id) }}?ticker=NVDA</code>.
+        No stock context. Open from a security page, e.g.
+        <code>{{ request.url_for('market_detail', market_id=market.market_id) }}?security_id=1</code>.
       </div>
     {% endif %}
   </div>

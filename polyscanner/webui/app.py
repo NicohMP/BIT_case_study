@@ -178,17 +178,17 @@ def dashboard(request: Request) -> Any:
     security_ids = [int(x["security_id"]) for x in wl]
     latest_reports = db.latest_reports_for_security_ids(db_url=db_url, security_ids=security_ids)
 
-    previews: dict[str, list[dict[str, Any]]] = {}
+    previews: dict[int, list[dict[str, Any]]] = {}
     for s in wl:
-        t = str(s.get("ticker") or "").upper()
-        if not t:
+        sid = int(s.get("security_id") or 0)
+        if not sid:
             continue
         # Show a diversified preview: prefer non-rate-like markets, then fill remaining slots.
-        rows = db.selected_markets_for_ticker(db_url=db_url, ticker=t, limit=20)
+        rows = db.selected_markets_for_security_id(db_url=db_url, security_id=sid, limit=20)
         non_rate = [r for r in rows if not bool(r.get("is_rate_like"))]
         rate = [r for r in rows if bool(r.get("is_rate_like"))]
         preview = (non_rate + rate)[:5]
-        previews[t] = preview
+        previews[sid] = preview
 
     backend = get_backend()
     model = get_model(backend=backend)
@@ -248,11 +248,29 @@ def security_detail(request: Request, security_id: int) -> Any:
 
 
 @app.get("/signals", response_class=HTMLResponse)
-def signals(request: Request, ticker: str | None = None, limit: int = 20) -> Any:
+def signals(request: Request, security_id: int | None = None, ticker: str | None = None, limit: int = 20) -> Any:
     db_url = _load_db_url()
     secs = db.list_securities(db_url=db_url)
-    ticker = (ticker or (secs[0]["ticker"] if secs else "")).upper()
-    rows = db.selected_markets_for_ticker(db_url=db_url, ticker=ticker, limit=int(limit))
+    sec = None
+    if security_id is not None:
+        for s in secs:
+            if int(s.get("security_id") or 0) == int(security_id):
+                sec = s
+                break
+    elif ticker:
+        matches = [s for s in secs if str(s.get("ticker") or "").upper() == str(ticker).upper()]
+        if len(matches) == 1:
+            sec = matches[0]
+        elif matches:
+            # Best-effort: pick the first and let the user refine via the dropdown.
+            sec = matches[0]
+    if sec is None and secs:
+        sec = secs[0]
+    if sec is None:
+        raise HTTPException(status_code=404, detail="No securities found in DB.")
+
+    sid = int(sec.get("security_id"))
+    rows = db.selected_markets_for_security_id(db_url=db_url, security_id=sid, limit=int(limit))
     macro_domains = db.list_macro_domains(db_url=db_url)
 
     # Default UX: hide rate-like markets unless explicitly included.
@@ -280,12 +298,15 @@ def signals(request: Request, ticker: str | None = None, limit: int = 20) -> Any
     if hide_rate_like:
         rows = [r for r in rows if not bool(r.get("is_rate_like"))]
 
+    context = f"{sec.get('ticker')}@{sec.get('exchange_mic')}" if sec.get("exchange_mic") else str(sec.get("ticker") or "")
     return templates.TemplateResponse(
         "signals.html",
         {
             "request": request,
             "securities": secs,
-            "ticker": ticker,
+            "security_id": sid,
+            "ticker": str(sec.get("ticker") or "").upper(),
+            "context": context,
             "rows": rows,
             "limit": int(limit),
             "macro_domains": macro_domains,
@@ -305,7 +326,7 @@ def markets(request: Request, q: str | None = None, limit: int = 200, offset: in
 
 
 @app.get("/markets/{market_id}", response_class=HTMLResponse)
-def market_detail(request: Request, market_id: int, ticker: str | None = None) -> Any:
+def market_detail(request: Request, market_id: int, security_id: int | None = None, ticker: str | None = None) -> Any:
     db_url = _load_db_url()
     m = db.market_detail(db_url=db_url, market_id=int(market_id))
     if not m:
@@ -315,12 +336,18 @@ def market_detail(request: Request, market_id: int, ticker: str | None = None) -
     matches = db.market_family_matches_latest(db_url=db_url, market_id=int(market_id), limit=20)
 
     sel = None
-    if ticker:
+    context = ""
+    if security_id is not None:
+        sel = db.selected_market_for_security_id_and_market_id(db_url=db_url, security_id=int(security_id), market_id=int(market_id))
+        if sel:
+            context = f"{sel.get('ticker')}@{sel.get('exchange_mic')}" if sel.get("exchange_mic") else str(sel.get("ticker") or "")
+    elif ticker:
         sel = db.selected_market_for_ticker_and_market_id(db_url=db_url, ticker=str(ticker).upper(), market_id=int(market_id))
+        context = str(ticker).upper()
 
     return templates.TemplateResponse(
         "market_detail.html",
-        {"request": request, "market": m, "decision": decision, "matches": matches, "selected": sel, "ticker": (ticker or "").upper()},
+        {"request": request, "market": m, "decision": decision, "matches": matches, "selected": sel, "context": context},
     )
 
 
@@ -369,7 +396,8 @@ def update_watchlist(request: Request, security_id: list[int] = Form(default=[])
 @app.post("/actions/generate_and_open", response_class=HTMLResponse)
 def action_generate_and_open(
     request: Request,
-    ticker: str = Form(...),
+    security_id: int | None = Form(None),
+    ticker: str = Form(""),
     temperature: float = Form(0.0),
     max_markets: int = Form(8),
 ) -> Any:
@@ -377,18 +405,19 @@ def action_generate_and_open(
     db_url = _load_db_url()
     backend = get_backend()
     model = get_model(backend=backend)
-    t = str(ticker).upper().strip()
+    sid = int(security_id) if security_id is not None else None
+    t = str(ticker).upper().strip() or None
 
     try:
         pack = build_security_context_pack(
             db_url=db_url,
-            ticker=t,
-            security_id=None,
+            ticker=t if sid is None else None,
+            security_id=sid,
             exchange_mic=None,
             top_k_markets=max(int(max_markets), 10),
         )
     except Exception as e:  # noqa: BLE001
-        log.exception("Failed to build context pack (ticker=%s): %s", t, e)
+        log.exception("Failed to build context pack (security_id=%s ticker=%s): %s", sid, t, e)
         return _render_error_page(
             request=request,
             title="Context pack build failed",
@@ -522,6 +551,7 @@ def generate_page(request: Request) -> Any:
 @app.post("/generate", response_class=HTMLResponse)
 def generate_submit(
     request: Request,
+    security_id: list[int] = Form(default=[]),
     ticker: list[str] = Form(default=[]),
     temperature: float = Form(0.0),
     max_markets: int = Form(8),
@@ -529,19 +559,28 @@ def generate_submit(
     """Generate and persist reports for one or more tickers (on-demand LLM)."""
     db_url = _load_db_url()
     wl = db.watchlist_securities(db_url=db_url)
-    wl_tickers = {str(s.get("ticker") or "").upper() for s in wl}
-    tickers = [str(t).upper() for t in (ticker or []) if str(t).upper() in wl_tickers]
+    wl_by_id = {int(s.get("security_id")): s for s in wl if s.get("security_id") is not None}
+
+    security_ids = [int(x) for x in (security_id or []) if int(x) in wl_by_id]
+    if not security_ids and ticker:
+        wl_tickers = {str(s.get("ticker") or "").upper() for s in wl}
+        tickers = [str(t).upper() for t in (ticker or []) if str(t).upper() in wl_tickers]
+        for t in tickers:
+            for s in wl:
+                if str(s.get("ticker") or "").upper() == t:
+                    security_ids.append(int(s.get("security_id")))
+    security_ids = sorted({int(x) for x in security_ids})
 
     backend = get_backend()
     model = get_model(backend=backend)
 
     results: list[dict[str, Any]] = []
-    for t in tickers:
+    for sid in security_ids:
         try:
             pack = build_security_context_pack(
                 db_url=db_url,
-                ticker=t,
-                security_id=None,
+                ticker=None,
+                security_id=int(sid),
                 exchange_mic=None,
                 top_k_markets=max(int(max_markets), 10),
             )
@@ -562,7 +601,16 @@ def generate_submit(
             issues = validate_security_report_json(report, pack=pack)
             errors = [x for x in issues if x.level == "error"]
             if errors:
-                results.append({"ticker": t, "ok": False, "error": "Model output failed grounding checks.", "issues": issues})
+                sec = pack.get("security") or {}
+                results.append(
+                    {
+                        "security_id": int(sid),
+                        "ticker": str(sec.get("ticker") or wl_by_id.get(int(sid), {}).get("ticker") or ""),
+                        "ok": False,
+                        "error": "Model output failed grounding checks.",
+                        "issues": issues,
+                    }
+                )
                 continue
 
             audit_issues = audit_security_signal_report(report=report, pack=pack, max_markets=int(max_markets), max_rate_like=3)
@@ -596,18 +644,29 @@ def generate_submit(
             finally:
                 conn.close()
 
-            results.append({"ticker": t, "ok": True, "report_id": report_id, "audit_errors": n_err, "audit_warnings": n_warn})
+            results.append(
+                {
+                    "security_id": int(security_id),
+                    "ticker": str(sec.get("ticker") or ""),
+                    "ok": True,
+                    "report_id": report_id,
+                    "audit_errors": n_err,
+                    "audit_warnings": n_warn,
+                }
+            )
         except (GeminiError, OllamaError, TimeoutError) as e:
-            results.append({"ticker": t, "ok": False, "error": f"LLM error ({backend}/{model}): {e}"})
+            ticker_guess = str(wl_by_id.get(int(sid), {}).get("ticker") or "")
+            results.append({"security_id": int(sid), "ticker": ticker_guess, "ok": False, "error": f"LLM error ({backend}/{model}): {e}"})
         except Exception as e:  # noqa: BLE001
-            results.append({"ticker": t, "ok": False, "error": str(e)})
+            ticker_guess = str(wl_by_id.get(int(sid), {}).get("ticker") or "")
+            results.append({"security_id": int(sid), "ticker": ticker_guess, "ok": False, "error": str(e)})
 
     toast = None
-    if tickers:
+    if security_ids:
         n_ok = len([r for r in results if r.get("ok")])
-        toast = f"Generated {n_ok}/{len(tickers)} reports using {backend}/{model}."
+        toast = f"Generated {n_ok}/{len(security_ids)} reports using {backend}/{model}."
     else:
-        toast = "No tickers selected (or tickers not in watchlist)."
+        toast = "No securities selected (or securities not in watchlist)."
 
     return templates.TemplateResponse(
         "generate.html",
@@ -661,17 +720,31 @@ def create_stock(
 
 
 @app.get("/actions/build_pack", response_class=JSONResponse)
-def action_build_pack(ticker: str) -> Any:
+def action_build_pack(security_id: int | None = None, ticker: str | None = None) -> Any:
     db_url = _load_db_url()
-    pack = build_security_context_pack(db_url=db_url, ticker=str(ticker).upper(), security_id=None, exchange_mic=None)
+    if security_id is None and not ticker:
+        raise HTTPException(status_code=400, detail="Provide security_id or ticker")
+    pack = build_security_context_pack(
+        db_url=db_url,
+        ticker=str(ticker).upper() if (security_id is None and ticker) else None,
+        security_id=int(security_id) if security_id is not None else None,
+        exchange_mic=None,
+    )
     return pack
 
 
 @app.get("/actions/generate_report", response_class=JSONResponse)
-def action_generate_report(ticker: str, temperature: float = 0.0, max_markets: int = 8) -> Any:
+def action_generate_report(security_id: int | None = None, ticker: str | None = None, temperature: float = 0.0, max_markets: int = 8) -> Any:
     """On-demand report generation (JSON only). Will fail if Gemini is unavailable (429)."""
     db_url = _load_db_url()
-    pack = build_security_context_pack(db_url=db_url, ticker=str(ticker).upper(), security_id=None, exchange_mic=None)
+    if security_id is None and not ticker:
+        raise HTTPException(status_code=400, detail="Provide security_id or ticker")
+    pack = build_security_context_pack(
+        db_url=db_url,
+        ticker=str(ticker).upper() if (security_id is None and ticker) else None,
+        security_id=int(security_id) if security_id is not None else None,
+        exchange_mic=None,
+    )
     backend = get_backend()
     model = get_model(backend=backend)
     report = generate_security_signal_report_v1(

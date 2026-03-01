@@ -199,6 +199,94 @@ def selected_markets_for_ticker(
         conn.close()
 
 
+def selected_markets_for_security_id(
+    *,
+    db_url: str,
+    security_id: int,
+    limit: int = 20,
+) -> list[dict[str, Any]]:
+    conn = connect(db_url)
+    try:
+        run = fetch_one(conn, "select * from v_pm_latest_pipeline_run;") or {}
+        scoring_version = str(run.get("scoring_version") or "")
+        selection_version = str(run.get("selection_version") or "")
+        if not scoring_version:
+            return []
+
+        effective_selection_version = selection_version
+        if selection_version != "selected_v2":
+            has_v2 = fetch_one(
+                conn,
+                """
+                select 1 as ok
+                from pm_market_security_relevance_selection
+                where scoring_version = %s
+                  and selection_version = 'selected_v2'
+                limit 1;
+                """,
+                (scoring_version,),
+            )
+            if has_v2:
+                effective_selection_version = "selected_v2"
+
+        rows = fetch_all(
+            conn,
+            """
+            select
+              sel.security_id,
+              s.ticker,
+              s.company_name,
+              s.exchange_mic,
+              sel.rank,
+              sel.market_id,
+              sel.event_id,
+              sel.is_rate_like,
+              sel.final_score as selection_score,
+              sel.selection_reason,
+              m.question,
+              m.probability,
+              m.end_date,
+              m.volume_usd,
+              m.liquidity_usd,
+              e.title as event_title,
+              r.base_score,
+              r.quality_multiplier,
+              r.final_score as relevance_final_score,
+              r.score_breakdown
+            from pm_market_security_relevance_selection sel
+            join bit_security s on s.id = sel.security_id
+            join pm_market m on m.pm_market_id = sel.market_id
+            left join pm_event e on e.event_id = sel.event_id
+            join pm_market_security_relevance r
+              on r.security_id = sel.security_id
+             and r.market_id = sel.market_id
+             and r.scoring_version = sel.scoring_version
+            where sel.security_id = %s
+              and sel.scoring_version = %s
+              and sel.selection_version = %s
+              and (m.end_date is null or m.end_date >= now())
+            order by sel.rank asc
+            limit %s;
+            """,
+            (int(security_id), scoring_version, effective_selection_version, int(limit)),
+        )
+
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            rr = dict(r)
+            for k in ("selection_reason", "score_breakdown"):
+                v = rr.get(k)
+                if isinstance(v, str):
+                    try:
+                        rr[k] = json.loads(v)
+                    except Exception:
+                        pass
+            out.append(rr)
+        return out
+    finally:
+        conn.close()
+
+
 def kept_markets(
     *,
     db_url: str,
@@ -407,6 +495,86 @@ def selected_market_for_ticker_and_market_id(*, db_url: str, ticker: str, market
             limit 1;
             """,
             (str(ticker).upper(), int(market_id), scoring_version, effective_selection_version),
+        )
+        if not rows:
+            return None
+        rr = dict(rows[0])
+        for k in ("selection_reason", "score_breakdown"):
+            v = rr.get(k)
+            if isinstance(v, str):
+                try:
+                    rr[k] = json.loads(v)
+                except Exception:
+                    pass
+        return rr
+    finally:
+        conn.close()
+
+
+def selected_market_for_security_id_and_market_id(*, db_url: str, security_id: int, market_id: int) -> dict[str, Any] | None:
+    conn = connect(db_url)
+    try:
+        run = fetch_one(conn, "select * from v_pm_latest_pipeline_run;") or {}
+        scoring_version = str(run.get("scoring_version") or "")
+        selection_version = str(run.get("selection_version") or "")
+        if not scoring_version:
+            return None
+
+        effective_selection_version = selection_version
+        if selection_version != "selected_v2":
+            has_v2 = fetch_one(
+                conn,
+                """
+                select 1 as ok
+                from pm_market_security_relevance_selection
+                where scoring_version = %s
+                  and selection_version = 'selected_v2'
+                limit 1;
+                """,
+                (scoring_version,),
+            )
+            if has_v2:
+                effective_selection_version = "selected_v2"
+
+        rows = fetch_all(
+            conn,
+            """
+            select
+              sel.security_id,
+              s.ticker,
+              s.company_name,
+              s.exchange_mic,
+              sel.rank,
+              sel.market_id,
+              sel.event_id,
+              sel.is_rate_like,
+              sel.final_score as selection_score,
+              sel.selection_reason,
+              m.question,
+              m.probability,
+              m.end_date,
+              m.volume_usd,
+              m.liquidity_usd,
+              e.title as event_title,
+              r.base_score,
+              r.quality_multiplier,
+              r.final_score as relevance_final_score,
+              r.score_breakdown
+            from pm_market_security_relevance_selection sel
+            join bit_security s on s.id = sel.security_id
+            join pm_market m on m.pm_market_id = sel.market_id
+            left join pm_event e on e.event_id = sel.event_id
+            join pm_market_security_relevance r
+              on r.security_id = sel.security_id
+             and r.market_id = sel.market_id
+             and r.scoring_version = sel.scoring_version
+            where sel.security_id = %s
+              and sel.market_id = %s
+              and sel.scoring_version = %s
+              and sel.selection_version = %s
+            limit 1;
+            """,
+            (int(security_id), int(market_id), scoring_version, effective_selection_version),
         )
         if not rows:
             return None

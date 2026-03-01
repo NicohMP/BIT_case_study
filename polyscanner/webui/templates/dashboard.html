@@ -62,7 +62,9 @@
     <div class="card">
       <div class="row" style="justify-content:space-between; align-items:center">
         <div>
-          <div class="v"><code>{{ s.ticker }}</code> — {{ s.company_name }}</div>
+          <div class="v">
+            <code>{{ s.ticker }}{% if s.exchange_mic %}@{{ s.exchange_mic }}{% endif %}</code> — {{ s.company_name }}
+          </div>
           <div class="muted">
             {% if s.total_value is not none %}
               holding value: <code>{{ s.total_value }}</code> {{ s.value_currency or '' }} ·
@@ -72,6 +74,7 @@
         </div>
         <div class="row">
           <form method="post" action="/actions/generate_and_open">
+            <input type="hidden" name="security_id" value="{{ s.security_id }}" />
             <input type="hidden" name="ticker" value="{{ s.ticker }}" />
             <input type="hidden" name="temperature" value="0.0" />
             <input type="hidden" name="max_markets" value="8" />
@@ -83,11 +86,11 @@
           {% else %}
             <span class="muted">No report yet</span>
           {% endif %}
-          <a class="muted" href="/signals?ticker={{ s.ticker }}">View top markets</a>
+          <a class="muted" href="/signals?security_id={{ s.security_id }}">View top markets</a>
         </div>
       </div>
 
-      {% set preview = previews.get(s.ticker) if previews else [] %}
+      {% set preview = previews.get(s.security_id) if previews else [] %}
       {% if preview %}
         <table class="table" style="margin-top:10px">
           <thead>
@@ -106,7 +109,7 @@
               <tr>
                 <td><b>{{ r.rank }}</b></td>
                 <td>
-                  <a href="{{ request.url_for('market_detail', market_id=r.market_id) }}?ticker={{ s.ticker }}">{{ r.question }}</a>
+                  <a href="{{ request.url_for('market_detail', market_id=r.market_id) }}?security_id={{ s.security_id }}">{{ r.question }}</a>
                   {% if r.event_title %}<div class="muted">{{ r.event_title }}</div>{% endif %}
                 </td>
                 <td><span class="pill">{{ r.probability | fmt_prob }}</span></td>

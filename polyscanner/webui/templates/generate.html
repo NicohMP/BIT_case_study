@@ -32,8 +32,10 @@
       <div class="checkbox-grid">
         {% for s in watchlist %}
           <label class="cb">
-            <input type="checkbox" name="ticker" value="{{ s.ticker }}" checked />
-            <span><code>{{ s.ticker }}</code> — {{ s.company_name }}</span>
+            <input type="checkbox" name="security_id" value="{{ s.security_id }}" checked />
+            <span>
+              <code>{{ s.ticker }}{% if s.exchange_mic %}@{{ s.exchange_mic }}{% endif %}</code> — {{ s.company_name }}
+            </span>
           </label>
         {% endfor %}
       </div>
@@ -86,12 +88,12 @@
       <tbody>
         {% for s in watchlist %}
         <tr>
-          <td><code>{{ s.ticker }}</code></td>
+          <td><code>{{ s.ticker }}{% if s.exchange_mic %}@{{ s.exchange_mic }}{% endif %}</code></td>
           <td>{{ s.company_name }}</td>
           <td>
-            <a href="/signals?ticker={{ s.ticker }}">view signals</a> ·
-            <a href="/actions/build_pack?ticker={{ s.ticker }}">build pack (JSON)</a> ·
-            <a href="/actions/generate_report?ticker={{ s.ticker }}&temperature=0.0&max_markets=8">try generate report (JSON)</a>
+            <a href="/signals?security_id={{ s.security_id }}">view signals</a> ·
+            <a href="/actions/build_pack?security_id={{ s.security_id }}">build pack (JSON)</a> ·
+            <a href="/actions/generate_report?security_id={{ s.security_id }}&temperature=0.0&max_markets=8">try generate report (JSON)</a>
           </td>
         </tr>
         {% endfor %}
