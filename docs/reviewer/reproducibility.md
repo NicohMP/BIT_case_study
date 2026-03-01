@@ -68,6 +68,12 @@ Run a single refresh to populate:
 ./venv/bin/python scripts/refresh_basic.py
 ```
 
+For a fast smoke test (small ingest + smaller Step 3 workload):
+
+```bash
+./venv/bin/python scripts/refresh_basic.py --ingest-max-pages 2 --match-limit 500
+```
+
 This writes a pipeline audit under `reports/pipeline_audit_*.md`.
 
 For best Step 3 discovery coverage (embeddings enabled), use:

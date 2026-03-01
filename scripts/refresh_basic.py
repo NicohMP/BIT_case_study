@@ -7,6 +7,7 @@ This is intended as the simplest "first run" command:
 
 from __future__ import annotations
 
+import argparse
 import logging
 import sys
 from pathlib import Path
@@ -21,6 +22,14 @@ from polyscanner.pipeline.polymarket_refresh import run_polymarket_refresh  # no
 
 
 def main() -> None:
+    p = argparse.ArgumentParser(description="Run Steps 1→4b with embeddings disabled (first-run friendly).")
+    p.add_argument("--ingest-limit", type=int, default=100, help="Gamma /events page size (limit).")
+    p.add_argument("--ingest-max-pages", type=int, default=200, help="Cap on number of /events pages.")
+    p.add_argument("--ingest-sleep-s", type=float, default=0.2, help="Sleep seconds between /events pages.")
+    p.add_argument("--timeout-s", type=float, default=30.0, help="HTTP timeout per request.")
+    p.add_argument("--match-limit", type=int, default=12000, help="Max kept markets to evaluate in Step 3.")
+    args = p.parse_args()
+
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
     load_env()
@@ -33,8 +42,12 @@ def main() -> None:
     out = run_polymarket_refresh(
         db_url=db_url,
         base_url=base_url,
-        ingest_max_pages=200,
+        ingest_limit=int(args.ingest_limit),
+        ingest_max_pages=int(args.ingest_max_pages),
+        ingest_sleep_s=float(args.ingest_sleep_s),
+        ingest_timeout_s=float(args.timeout_s),
         matcher_version="matcher_v10",
+        match_limit=int(args.match_limit),
         scoring_version="relevance_v5",
         trusted_only=True,
         persist_selection=True,
