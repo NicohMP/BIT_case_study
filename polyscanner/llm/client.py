@@ -4,7 +4,6 @@ from typing import Any
 
 from polyscanner.env import get_env, load_env
 from polyscanner.llm import gemini as gemini_client
-from polyscanner.llm import ollama as ollama_client
 
 
 class LlmBackendError(RuntimeError):
@@ -19,6 +18,8 @@ def get_backend() -> str:
 def get_model(*, backend: str) -> str:
     b = (backend or "").strip().lower()
     if b == "ollama":
+        from polyscanner.llm import ollama as ollama_client
+
         return ollama_client.get_model()
     return gemini_client.get_model()
 
@@ -43,6 +44,8 @@ def generate_json(
     if not model:
         model = get_model(backend=b)
     if b == "ollama":
+        from polyscanner.llm import ollama as ollama_client
+
         return ollama_client.generate_json(
             prompt=prompt,
             system=system,

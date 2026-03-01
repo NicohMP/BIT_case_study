@@ -144,6 +144,7 @@ def generate_json(
     timeout_s: int = 60,
     max_retries: int = 6,
     retry_base_s: float = 1.5,
+    retry_max_s: float | None = None,
 ) -> dict[str, Any]:
     """Call Gemini and return a parsed JSON object.
 
@@ -199,6 +200,8 @@ def generate_json(
                 else:
                     sleep_s = retry_base_s * (2**attempt)
 
+                if retry_max_s is not None:
+                    sleep_s = min(sleep_s, float(retry_max_s))
                 sleep_s = sleep_s + random.uniform(0.0, min(0.25 * sleep_s, 2.0))
                 time.sleep(sleep_s)
                 continue
@@ -209,6 +212,8 @@ def generate_json(
             last_err = e
             if attempt < max_retries:
                 sleep_s = retry_base_s * (2**attempt) + random.uniform(0.0, 0.5)
+                if retry_max_s is not None:
+                    sleep_s = min(sleep_s, float(retry_max_s))
                 time.sleep(sleep_s)
                 continue
             raise GeminiError(f"Gemini request failed: {e}") from e

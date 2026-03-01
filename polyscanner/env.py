@@ -10,11 +10,14 @@ Conventions:
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 try:
     from dotenv import load_dotenv  # type: ignore
 except Exception:  # pragma: no cover
     load_dotenv = None  # type: ignore[assignment]
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_env() -> None:
@@ -28,3 +31,11 @@ def get_env(name: str) -> str | None:
         return None
     value = value.strip()
     return value or None
+
+
+def resolve_repo_relative(path: str | Path) -> Path:
+    """Resolve a repo-relative path (relative to repo root) into an absolute Path."""
+    p = Path(path)
+    if p.is_absolute():
+        return p
+    return (REPO_ROOT / p).resolve()

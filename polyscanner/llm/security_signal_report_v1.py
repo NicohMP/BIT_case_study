@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from polyscanner.llm.gemini import generate_json
+from polyscanner.llm.client import generate_json
 
 PROMPT_VERSION = "security_signal_report_v1"
 
@@ -154,10 +154,25 @@ def build_prompt(
 def generate_security_signal_report_v1(
     *,
     pack: dict[str, Any],
+    backend: str | None = None,
     model: str | None = None,
     temperature: float = 0.2,
+    timeout_s: int = 120,
+    max_retries: int = 2,
+    retry_base_s: float = 2.0,
+    retry_max_s: float = 30.0,
     max_markets: int = 10,
     max_rate_like: int = 3,
 ) -> dict[str, Any]:
     system, prompt = build_prompt(pack=pack, max_markets=max_markets, max_rate_like=max_rate_like)
-    return generate_json(prompt=prompt, system=system, model=model, temperature=temperature)
+    return generate_json(
+        prompt=prompt,
+        system=system,
+        backend=backend,
+        model=model,
+        temperature=temperature,
+        timeout_s=int(timeout_s),
+        max_retries=int(max_retries),
+        retry_base_s=float(retry_base_s),
+        retry_max_s=float(retry_max_s),
+    )
