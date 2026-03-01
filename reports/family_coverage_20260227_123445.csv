@@ -1,0 +1,12 @@
+slug,family_id,title,matched_markets_rule,matched_markets_discovery,examples
+fomc_surprises,1,Monetary policy surprises (FOMC),97,275,Will Trump nominate Judy Shelton as the next Fed chair? | Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting? | Will the Fed increase interest rates by 25+ bps after the March 2026 meeting?
+real_yields_long_rates,2,Real yields / long rates,25,29,Will the 10-year Treasury yield hit 4.8% before 2027? | Will the 10-year Treasury yield dip below 1.0% before 2027? | Will the 10-year treasury yield hit 4.5% by March 31?
+it_spending_cycle_enterprise_cloud_ai,9,IT spending cycle (enterprise / cloud / AI),24,30,"Will the Silicon Data H100 Index (SDH100RT) hit $2.45 (HIGH) by February 28, 2026? | Will the Silicon Data H100 Index (SDH100RT) hit $2.25 (LOW) by February 28, 2026? | Will the Silicon Data H100 Index (SDH100RT) hit $2.50 (HIGH) by April 30, 2026?"
+crypto_regime_changes,5,Crypto regulation regime changes,23,216,Ethereum ETF Flows on February 26? | Will stablecoins hit $500B before 2027? | Will USD-denominated stablecoin market share fall below 99% in 2026?
+consumer_credit_conditions_cycle,11,Consumer credit conditions / cycle,11,14,"Will Trump cap credit card interest rates by January 20, 2026? | Will Trump cap credit card interest rates by March 31, 2026? | Will the U.S. 30-year Fixed-Rate Mortgage hit 6.00% (LOW) by December 31, 2026?"
+taiwan_geopolitical_risk,4,Taiwan geopolitical risk,6,219,"Will China blockade Taiwan by June 30? | Will China invade Taiwan by end of 2026? | Will China invade Taiwan by March 31, 2026?"
+healthcare_policy_reimbursement,10,"Healthcare policy (reform, reimbursement)",5,90,Will ACA premium tax credits be extended and will the Democratic Party win the House in 2026? | Will ACA premium tax credits be extended and will the Republican Party win the House in 2026? | Will ACA premium tax credits not be extended and will the Democratic Party win the House in 2026?
+ai_regulation_big_tech_enforcement,6,AI regulation + Big Tech enforcement,2,15,U.S. enacts AI safety bill before 2027? | SCOTUS lets Trump fire FTC commissioners in Trump v. Slaughter?
+datacenter_power_grid_constraints,7,Data-center power / grid constraints,2,3,AI data center moratorium passed before 2027? | Will Data center utility cost protection become law this year?
+us_china_semis_export_controls,3,US–China semiconductor export controls,1,1,Will AI-chip export licensing become law this year?
+antitrust_platforms_app_stores_ads,8,"Antitrust (platforms, app stores, ad markets)",0,4,

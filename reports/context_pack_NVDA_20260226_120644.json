@@ -1,0 +1,4154 @@
+{
+  "report_meta": {
+    "as_of_utc": "2026-02-26T12:06:44.731316+00:00",
+    "run_id": "57bfd305-0c3c-49d4-a6c1-28d507197857",
+    "versions": {
+      "filter_version": "hard_filters_v8",
+      "matcher_version": "matcher_v10",
+      "scoring_version": "relevance_v5",
+      "selection_version": "selected_v1"
+    },
+    "builder": {
+      "top_k_markets": 20,
+      "top_k_matches_per_market": 5
+    },
+    "pack_sha256": "03d16e0d12fe5a36e54f7322b93e0f5ed85c65d6a5471adbf22ad5d44495d9ce"
+  },
+  "security": {
+    "security_id": 17,
+    "ticker": "NVDA",
+    "company_name": "NVIDIA Corp",
+    "exchange_mic": "XNAS",
+    "business_description": null
+  },
+  "exposure_vector": [
+    {
+      "macro_domain_id": 2,
+      "macro_domain_name": "Semis & Compute",
+      "weight": 0.428571428571429,
+      "rationale": "3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products"
+    },
+    {
+      "macro_domain_id": 1,
+      "macro_domain_name": "AI & Big Tech",
+      "weight": 0.285714285714286,
+      "rationale": "2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform"
+    },
+    {
+      "macro_domain_id": 3,
+      "macro_domain_name": "Cloud / Dev",
+      "weight": 0.142857142857143,
+      "rationale": "1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub"
+    },
+    {
+      "macro_domain_id": 4,
+      "macro_domain_name": "Crypto Infra",
+      "weight": 0.142857142857143,
+      "rationale": "1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)"
+    }
+  ],
+  "signal_families": [
+    {
+      "id": 1,
+      "slug": "fomc_surprises",
+      "title": "Monetary policy surprises (FOMC)",
+      "description": ""
+    },
+    {
+      "id": 2,
+      "slug": "real_yields_long_rates",
+      "title": "Real yields / long rates",
+      "description": ""
+    },
+    {
+      "id": 3,
+      "slug": "us_china_semis_export_controls",
+      "title": "US–China semiconductor export controls",
+      "description": ""
+    },
+    {
+      "id": 4,
+      "slug": "taiwan_geopolitical_risk",
+      "title": "Taiwan geopolitical risk",
+      "description": ""
+    },
+    {
+      "id": 5,
+      "slug": "crypto_regime_changes",
+      "title": "Crypto regulation regime changes",
+      "description": ""
+    },
+    {
+      "id": 6,
+      "slug": "ai_regulation_big_tech_enforcement",
+      "title": "AI regulation + Big Tech enforcement",
+      "description": ""
+    },
+    {
+      "id": 7,
+      "slug": "datacenter_power_grid_constraints",
+      "title": "Data-center power / grid constraints",
+      "description": ""
+    },
+    {
+      "id": 8,
+      "slug": "antitrust_platforms_app_stores_ads",
+      "title": "Antitrust (platforms, app stores, ad markets)",
+      "description": ""
+    },
+    {
+      "id": 9,
+      "slug": "it_spending_cycle_enterprise_cloud_ai",
+      "title": "IT spending cycle (enterprise / cloud / AI)",
+      "description": ""
+    }
+  ],
+  "influence_matrix_slice": [
+    {
+      "signal_family_id": 1,
+      "macro_domain_id": 1,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Event‑study work on FOMC surprises shows statistically significant negative stock returns when policy tightens unexpectedly, with growth and tech sectors generally more sensitive than defensives. This justifies a high prior that AI mega‑caps, priced on long‑dated cash flows, sell off disproportionately on surprise hikes. Key refs: Sekandary & Bask on monetary policy surprises and US stock returns [https://www.sciencedirect.com/science/article/pii/S0148619522000625](https://www.sciencedirect.com/science/article/pii/S0148619522000625), and Gormsen & Lazarus on interest rates and equity valuations [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 1,
+      "macro_domain_id": 2,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Monetary policy surprise studies document broad equity sensitivity, but manufacturing and cyclicals like semis have more mixed reactions because earnings cyclicality and global trade matter alongside discount‑rate effects. The same event‑study evidence supports a meaningful yet slightly lower prior than for pure growth platforms. See Sekandary & Bask (FOMC surprises and stock returns) [https://www.sciencedirect.com/science/article/pii/S0148619522000625](https://www.sciencedirect.com/science/article/pii/S0148619522000625) and the interest‑rate / valuation decomposition in Gormsen & Lazarus [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 1,
+      "macro_domain_id": 3,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "High‑duration SaaS / cloud names behave like textbook “long‑duration equities”: event‑driven sell‑offs around hawkish surprises have repeatedly hit this segment hardest in practice. The equity‑duration literature supports stronger sensitivity of high‑growth, low‑cash‑payout firms to discount‑rate shocks, matching the profile of cloud and dev‑infra names. See Golez & Koudijs on equity duration [https://www.sciencedirect.com/science/article/pii/S0304405X25001229](https://www.sciencedirect.com/science/article/pii/S0304405X25001229) and the global duration/valuation analysis in Gormsen & Lazarus [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 1,
+      "macro_domain_id": 4,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Crypto infra equities are not classic DCF assets, but empirical work and market commentary show that FOMC surprises still transmit via global risk appetite and liquidity, affecting exchange volumes and miner financing conditions. The mechanism is thus indirect (through the macro risk channel rather than discount factors on cash flows) but strong enough to warrant a medium prior. See general evidence on monetary policy surprises and stock returns [https://www.sciencedirect.com/science/article/pii/S0148619522000625](https://www.sciencedirect.com/science/article/pii/S0148619522000625) and rate/valuation decompositions [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 2,
+      "macro_domain_id": 1,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "The equity‑duration literature and recent NBER work show that movements in real discount rates (net of growth/risk components) map strongly into valuations of long‑duration equities, with tech/growth featuring higher exposure. AI platforms fit this profile: large parts of their value come from long‑horizon projects and terminal value. See Gormsen & Lazarus (decomposing real‑rate drivers and equity valuations) [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814) and Golez & Koudijs on duration and predictability [https://www.sciencedirect.com/science/article/pii/S0304405X25001229](https://www.sciencedirect.com/science/article/pii/S0304405X25001229).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 2,
+      "macro_domain_id": 2,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "For semiconductors, real‑rate shocks matter mainly through valuation and capex cycles, but earnings are also strongly driven by inventory, pricing, and geopolitical factors. The literature finds only modest unconditional duration for many sectors, consistent with a medium prior rather than a dominant discount‑rate story. See Golez & Koudijs on time‑varying equity duration [https://www.sciencedirect.com/science/article/pii/S0304405X25001229](https://www.sciencedirect.com/science/article/pii/S0304405X25001229) and the cross‑country real‑rate/valuation decomposition in Gormsen & Lazarus [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 2,
+      "macro_domain_id": 3,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Cloud / enterprise software is almost the definition of a long‑duration cash‑flow profile, and empirical factor work shows strong sensitivity of high‑growth software valuations to long‑rate and real‑rate regimes. The duration papers thus support a high prior that real‑yield spikes compress multiples here more than in short‑duration sectors. Again see Gormsen & Lazarus [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814) and Golez & Koudijs [https://www.sciencedirect.com/science/article/pii/S0304405X25001229](https://www.sciencedirect.com/science/article/pii/S0304405X25001229).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 2,
+      "macro_domain_id": 4,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "For crypto infra, the mechanism from real yields to equity is via the macro “store‑of‑value vs real‑yield” tradeoff and risk sentiment that drive crypto‑asset prices, volumes, and funding conditions. While there is less formal, peer‑reviewed event‑study work here, the same discount‑rate logic plus observed co‑movement of crypto with real‑rate regimes justify a medium prior. The structural mapping from real rates to equity valuations in Gormsen & Lazarus provides the template [https://www.nber.org/papers/w34814](https://www.nber.org/papers/w34814).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 3,
+      "macro_domain_id": 1,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Export controls on advanced chips directly constrain AI hardware supply and China‑related demand, which in turn affects AI capex plans and the cost of training/inference at hyperscalers. ITIF’s modeling shows that severe decoupling could cut tens of billions in US chip sales and R&D, implying tighter and more expensive AI compute for platforms. See ITIF “Decoupling Risks: How Semiconductor Export Controls Could Harm US Chipmakers and Innovation” [https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/](https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 3,
+      "macro_domain_id": 2,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Semiconductors and compute infrastructure are the **direct target** of US–China export controls, with ITIF’s report quantifying initial revenue losses of ~$77bn and large R&D and employment impacts under full decoupling. That makes this a first‑order, repeatedly documented mechanism for this domain. See ITIF’s detailed model and scenario analysis [https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/](https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/) and their broader policy analysis [https://itif.org/publications/2025/12/19/export-controls-should-advance-us-semiconductor-leadership/](https://itif.org/publications/2025/12/19/export-controls-should-advance-us-semiconductor-leadership/).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 3,
+      "macro_domain_id": 3,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Cloud / dev‑infra firms consume the constrained hardware and often sell into China, so export controls work through higher unit costs, constrained capacity, and reduced growth in restricted markets. ITIF emphasizes that export controls in semis propagate into ICT sectors like AI and cloud via reduced chip availability and higher prices. This supports a medium prior for cloud: see their modeling of downstream ICT impacts [https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/](https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 3,
+      "macro_domain_id": 4,
+      "score": 2,
+      "score_norm": 0.4,
+      "rationale_md": "Crypto miners and related infra rely heavily on GPUs/ASICs whose supply and pricing can be affected by export controls to China, especially in high‑end AI GPUs that are also repurposed for compute‑intensive crypto workloads. While ITIF’s work focuses on broader ICT rather than crypto specifically, the same channel—constrained advanced chips and shifting supply to non‑US vendors—implies meaningful second‑order effects. See ITIF’s quantification of export‑control impacts on chip markets and downstream ICT [https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/](https://itif.org/publications/2025/11/10/decoupling-risks-semiconductor-export-controls-harm-us-chipmakers-innovation/).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 4,
+      "macro_domain_id": 1,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Research on Taiwan’s semiconductor industry highlights its centrality to advanced chip fabrication and the vulnerability of global supply chains to quarantine, blockade, or conflict scenarios in the Taiwan Strait. For AI platforms, this translates into tail risks to GPU availability, data‑center build‑out, and regional operations. See Liu et al. “From vulnerabilities to resilience: Taiwan’s semiconductor industry and geopolitical challenges” [https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485](https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485) and related analysis of geopolitical risk to Taiwan’s chip sector (e.g. APSA preprint) [https://preprints.apsanet.org/engage/api-gateway/apsa/assets/orp/resource/item/64df036a01042bc1cc413c68/original/a-discussion-on-geopolitical-risk-of-taiwan-semiconductor-industry.pdf](https://preprints.apsanet.org/engage/api-gateway/apsa/assets/orp/resource/item/64df036a01042bc1cc413c68/original/a-discussion-on-geopolitical-risk-of-taiwan-semiconductor-industry.pdf).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 4,
+      "macro_domain_id": 2,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Taiwan‑focused studies emphasize that a large share of advanced fabrication sits on the island, and that quarantine/blockade scenarios could significantly disrupt global semiconductor supply. That makes Taiwan geopolitical risk a first‑order, persistent threat to semis and compute infrastructure. See Liu et al. on Taiwan’s semiconductor supply‑chain vulnerabilities [https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485](https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485) and the APSA discussion paper on geopolitical risk for Taiwan’s semiconductor industry [https://preprints.apsanet.org/engage/api-gateway/apsa/assets/orp/resource/item/64df036a01042bc1cc413c68/original/a-discussion-on-geopolitical-risk-of-taiwan-semiconductor-industry.pdf](https://preprints.apsanet.org/engage/api-gateway/apsa/assets/orp/resource/item/64df036a01042bc1cc413c68/original/a-discussion-on-geopolitical-risk-of-taiwan-semiconductor-industry.pdf).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 4,
+      "macro_domain_id": 3,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Cloud / dev‑infra depends on reliable supply of server CPUs, GPUs, and networking hardware, so the Taiwan risk literature implies medium‑to‑high exposure through potential hardware shortages and cost spikes. Liu et al. explicitly frame Taiwan’s fab ecosystem as a critical node whose disruption would cascade into ICT, including AI and cloud. This justifies a medium prior: see their scenario analysis of quarantine/blockade [https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485](https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 4,
+      "macro_domain_id": 4,
+      "score": 2,
+      "score_norm": 0.4,
+      "rationale_md": "Crypto infra is linked more weakly: mining hardware and some infra equipment would face supply disruptions, but miners can shift to non‑Taiwan fabs over time, and the main risk comes via global macro stress. The Taiwan semiconductor risk papers show the centrality of Taiwan for advanced nodes, yet crypto ASIC production is more geographically diversified than AI leading‑edge nodes. See Liu et al. for supply‑chain concentration and scenarios [https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485](https://www.sciencedirect.com/science/article/abs/pii/S0308596125000485).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 5,
+      "macro_domain_id": 1,
+      "score": 1,
+      "score_norm": 0.2,
+      "rationale_md": "MiCA (EU) and similar regimes define the licensing, disclosure, and conduct rules for crypto‑asset service providers and token issuers, with direct implications for Big Tech only when they enter crypto/payments. ESMA’s MiCA materials show that core obligations target crypto‑asset white papers, stablecoins, and CASPs—not generic AI/cloud platforms—so the prior is low, limited to optional web3/crypto initiatives. See ESMA’s MiCA overview [https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica) and AMF’s MiCA explainer PDF [https://www.amf-france.org/sites/institutionnel/files/pdf/70237/en/Crypto-asset_markets_the_MiCA_regulation_adopted_by_the_European_Parliament.pdf](https://www.amf-france.org/sites/institutionnel/files/pdf/70237/en/Crypto-asset_markets_the_MiCA_regulation_adopted_by_the_European_Parliament.pdf).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 5,
+      "macro_domain_id": 2,
+      "score": 0,
+      "score_norm": 0.0,
+      "rationale_md": "Semiconductor firms are not within the primary perimeter of crypto‑asset regulation, which focuses on tokens, stablecoins, and service providers like exchanges and custodians. ESMA and national regulators treat crypto as a financial‑market issue rather than a hardware or manufacturing issue, so there is no structural mechanism for repeated direct impact here. See ESMA’s MiCA framework [https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 5,
+      "macro_domain_id": 3,
+      "score": 1,
+      "score_norm": 0.2,
+      "rationale_md": "Cloud / dev‑infra can host CASPs and blockchain nodes, but MiCA and similar rules regulate the CASPs themselves, not generic cloud providers. Regulatory documents emphasize disclosure, capital, and conduct requirements at the financial‑service layer rather than underlying infrastructure, justifying only a low prior for cloud. See ESMA’s MiCA documentation [https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica) and AMF’s summary [https://www.amf-france.org/sites/institutionnel/files/pdf/70237/en/Crypto-asset_markets_the_MiCA_regulation_adopted_by_the_European_Parliament.pdf](https://www.amf-france.org/sites/institutionnel/files/pdf/70237/en/Crypto-asset_markets_the_MiCA_regulation_adopted_by_the_European_Parliament.pdf).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 5,
+      "macro_domain_id": 4,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Crypto regulation is **designed** for this domain: MiCA and SEC/ESMA guidance govern token issuance, custody, trading, stablecoins, and CASPs, directly affecting product scope, leverage, and compliance cost. Event‑style market moves around major regulatory announcements and detailed regime design (e.g. MiCA’s implementation timelines) support a high prior. See ESMA’s MiCA page [https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica) and AMF’s MiCA note [https://www.amf-france.org/sites/institutionnel/files/pdf/70237/en/Crypto-asset_markets_the_MiCA_regulation_adopted_by_the_European_Parliament.pdf](https://www.amf-france.org/sites/institutionnel/files/pdf/70237/en/Crypto-asset_markets_the_MiCA_regulation_adopted_by_the_European_Parliament.pdf).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 6,
+      "macro_domain_id": 1,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Competition and antitrust studies show that enforcement actions (raids, infringement decisions, remedies) generate large, negative abnormal returns for targeted firms, reflecting expected losses in profitability and strategic freedom. Combined with AI‑specific regulation (e.g. EU AI Act–style obligations on high‑risk systems), this underpins a high prior for AI & Big Tech as direct targets whose business models and compliance costs are materially affected. See Günster & van Dijk on stock‑market reactions to European antitrust decisions [https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721](https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721) and EU policy material on AI and platform regulation (e.g. EC AI policy overview) [https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence](https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 6,
+      "macro_domain_id": 2,
+      "score": 2,
+      "score_norm": 0.4,
+      "rationale_md": "AI‑specific rules focus more on high‑risk applications and providers of AI systems than on pure hardware suppliers, so semis & compute are affected mainly via induced changes in AI demand and deployment. However, European and national policy documents explicitly link AI regulation to semiconductor and compute infrastructure needs (e.g. EU Chips Act and AI policy being developed in tandem), giving a meaningful but indirect channel: stricter rules can slow or reshape AI workloads, which feeds back into AI‑chip demand. See the EU’s AI policy overview [https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence](https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence) and the EU Chips Act summary [https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1781](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1781).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 6,
+      "macro_domain_id": 3,
+      "score": 4,
+      "score_norm": 0.8,
+      "rationale_md": "Cloud / dev‑infra is central to AI deployment: AI regulation directly touches providers of AI services and often assumes implementation via cloud platforms operated by a small set of hyperscalers. Policy texts and impact assessments for the EU AI framework describe obligations on providers and deployers of AI systems (documentation, risk management, monitoring), which map straight into the offerings and compliance stack of cloud‑ and ML‑platform providers. See the European Commission’s AI Act page and policy docs [https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence](https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence) and an overview of obligations for AI service providers from the EC’s Q&A [https://ec.europa.eu/commission/presscorner/detail/en/QANDA_21_1683](https://ec.europa.eu/commission/presscorner/detail/en/QANDA_21_1683).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 6,
+      "macro_domain_id": 4,
+      "score": 0,
+      "score_norm": 0.0,
+      "rationale_md": "Crypto infra is largely outside the scope of AI‑specific regulation and Big Tech antitrust, except where exchanges or platforms use AI for surveillance, risk, or customer interfaces and thus incur generic high‑risk‑AI obligations. Regulatory texts and antitrust cases to date focus on platform gatekeeping, advertising, search, and consumer AI applications rather than on crypto exchanges or miners, supporting a zero structural prior. For scope, see the Commission’s AI‑Act overview [https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence](https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence) and the antitrust event‑study evidence that centers on classic industrial and services firms [https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721](https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 7,
+      "macro_domain_id": 1,
+      "score": 4,
+      "score_norm": 0.8,
+      "rationale_md": "McKinsey and other industry analyses document that AI data‑center growth is increasingly bottlenecked by access to power and grid capacity, with hyperscalers facing permitting delays and regional power shortages that cap how much compute they can deploy. This directly constrains the rollout of AI training and inference clusters for Big Tech platforms and raises unit costs, justifying a high prior. See McKinsey’s “The cost of compute: A $7 trillion race to scale data centers” [https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers) and “AI power: Expanding data center capacity to meet growing demand” [https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 7,
+      "macro_domain_id": 2,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "For semis & compute, data‑center and AI‑chip demand is ultimately bounded by how much powered floor space data‑center operators can bring online; McKinsey highlights power availability and grid connections as key constraints on AI‑driven server growth. That makes power and grid constraints an important second‑order driver of semi and accelerator demand, with implications for volumes and pricing rather than direct regulation. See McKinsey’s discussion of power as a limiting factor in AI‑data‑center build‑out [https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand) and the broader economic framing in “The cost of compute” [https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 7,
+      "macro_domain_id": 3,
+      "score": 4,
+      "score_norm": 0.8,
+      "rationale_md": "Cloud / dev‑infra is directly exposed: these firms operate or lease the data centers whose expansion is increasingly constrained by power availability and grid integration, especially for AI‑heavy regions. McKinsey’s work shows that data‑center systems are one of the fastest‑growing parts of IT spend but that power and permitting are emerging as critical bottlenecks, affecting timelines, capex, and operating costs for cloud regions and services. See “AI power: Expanding data center capacity to meet growing demand” [https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand) and the cost‑of‑compute analysis [https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 7,
+      "macro_domain_id": 4,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Crypto infra (especially miners) has always been tightly linked to power: mining economics depend almost linearly on electricity price and availability, and grid constraints or curtailment programs can force capacity shutdowns or relocations. Industry and policy reports on data‑center and AI power demand increasingly mention crypto mining as a competing or complementary source of high‑density load that stresses local grids, implying a direct first‑order impact of power prices and grid rules on crypto infra. See McKinsey’s treatment of high‑density data‑center loads and power constraints [https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/ai-power-expanding-data-center-capacity-to-meet-growing-demand), and for a policy view including crypto as an energy‑intensive digital activity, see IEA’s “Electricity 2024” discussion of data centers and crypto mining [https://www.iea.org/reports/electricity-2024](https://www.iea.org/reports/electricity-2024).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 8,
+      "macro_domain_id": 1,
+      "score": 5,
+      "score_norm": 1.0,
+      "rationale_md": "Event‑study work on European antitrust shows large, negative abnormal returns (−4–5% around dawn raids, −2% around decisions) for prosecuted firms, implying significant expected losses beyond fines alone; this is exactly the kind of shock Big Tech platforms face in app stores, ad markets, and self‑preferencing cases. Günster & van Dijk’s paper on European antitrust policy quantifies these stock‑price impacts, and EU policy/debate on the DMA and app‑store regulation makes clear that “gatekeeper” platforms are the central targets. See the stock‑market evidence in Günster & van Dijk [https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721](https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721) and the EU app‑store antitrust review by Marsden & Brown [https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act](https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 8,
+      "macro_domain_id": 2,
+      "score": 1,
+      "score_norm": 0.2,
+      "rationale_md": "For semis & compute infra, antitrust against *platforms* is a real but weak driver: cases and policy proposals in EU/UK focus overwhelmingly on app stores, search, social, and e‑commerce gatekeepers rather than chip manufacturers. The antitrust event‑study literature shows strong impacts on firms that are direct investigation targets, not on upstream suppliers, so most of the semi exposure is via second‑order changes in platform capex and bargaining power. See Günster & van Dijk’s analysis of affected firms [https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721](https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721) and Marsden & Brown on how the DMA is calibrated to app‑store gatekeepers [https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act](https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 8,
+      "macro_domain_id": 3,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Cloud / dev‑infra sits partly inside the same conglomerates that face DMA‑style obligations and competition cases (bundling, self‑preferencing, app‑store rules), so enforcement can constrain how cloud is packaged, priced, or tied to other services. Academic and policy work on app‑store antitrust and the DMA shows that access conditions, commissions, and interoperability remedies directly alter the economics for developers and cloud/platform ecosystems, even if there are beneficiaries as well as losers. See Günster & van Dijk on how antitrust events destroy firm value [https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721](https://www.sciencedirect.com/science/article/abs/pii/S0144818815000721) and Marsden & Brown’s DMA overview [https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act](https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act), plus TSE’s work on app‑store commissions under platform rivalry [https://www.tse-fr.eu/big-tech-rivalry-hurting-app-developers](https://www.tse-fr.eu/big-tech-rivalry-hurting-app-developers).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 8,
+      "macro_domain_id": 4,
+      "score": 0,
+      "score_norm": 0.0,
+      "rationale_md": "Crypto infra is only tangentially touched by current platform antitrust: enforcement and DMA‐style rules focus on app stores, mobile OSes, and large online platforms, not on crypto exchanges or miners. There may be occasional impacts where app‑store policies affect distribution of crypto apps, but policy reviews of digital‑market regulation rarely treat crypto infra as a core gatekeeper, supporting a near‑zero direct prior. See the app‑store antitrust and DMA review by Marsden & Brown [https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act](https://policyreview.info/articles/analysis/app-stores-antitrust-net-neutrality-eu-digital-markets-act).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 9,
+      "macro_domain_id": 1,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "Big Tech’s cloud and enterprise segments ride the global IT and AI‑infra spending cycle, while consumer ads/commerce are driven by different forces, giving a mixed but important dependence. Gartner’s forecasts show software and data‑center systems growing faster than overall IT, driven by AI infrastructure and enterprise software budgets, which directly benefits hyperscalers and their AI platforms. See Gartner’s 2025–26 IT spending outlook (software and data‑center growth ~15–19%, overall IT ~10%) [https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time](https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 9,
+      "macro_domain_id": 2,
+      "score": 3,
+      "score_norm": 0.6,
+      "rationale_md": "For semis & compute infra, the IT cycle links directly to data‑center and enterprise hardware demand: Gartner’s tables show data‑center systems as one of the fastest‑growing segments, reflecting AI server and infra build‑out. But semis also depend heavily on other cycles (handsets, PCs, autos, industrial), so the enterprise/cloud slice of IT spending is a major but not exclusive driver. See the Gartner forecast where data‑center systems spending jumps sharply in step with AI infra demand [https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time](https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 9,
+      "macro_domain_id": 3,
+      "score": 4,
+      "score_norm": 0.8,
+      "rationale_md": "Cloud / enterprise / dev‑infra vendors are effectively a leveraged play on the IT‑budget and AI‑infra cycle: Gartner’s projections show software and IT services (where enterprise SaaS, devtools, and cloud live) growing in the low‑teens and reaching well over $1.4tn in software alone. The same Gartner research notes that GenAI features and AI‑optimized infrastructure are key drivers of incremental spend, aligning almost one‑for‑one with the revenue engines of this domain. See the breakdown of software and IT‑services growth in Gartner’s 2026 forecast [https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time](https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time).",
+      "sources": []
+    },
+    {
+      "signal_family_id": 9,
+      "macro_domain_id": 4,
+      "score": 1,
+      "score_norm": 0.2,
+      "rationale_md": "Crypto infra has some exposure to IT/capex cycles where institutional adoption, custody solutions, and security systems are line items in broader IT budgets, but these remain niche relative to the main crypto price/volume cycle. Mainstream IT‑spend research (Gartner, S&P, etc.) barely mentions crypto‑specific line items, indicating that crypto infra doesn’t sit at the center of the enterprise IT budget story. See Gartner’s high‑level IT spending forecast, which highlights AI infra, software, and data‑center systems without crypto‑specific segments [https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time](https://www.gartner.com/en/newsroom/press-releases/2025-10-22-gartner-forecasts-worldwide-it-spending-to-grow-9-point-8-percent-in-2026-exceeding-6-trillion-dollars-for-the-first-time).",
+      "sources": []
+    }
+  ],
+  "markets": [
+    {
+      "rank": 1,
+      "market_id": 572473,
+      "event_id": 35908,
+      "event_title": "Who will Trump nominate as Fed Chair?",
+      "question": "Will Trump nominate Judy Shelton as the next Fed chair?",
+      "category": "Jerome Powell",
+      "tags": [
+        {
+          "id": "101550",
+          "slug": "jerome-powell",
+          "label": "Jerome Powell",
+          "createdAt": "2024-12-18T23:06:40.410115Z",
+          "updatedAt": "2026-02-06T19:58:13.336932Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101191",
+          "slug": "trump-presidency",
+          "label": "Trump Presidency",
+          "createdAt": "2024-11-06T04:59:43.354523Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:42.741523Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "126",
+          "slug": "trump",
+          "label": "Trump",
+          "createdAt": "2023-11-02T21:23:16.39Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:05:42.017208Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:23:16.384+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100196",
+          "slug": "fed-rates",
+          "label": "Fed Rates",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:03:31.746145Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "159",
+          "slug": "fed",
+          "label": "Fed",
+          "createdAt": "2023-11-02T21:27:18.986Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:21:40.937259Z",
+          "isCarousel": false,
+          "publishedAt": "2023-11-02 21:27:18.98+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103123",
+          "slug": "parent-for-derivative",
+          "label": "Parent For Derivative",
+          "createdAt": "2026-01-12T20:27:39.944278Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:13:50.127329Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 95830591.522875,
+      "liquidity_usd": 1396847.99502,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "is_rate_like": true,
+      "scores": {
+        "final_score": 0.771428571428572,
+        "base_score": 0.771428571428572,
+        "quality_multiplier": 1.0,
+        "market_strength": 0.9400000000000001
+      },
+      "filter_decision": {
+        "quality_score": 1.0,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.6
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "evidence": {
+            "min_hits": 3,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "fed"
+            ],
+            "keyword_hits": [
+              "fed",
+              "fed chair",
+              "chair"
+            ],
+            "matched_terms": [
+              "anchor:fed",
+              "override:fed chair",
+              "fed",
+              "fed chair",
+              "chair"
+            ],
+            "override_hits": [
+              "fed chair"
+            ],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 2,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "fed",
+              "powell"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_embedding",
+          "match_strength": 0.33331298828125,
+          "evidence": {
+            "rank": 1,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.33331298828125,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "88efdc7b3eecd6689719b854ff79ba2d25916f8b83e30d1504599197585e4a82",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.260010868310928,
+          "evidence": {
+            "rank": 2,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.26001086831092834,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "fomc_surprises",
+            "method": "rule_classification",
+            "contribution": 0.7714285714285721,
+            "family_effect": 0.7714285714285721,
+            "match_strength": 1.0,
+            "signal_family_id": 1
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.285714285714286,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.2571428571428574,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.142857142857143,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.08571428571428578,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 2,
+      "market_id": 654412,
+      "event_id": 67284,
+      "event_title": "Fed decision in March?",
+      "question": "Will the Fed decrease interest rates by 50+ bps after the March 2026 meeting?",
+      "category": "Economy",
+      "tags": [
+        {
+          "id": "100328",
+          "slug": "economy",
+          "label": "Economy",
+          "createdAt": "2024-08-05T05:34:54.235643Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:02:41.732549Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100196",
+          "slug": "fed-rates",
+          "label": "Fed Rates",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:03:31.746145Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101550",
+          "slug": "jerome-powell",
+          "label": "Jerome Powell",
+          "createdAt": "2024-12-18T23:06:40.410115Z",
+          "updatedAt": "2026-02-06T19:58:13.336932Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101800",
+          "slug": "economic-policy",
+          "label": "Economic Policy",
+          "createdAt": "2025-02-06T18:05:50.554703Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:16:50.542525Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "159",
+          "slug": "fed",
+          "label": "Fed",
+          "createdAt": "2023-11-02T21:27:18.986Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:21:40.937259Z",
+          "isCarousel": false,
+          "publishedAt": "2023-11-02 21:27:18.98+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103123",
+          "slug": "parent-for-derivative",
+          "label": "Parent For Derivative",
+          "createdAt": "2026-01-12T20:27:39.944278Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:13:50.127329Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 70325368.098308,
+      "liquidity_usd": 2000769.05118,
+      "end_date": "2026-03-18T00:00:00+00:00",
+      "is_rate_like": true,
+      "scores": {
+        "final_score": 0.771428571428572,
+        "base_score": 0.771428571428572,
+        "quality_multiplier": 1.0,
+        "market_strength": 0.97
+      },
+      "filter_decision": {
+        "quality_score": 1.0,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.6
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "evidence": {
+            "min_hits": 3,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "fed"
+            ],
+            "keyword_hits": [
+              "fed",
+              "interest rate",
+              "bps",
+              "meeting"
+            ],
+            "matched_terms": [
+              "anchor:fed",
+              "fed",
+              "interest rate",
+              "bps",
+              "meeting"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 4,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "bps",
+              "fed",
+              "interest rates",
+              "powell"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_embedding",
+          "match_strength": 0.432052850723267,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.4320528507232666,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "88efdc7b3eecd6689719b854ff79ba2d25916f8b83e30d1504599197585e4a82",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.31576880812645,
+          "evidence": {
+            "rank": 2,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3157688081264496,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 2,
+          "slug": "real_yields_long_rates",
+          "title": "Real yields / long rates",
+          "method": "discovery_embedding",
+          "match_strength": 0.277534186840057,
+          "evidence": {
+            "rank": 3,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.2775341868400574,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "d8adfda85409a79d54cd1d8b8c92a8202565566c3baa092eb97f2708c2fae3df",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "fomc_surprises",
+            "method": "rule_classification",
+            "contribution": 0.7714285714285721,
+            "family_effect": 0.7714285714285721,
+            "match_strength": 1.0,
+            "signal_family_id": 1
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.285714285714286,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.2571428571428574,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.142857142857143,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.08571428571428578,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 3,
+      "market_id": 669660,
+      "event_id": 75478,
+      "event_title": "Fed decision in April?",
+      "question": "Will the Fed decrease interest rates by 50+ bps after the April 2026 meeting?",
+      "category": "Economic Policy",
+      "tags": [
+        {
+          "id": "101800",
+          "slug": "economic-policy",
+          "label": "Economic Policy",
+          "createdAt": "2025-02-06T18:05:50.554703Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:16:50.542525Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100328",
+          "slug": "economy",
+          "label": "Economy",
+          "createdAt": "2024-08-05T05:34:54.235643Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:02:41.732549Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101550",
+          "slug": "jerome-powell",
+          "label": "Jerome Powell",
+          "createdAt": "2024-12-18T23:06:40.410115Z",
+          "updatedAt": "2026-02-06T19:58:13.336932Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "159",
+          "slug": "fed",
+          "label": "Fed",
+          "createdAt": "2023-11-02T21:27:18.986Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:21:40.937259Z",
+          "isCarousel": false,
+          "publishedAt": "2023-11-02 21:27:18.98+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100196",
+          "slug": "fed-rates",
+          "label": "Fed Rates",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:03:31.746145Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 956079.517004,
+      "liquidity_usd": 196638.16907,
+      "end_date": "2026-04-29T00:00:00+00:00",
+      "is_rate_like": true,
+      "scores": {
+        "final_score": 0.764476268485151,
+        "base_score": 0.771428571428572,
+        "quality_multiplier": 0.990987755443714,
+        "market_strength": 0.8889252817019033
+      },
+      "filter_decision": {
+        "quality_score": 0.990987755443714,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.6
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "evidence": {
+            "min_hits": 3,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "fed"
+            ],
+            "keyword_hits": [
+              "fed",
+              "interest rate",
+              "bps",
+              "meeting"
+            ],
+            "matched_terms": [
+              "anchor:fed",
+              "fed",
+              "interest rate",
+              "bps",
+              "meeting"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 4,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "bps",
+              "fed",
+              "interest rates",
+              "powell"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_embedding",
+          "match_strength": 0.412430077791214,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.412430077791214,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "88efdc7b3eecd6689719b854ff79ba2d25916f8b83e30d1504599197585e4a82",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.31518217921257,
+          "evidence": {
+            "rank": 2,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3151821792125702,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 2,
+          "slug": "real_yields_long_rates",
+          "title": "Real yields / long rates",
+          "method": "discovery_embedding",
+          "match_strength": 0.257151544094086,
+          "evidence": {
+            "rank": 3,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.2571515440940857,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "d8adfda85409a79d54cd1d8b8c92a8202565566c3baa092eb97f2708c2fae3df",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "fomc_surprises",
+            "method": "rule_classification",
+            "contribution": 0.7714285714285721,
+            "family_effect": 0.7714285714285721,
+            "match_strength": 1.0,
+            "signal_family_id": 1
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.285714285714286,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.2571428571428574,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.142857142857143,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.08571428571428578,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 4,
+      "market_id": 604470,
+      "event_id": 46844,
+      "event_title": "Will China blockade Taiwan by June 30?",
+      "question": "Will China blockade Taiwan by June 30?",
+      "category": "Geopolitics",
+      "tags": [
+        {
+          "id": "100265",
+          "slug": "geopolitics",
+          "label": "Geopolitics",
+          "createdAt": "2024-06-12T20:13:03.615956Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:10:12.806715Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101970",
+          "slug": "world",
+          "label": "World",
+          "createdAt": "2025-03-19T23:36:08.498099Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:04:41.800728Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "303",
+          "slug": "china",
+          "label": "China",
+          "createdAt": "2023-11-02T21:52:11.155Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:12.811975Z",
+          "publishedAt": "2023-11-02 21:52:11.147+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "867",
+          "slug": "taiwan",
+          "label": "taiwan",
+          "createdAt": "2024-01-15T18:46:22.476Z",
+          "updatedAt": "2026-02-06T20:24:41.138574Z",
+          "publishedAt": "2024-01-15 18:46:22.471+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103715",
+          "slug": "hide-from-china",
+          "label": "Hide From China",
+          "createdAt": "2026-02-10T00:17:21.422175Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-10T00:20:02.387733Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 563927.026438,
+      "liquidity_usd": 59152.1184,
+      "end_date": "2026-06-30T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.698826651740332,
+        "base_score": 0.742857142857143,
+        "quality_multiplier": 0.940728185035062,
+        "market_strength": 0.795442884424437
+      },
+      "filter_decision": {
+        "quality_score": 0.940728185035062,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "evidence": {
+            "min_hits": 2,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "taiwan",
+              "china",
+              "blockade"
+            ],
+            "matched_terms": [
+              "taiwan",
+              "china",
+              "blockade"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 3,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "blockade",
+              "china",
+              "taiwan"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_embedding",
+          "match_strength": 0.583961308002472,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.5839613080024719,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "a2862b4f925c53539dfd070e399540db70e2c307fd36b9d533790e11dba9f67c",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "taiwan_geopolitical_risk",
+            "method": "rule_classification",
+            "contribution": 0.7428571428571434,
+            "family_effect": 0.7428571428571434,
+            "match_strength": 1.0,
+            "signal_family_id": 4
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.428571428571429,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.17142857142857157,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.08571428571428578,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.0571428571428572,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 5,
+      "market_id": 567621,
+      "event_id": 34044,
+      "event_title": "Will China invade Taiwan by end of 2026?",
+      "question": "Will China invade Taiwan by end of 2026?",
+      "category": "Foreign Policy",
+      "tags": [
+        {
+          "id": "101794",
+          "slug": "foreign-policy",
+          "label": "Foreign Policy",
+          "createdAt": "2025-02-06T17:24:29.604203Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:16:00.470453Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "303",
+          "slug": "china",
+          "label": "China",
+          "createdAt": "2023-11-02T21:52:11.155Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:12.811975Z",
+          "publishedAt": "2023-11-02 21:52:11.147+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101970",
+          "slug": "world",
+          "label": "World",
+          "createdAt": "2025-03-19T23:36:08.498099Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:04:41.800728Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100265",
+          "slug": "geopolitics",
+          "label": "Geopolitics",
+          "createdAt": "2024-06-12T20:13:03.615956Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:10:12.806715Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "102458",
+          "slug": "earn-4",
+          "label": "Earn 4%",
+          "createdAt": "2025-08-01T13:31:11.928744Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:22:20.988268Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 9370510.340298,
+      "liquidity_usd": 553268.16354,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.631428571428572,
+        "base_score": 0.631428571428572,
+        "quality_multiplier": 1.0,
+        "market_strength": 0.9250046029047592
+      },
+      "filter_decision": {
+        "quality_score": 1.0,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 0.85,
+          "evidence": {
+            "min_hits": 2,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "taiwan",
+              "china"
+            ],
+            "matched_terms": [
+              "taiwan",
+              "china"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 2,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "china",
+              "taiwan"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_embedding",
+          "match_strength": 0.538855195045471,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.5388551950454712,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "a2862b4f925c53539dfd070e399540db70e2c307fd36b9d533790e11dba9f67c",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "taiwan_geopolitical_risk",
+            "method": "rule_classification",
+            "contribution": 0.6314285714285719,
+            "family_effect": 0.7428571428571434,
+            "match_strength": 0.85,
+            "signal_family_id": 4
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.36428571428571466,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.14571428571428585,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.07285714285714293,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.04857142857142862,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 6,
+      "market_id": 701290,
+      "event_id": 89456,
+      "event_title": "Will China invade Taiwan by March 31, 2026?",
+      "question": "Will China invade Taiwan by March 31, 2026?",
+      "category": "Foreign Policy",
+      "tags": [
+        {
+          "id": "101794",
+          "slug": "foreign-policy",
+          "label": "Foreign Policy",
+          "createdAt": "2025-02-06T17:24:29.604203Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:16:00.470453Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100265",
+          "slug": "geopolitics",
+          "label": "Geopolitics",
+          "createdAt": "2024-06-12T20:13:03.615956Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:10:12.806715Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "102458",
+          "slug": "earn-4",
+          "label": "Earn 4%",
+          "createdAt": "2025-08-01T13:31:11.928744Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:22:20.988268Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        },
+        {
+          "id": "303",
+          "slug": "china",
+          "label": "China",
+          "createdAt": "2023-11-02T21:52:11.155Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:12.811975Z",
+          "publishedAt": "2023-11-02 21:52:11.147+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101970",
+          "slug": "world",
+          "label": "World",
+          "createdAt": "2025-03-19T23:36:08.498099Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:04:41.800728Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 3313734.295902,
+      "liquidity_usd": 156053.44332,
+      "end_date": "2026-03-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.630654338831765,
+        "base_score": 0.631428571428572,
+        "quality_multiplier": 0.998773839778813,
+        "market_strength": 0.9218094125223397
+      },
+      "filter_decision": {
+        "quality_score": 0.998773839778813,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 0.85,
+          "evidence": {
+            "min_hits": 2,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "taiwan",
+              "china"
+            ],
+            "matched_terms": [
+              "taiwan",
+              "china"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 2,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "china",
+              "taiwan"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_embedding",
+          "match_strength": 0.520824193954468,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.5208241939544678,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "a2862b4f925c53539dfd070e399540db70e2c307fd36b9d533790e11dba9f67c",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "taiwan_geopolitical_risk",
+            "method": "rule_classification",
+            "contribution": 0.6314285714285719,
+            "family_effect": 0.7428571428571434,
+            "match_strength": 0.85,
+            "signal_family_id": 4
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.36428571428571466,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.14571428571428585,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.07285714285714293,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.04857142857142862,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 7,
+      "market_id": 540843,
+      "event_id": 23784,
+      "event_title": "What will happen before GTA VI?",
+      "question": "Will China invades Taiwan before GTA VI?",
+      "category": "Culture",
+      "tags": [
+        {
+          "id": "596",
+          "slug": "pop-culture",
+          "label": "Culture",
+          "createdAt": "2023-11-29T18:40:14.63Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:23:11.016562Z",
+          "publishedAt": "2023-11-29 18:40:13.013+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100215",
+          "slug": "all",
+          "label": "All",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:32.769627Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "102109",
+          "slug": "gta-vi",
+          "label": "GTA VI",
+          "createdAt": "2025-05-06T18:59:54.453812Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:15:40.478255Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 1420152.192511,
+      "liquidity_usd": 73339.8227,
+      "end_date": "2026-07-31T12:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.616748142901785,
+        "base_score": 0.631428571428572,
+        "quality_multiplier": 0.976750452559387,
+        "market_strength": 0.8534960871877284
+      },
+      "filter_decision": {
+        "quality_score": 0.976750452559387,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 0.85,
+          "evidence": {
+            "min_hits": 2,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "taiwan",
+              "china"
+            ],
+            "matched_terms": [
+              "taiwan",
+              "china"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 2,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "china",
+              "taiwan"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_embedding",
+          "match_strength": 0.483329772949219,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.48332977294921875,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "a2862b4f925c53539dfd070e399540db70e2c307fd36b9d533790e11dba9f67c",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "taiwan_geopolitical_risk",
+            "method": "rule_classification",
+            "contribution": 0.6314285714285719,
+            "family_effect": 0.7428571428571434,
+            "match_strength": 0.85,
+            "signal_family_id": 4
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.36428571428571466,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.14571428571428585,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.07285714285714293,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.04857142857142862,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 8,
+      "market_id": 956590,
+      "event_id": 107726,
+      "event_title": "Will China invade Taiwan by June 30, 2026?",
+      "question": "Will China invade Taiwan by June 30, 2026?",
+      "category": "World",
+      "tags": [
+        {
+          "id": "101970",
+          "slug": "world",
+          "label": "World",
+          "createdAt": "2025-03-19T23:36:08.498099Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:04:41.800728Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "303",
+          "slug": "china",
+          "label": "China",
+          "createdAt": "2023-11-02T21:52:11.155Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:12.811975Z",
+          "publishedAt": "2023-11-02 21:52:11.147+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100265",
+          "slug": "geopolitics",
+          "label": "Geopolitics",
+          "createdAt": "2024-06-12T20:13:03.615956Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:10:12.806715Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 764944.152592,
+      "liquidity_usd": 78194.89431,
+      "end_date": "2026-06-30T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.606705350310179,
+        "base_score": 0.631428571428572,
+        "quality_multiplier": 0.96084557741431,
+        "market_strength": 0.8309089387357307
+      },
+      "filter_decision": {
+        "quality_score": 0.96084557741431,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 0.85,
+          "evidence": {
+            "min_hits": 2,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "taiwan",
+              "china"
+            ],
+            "matched_terms": [
+              "taiwan",
+              "china"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 2,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "china",
+              "taiwan"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_embedding",
+          "match_strength": 0.505972146987915,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.505972146987915,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "a2862b4f925c53539dfd070e399540db70e2c307fd36b9d533790e11dba9f67c",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "taiwan_geopolitical_risk",
+            "method": "rule_classification",
+            "contribution": 0.6314285714285719,
+            "family_effect": 0.7428571428571434,
+            "match_strength": 0.85,
+            "signal_family_id": 4
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.36428571428571466,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.14571428571428585,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.07285714285714293,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.04857142857142862,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 9,
+      "market_id": 677407,
+      "event_id": 79230,
+      "event_title": "China x Taiwan military clash before 2027?",
+      "question": "China x Taiwan military clash before 2027?",
+      "category": "Politics",
+      "tags": [
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101970",
+          "slug": "world",
+          "label": "World",
+          "createdAt": "2025-03-19T23:36:08.498099Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:04:41.800728Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "867",
+          "slug": "taiwan",
+          "label": "taiwan",
+          "createdAt": "2024-01-15T18:46:22.476Z",
+          "updatedAt": "2026-02-06T20:24:41.138574Z",
+          "publishedAt": "2024-01-15 18:46:22.471+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101794",
+          "slug": "foreign-policy",
+          "label": "Foreign Policy",
+          "createdAt": "2025-02-06T17:24:29.604203Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:16:00.470453Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "303",
+          "slug": "china",
+          "label": "China",
+          "createdAt": "2023-11-02T21:52:11.155Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:12.811975Z",
+          "publishedAt": "2023-11-02 21:52:11.147+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100265",
+          "slug": "geopolitics",
+          "label": "Geopolitics",
+          "createdAt": "2024-06-12T20:13:03.615956Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:10:12.806715Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103715",
+          "slug": "hide-from-china",
+          "label": "Hide From China",
+          "createdAt": "2026-02-10T00:17:21.422175Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-10T00:20:02.387733Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 841824.454074,
+      "liquidity_usd": 64531.9454,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.605544236856514,
+        "base_score": 0.631428571428572,
+        "quality_multiplier": 0.959006709953754,
+        "market_strength": 0.8283093263639983
+      },
+      "filter_decision": {
+        "quality_score": 0.959006709953754,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 0.85,
+          "evidence": {
+            "min_hits": 2,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "taiwan",
+              "china"
+            ],
+            "matched_terms": [
+              "taiwan",
+              "china"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 2,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "china",
+              "taiwan"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "discovery_embedding",
+          "match_strength": 0.578543424606323,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.5785434246063232,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "a2862b4f925c53539dfd070e399540db70e2c307fd36b9d533790e11dba9f67c",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "taiwan_geopolitical_risk",
+            "method": "rule_classification",
+            "contribution": 0.6314285714285719,
+            "family_effect": 0.7428571428571434,
+            "match_strength": 0.85,
+            "signal_family_id": 4
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.36428571428571466,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.14571428571428585,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.07285714285714293,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.04857142857142862,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 10,
+      "market_id": 1322996,
+      "event_id": 197059,
+      "event_title": "GPU rental prices (H100) hit___ in February?",
+      "question": "Will the Silicon Data H100 Index (SDH100RT) hit $2.25 (LOW) by February 28, 2026?",
+      "category": "nvidia",
+      "tags": [
+        {
+          "id": "1330",
+          "slug": "nvidia",
+          "label": "nvidia",
+          "createdAt": "2024-02-14T22:19:45.518Z",
+          "updatedAt": "2026-02-06T20:20:50.95568Z",
+          "publishedAt": "2024-02-14 22:19:45.496+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "120",
+          "slug": "finance",
+          "label": "Finance",
+          "createdAt": "2023-11-02T21:22:21.62Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:12:40.097768Z",
+          "isCarousel": false,
+          "publishedAt": "2023-11-02 21:22:21.615+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1401",
+          "slug": "tech",
+          "label": "Tech",
+          "createdAt": "2024-02-21T23:06:12.324Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:17:30.722289Z",
+          "publishedAt": "2024-02-21 23:06:12.305+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "107",
+          "slug": "business",
+          "label": "Business",
+          "createdAt": "2023-11-02T21:20:37.488Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:11:02.874409Z",
+          "publishedAt": "2023-11-02 21:20:37.48+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103392",
+          "slug": "chip",
+          "label": "Chip",
+          "createdAt": "2026-02-02T23:44:55.262619Z",
+          "updatedAt": "2026-02-06T20:06:52.309103Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "439",
+          "slug": "ai",
+          "label": "AI",
+          "createdAt": "2023-11-02T23:08:32.49Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:23:51.126491Z",
+          "updatedBy": 15,
+          "isCarousel": true,
+          "publishedAt": "2023-11-02 23:08:32.469+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103391",
+          "slug": "sdh100rt",
+          "label": "SDH100RT",
+          "createdAt": "2026-02-02T23:28:25.782148Z",
+          "updatedAt": "2026-02-06T20:06:32.182504Z",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 46187.97339,
+      "liquidity_usd": 5507.07982,
+      "end_date": "2026-02-28T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.441822230314528,
+        "base_score": 0.571428571428572,
+        "quality_multiplier": 0.773188903050423,
+        "market_strength": 0.5766501947463404
+      },
+      "filter_decision": {
+        "quality_score": 0.773188903050423,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "gpu rental",
+              "gpu rental prices",
+              "h100 index"
+            ],
+            "matched_terms": [
+              "gpu rental",
+              "gpu rental prices",
+              "h100 index"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 4,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "gpu rental",
+              "gpu rental prices",
+              "h100",
+              "h100 index"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_embedding",
+          "match_strength": 0.343611896038055,
+          "evidence": {
+            "rank": 1,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3436118960380554,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "49d69ae804150ee61e989bdfdac8bf83d6d30448b6567bc06cd5304e9d530490",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "it_spending_cycle_enterprise_cloud_ai",
+            "method": "rule_classification",
+            "contribution": 0.571428571428572,
+            "family_effect": 0.571428571428572,
+            "match_strength": 1.0,
+            "signal_family_id": 9
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.2571428571428574,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.17142857142857157,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.1142857142857144,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.0285714285714286,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 11,
+      "market_id": 957986,
+      "event_id": 108522,
+      "event_title": "AI data center moratorium passed before 2027?",
+      "question": "AI data center moratorium passed before 2027?",
+      "category": "Culture",
+      "tags": [
+        {
+          "id": "596",
+          "slug": "pop-culture",
+          "label": "Culture",
+          "createdAt": "2023-11-29T18:40:14.63Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:23:11.016562Z",
+          "publishedAt": "2023-11-29 18:40:13.013+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1401",
+          "slug": "tech",
+          "label": "Tech",
+          "createdAt": "2024-02-21T23:06:12.324Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:17:30.722289Z",
+          "publishedAt": "2024-02-21 23:06:12.305+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "439",
+          "slug": "ai",
+          "label": "AI",
+          "createdAt": "2023-11-02T23:08:32.49Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:23:51.126491Z",
+          "updatedBy": 15,
+          "isCarousel": true,
+          "publishedAt": "2023-11-02 23:08:32.469+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1104",
+          "slug": "bernie-sanders",
+          "label": "bernie sanders",
+          "createdAt": "2024-02-06T19:43:33.328Z",
+          "updatedAt": "2026-02-06T20:18:40.776634Z",
+          "publishedAt": "2024-02-06 19:43:33.313+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "835",
+          "slug": "artificial-intelligence",
+          "label": "artificial intelligence",
+          "createdAt": "2024-01-05T16:32:00.047Z",
+          "updatedAt": "2026-02-06T20:10:32.782922Z",
+          "publishedAt": "2024-01-05 16:31:59.986+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 7321.133123,
+      "liquidity_usd": 3220.3631,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.432645759331595,
+        "base_score": 0.631428571428572,
+        "quality_multiplier": 0.68518559170162,
+        "market_strength": 0.4103535781739283
+      },
+      "filter_decision": {
+        "quality_score": 0.68518559170162,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 7,
+          "slug": "datacenter_power_grid_constraints",
+          "title": "Data-center power / grid constraints",
+          "method": "rule_classification",
+          "match_strength": 0.85,
+          "evidence": {
+            "min_hits": 2,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "data center",
+              "moratorium"
+            ],
+            "matched_terms": [
+              "data center",
+              "moratorium"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 7,
+          "slug": "datacenter_power_grid_constraints",
+          "title": "Data-center power / grid constraints",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 3,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "ai data center",
+              "data center",
+              "data center moratorium"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "discovery_embedding",
+          "match_strength": 0.460579842329025,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.46057984232902527,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "b74bcd0913fbe68efc33d17fb029a3c64850875a1ba2525b00fcb0330e30e08f",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 7,
+          "slug": "datacenter_power_grid_constraints",
+          "title": "Data-center power / grid constraints",
+          "method": "discovery_embedding",
+          "match_strength": 0.459653913974762,
+          "evidence": {
+            "rank": 2,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.45965391397476196,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "ae60069103dc841381185a17beb4ea03a3c4aca2b4e92de8a9725581439c710c",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_embedding",
+          "match_strength": 0.447556644678116,
+          "evidence": {
+            "rank": 3,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.44755664467811584,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "49d69ae804150ee61e989bdfdac8bf83d6d30448b6567bc06cd5304e9d530490",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "datacenter_power_grid_constraints",
+            "method": "rule_classification",
+            "contribution": 0.6314285714285721,
+            "family_effect": 0.7428571428571437,
+            "match_strength": 0.85,
+            "signal_family_id": 7
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.21857142857142878,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.19428571428571448,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.12142857142857154,
+            "macro_domain_id": 4
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.09714285714285724,
+            "macro_domain_id": 3
+          }
+        ]
+      }
+    },
+    {
+      "rank": 12,
+      "market_id": 1322973,
+      "event_id": 197053,
+      "event_title": "GPU rental prices (H100) hit___ by April 30?",
+      "question": "Will the Silicon Data H100 Index (SDH100RT) hit $2.50 (HIGH) by April 30, 2026?",
+      "category": "Business",
+      "tags": [
+        {
+          "id": "107",
+          "slug": "business",
+          "label": "Business",
+          "createdAt": "2023-11-02T21:20:37.488Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:11:02.874409Z",
+          "publishedAt": "2023-11-02 21:20:37.48+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "439",
+          "slug": "ai",
+          "label": "AI",
+          "createdAt": "2023-11-02T23:08:32.49Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:23:51.126491Z",
+          "updatedBy": 15,
+          "isCarousel": true,
+          "publishedAt": "2023-11-02 23:08:32.469+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103390",
+          "slug": "silicon-data",
+          "label": "Silicon Data",
+          "createdAt": "2026-02-02T23:28:25.7657Z",
+          "updatedAt": "2026-02-06T20:06:32.151471Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103391",
+          "slug": "sdh100rt",
+          "label": "SDH100RT",
+          "createdAt": "2026-02-02T23:28:25.782148Z",
+          "updatedAt": "2026-02-06T20:06:32.182504Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "120",
+          "slug": "finance",
+          "label": "Finance",
+          "createdAt": "2023-11-02T21:22:21.62Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:12:40.097768Z",
+          "isCarousel": false,
+          "publishedAt": "2023-11-02 21:22:21.615+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1330",
+          "slug": "nvidia",
+          "label": "nvidia",
+          "createdAt": "2024-02-14T22:19:45.518Z",
+          "updatedAt": "2026-02-06T20:20:50.95568Z",
+          "publishedAt": "2024-02-14 22:19:45.496+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 43215.448758,
+      "liquidity_usd": 3115.0228,
+      "end_date": "2026-04-30T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.430834615592198,
+        "base_score": 0.571428571428572,
+        "quality_multiplier": 0.753960577286346,
+        "market_strength": 0.5041944155294643
+      },
+      "filter_decision": {
+        "quality_score": 0.753960577286346,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "gpu rental",
+              "gpu rental prices",
+              "h100 index"
+            ],
+            "matched_terms": [
+              "gpu rental",
+              "gpu rental prices",
+              "h100 index"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 4,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "gpu rental",
+              "gpu rental prices",
+              "h100",
+              "h100 index"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_embedding",
+          "match_strength": 0.395007401704788,
+          "evidence": {
+            "rank": 1,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3950074017047882,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "49d69ae804150ee61e989bdfdac8bf83d6d30448b6567bc06cd5304e9d530490",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "it_spending_cycle_enterprise_cloud_ai",
+            "method": "rule_classification",
+            "contribution": 0.571428571428572,
+            "family_effect": 0.571428571428572,
+            "match_strength": 1.0,
+            "signal_family_id": 9
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.2571428571428574,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.17142857142857157,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.1142857142857144,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.0285714285714286,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 13,
+      "market_id": 676842,
+      "event_id": 79075,
+      "event_title": "U.S. enacts AI safety bill before 2027?",
+      "question": "U.S. enacts AI safety bill before 2027?",
+      "category": "Politics",
+      "tags": [
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "439",
+          "slug": "ai",
+          "label": "AI",
+          "createdAt": "2023-11-02T23:08:32.49Z",
+          "forceShow": true,
+          "updatedAt": "2026-02-06T20:23:51.126491Z",
+          "updatedBy": 15,
+          "isCarousel": true,
+          "publishedAt": "2023-11-02 23:08:32.469+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "537",
+          "slug": "openai",
+          "label": "OpenAI",
+          "createdAt": "2023-11-17T23:46:12.878Z",
+          "updatedAt": "2026-02-06T20:07:12.294146Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-17 23:46:12.865+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "74",
+          "slug": "science",
+          "label": "Science",
+          "createdAt": "2023-11-02T21:16:20.826Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:15:20.36977Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-11-02 21:16:20.623+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1401",
+          "slug": "tech",
+          "label": "Tech",
+          "createdAt": "2024-02-21T23:06:12.324Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:17:30.722289Z",
+          "publishedAt": "2024-02-21 23:06:12.305+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 44944.664436,
+      "liquidity_usd": 3905.5152,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.304838447986326,
+        "base_score": 0.4,
+        "quality_multiplier": 0.762096119965814,
+        "market_strength": 0.5151902309655143
+      },
+      "filter_decision": {
+        "quality_score": 0.762096119965814,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "ai safety bill"
+            ],
+            "keyword_hits": [
+              "ai safety bill"
+            ],
+            "matched_terms": [
+              "anchor:ai safety bill",
+              "ai safety bill"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "discovery_embedding",
+          "match_strength": 0.525490045547485,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.5254900455474854,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "b74bcd0913fbe68efc33d17fb029a3c64850875a1ba2525b00fcb0330e30e08f",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_embedding",
+          "match_strength": 0.362091422080994,
+          "evidence": {
+            "rank": 2,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.36209142208099365,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "49d69ae804150ee61e989bdfdac8bf83d6d30448b6567bc06cd5304e9d530490",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.328767269849777,
+          "evidence": {
+            "rank": 3,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3287672698497772,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 7,
+          "slug": "datacenter_power_grid_constraints",
+          "title": "Data-center power / grid constraints",
+          "method": "discovery_embedding",
+          "match_strength": 0.251819998025894,
+          "evidence": {
+            "rank": 5,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.25181999802589417,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "ae60069103dc841381185a17beb4ea03a3c4aca2b4e92de8a9725581439c710c",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "ai_regulation_big_tech_enforcement",
+            "method": "rule_classification",
+            "contribution": 0.40000000000000036,
+            "family_effect": 0.571428571428572,
+            "match_strength": 0.7,
+            "signal_family_id": 6
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.20000000000000018,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.1200000000000001,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.08000000000000007,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.0,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 14,
+      "market_id": 1302430,
+      "event_id": 194025,
+      "event_title": "AWS service disrupted by March 31?",
+      "question": "AWS service disrupted by March 31?",
+      "category": "AWS",
+      "tags": [
+        {
+          "id": "102957",
+          "slug": "aws",
+          "label": "AWS",
+          "createdAt": "2025-12-11T17:35:12.110055Z",
+          "updatedAt": "2026-02-06T20:07:42.267601Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1401",
+          "slug": "tech",
+          "label": "Tech",
+          "createdAt": "2024-02-21T23:06:12.324Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:17:30.722289Z",
+          "publishedAt": "2024-02-21 23:06:12.305+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "824",
+          "slug": "amazon",
+          "label": "amazon",
+          "createdAt": "2024-01-02T23:25:36.468Z",
+          "updatedAt": "2026-02-06T20:11:02.825251Z",
+          "publishedAt": "2024-01-02 23:25:36.452+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101999",
+          "slug": "big-tech",
+          "label": "Big Tech",
+          "createdAt": "2025-03-26T21:46:09.386953Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:23:51.153305Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1563",
+          "slug": "outage",
+          "label": "outage",
+          "createdAt": "2024-03-05T16:50:44.058Z",
+          "updatedAt": "2026-02-06T20:02:00.322493Z",
+          "publishedAt": "2024-03-05 16:50:43.894+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 4141.096368,
+      "liquidity_usd": 2589.1098,
+      "end_date": "2026-03-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.262577262891449,
+        "base_score": 0.4,
+        "quality_multiplier": 0.656443157228623,
+        "market_strength": 0.39431799112957017
+      },
+      "filter_decision": {
+        "quality_score": 0.656443157228623,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "none",
+            "anchors_hit": [],
+            "keyword_hits": [
+              "aws"
+            ],
+            "matched_terms": [
+              "aws"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 0
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_lexical",
+          "match_strength": 0.5,
+          "evidence": {
+            "hit_count": 1,
+            "target_hits": 2,
+            "lexical_score": 0.5,
+            "matched_keywords": [
+              "aws"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 7,
+          "slug": "datacenter_power_grid_constraints",
+          "title": "Data-center power / grid constraints",
+          "method": "discovery_embedding",
+          "match_strength": 0.315140545368195,
+          "evidence": {
+            "rank": 1,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3151405453681946,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "ae60069103dc841381185a17beb4ea03a3c4aca2b4e92de8a9725581439c710c",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "discovery_embedding",
+          "match_strength": 0.285482615232468,
+          "evidence": {
+            "rank": 2,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.28548261523246765,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "b74bcd0913fbe68efc33d17fb029a3c64850875a1ba2525b00fcb0330e30e08f",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "discovery_embedding",
+          "match_strength": 0.254234105348587,
+          "evidence": {
+            "rank": 3,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.25423410534858704,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "49d69ae804150ee61e989bdfdac8bf83d6d30448b6567bc06cd5304e9d530490",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "it_spending_cycle_enterprise_cloud_ai",
+            "method": "rule_classification",
+            "contribution": 0.40000000000000036,
+            "family_effect": 0.571428571428572,
+            "match_strength": 0.7,
+            "signal_family_id": 9
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.18000000000000016,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.1200000000000001,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.08000000000000007,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.020000000000000018,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 15,
+      "market_id": 1228017,
+      "event_id": 176964,
+      "event_title": "SCOTUS lets Trump fire FTC commissioners in Trump v. Slaughter?",
+      "question": "SCOTUS lets Trump fire FTC commissioners in Trump v. Slaughter?",
+      "category": "SCOTUS",
+      "tags": [
+        {
+          "id": "100187",
+          "slug": "scotus",
+          "label": "SCOTUS",
+          "updatedAt": "2026-02-06T20:05:42.045856Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "102040",
+          "slug": "ftc",
+          "label": "ftc",
+          "createdAt": "2025-04-14T16:28:40.345154Z",
+          "updatedAt": "2026-02-06T20:17:50.737176Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "126",
+          "slug": "trump",
+          "label": "Trump",
+          "createdAt": "2023-11-02T21:23:16.39Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:05:42.017208Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:23:16.384+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "1628",
+          "slug": "courts",
+          "label": "Courts",
+          "createdAt": "2024-03-12T00:56:52.397Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:22:01.000566Z",
+          "publishedAt": "2024-03-12 00:56:52.382+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100188",
+          "slug": "supreme-court",
+          "label": "Supreme Court ",
+          "updatedAt": "2026-02-06T20:10:12.808481Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103198",
+          "slug": "humphreys",
+          "label": "humphreys",
+          "createdAt": "2026-01-20T15:49:23.25359Z",
+          "updatedAt": "2026-02-06T20:06:52.261001Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "103199",
+          "slug": "humphreys-executor",
+          "label": "Humphrey's Executor",
+          "createdAt": "2026-01-20T15:49:23.334729Z",
+          "updatedAt": "2026-02-06T20:06:01.944013Z",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 1244.150963,
+      "liquidity_usd": 195.87866,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.213626092417685,
+        "base_score": 0.4,
+        "quality_multiplier": 0.534065231044213,
+        "market_strength": 0.24436523589168854
+      },
+      "filter_decision": {
+        "quality_score": 0.534065231044213,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.8
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "ftc"
+            ],
+            "keyword_hits": [
+              "ftc"
+            ],
+            "matched_terms": [
+              "anchor:ftc",
+              "ftc"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "discovery_lexical",
+          "match_strength": 0.5,
+          "evidence": {
+            "hit_count": 1,
+            "target_hits": 2,
+            "lexical_score": 0.5,
+            "matched_keywords": [
+              "ftc"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 8,
+          "slug": "antitrust_platforms_app_stores_ads",
+          "title": "Antitrust (platforms, app stores, ad markets)",
+          "method": "discovery_lexical",
+          "match_strength": 0.5,
+          "evidence": {
+            "hit_count": 1,
+            "target_hits": 2,
+            "lexical_score": 0.5,
+            "matched_keywords": [
+              "ftc"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "ai_regulation_big_tech_enforcement",
+            "method": "rule_classification",
+            "contribution": 0.40000000000000036,
+            "family_effect": 0.571428571428572,
+            "match_strength": 0.7,
+            "signal_family_id": 6
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.20000000000000018,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.1200000000000001,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.08000000000000007,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.0,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 16,
+      "market_id": 1426260,
+      "event_id": 227701,
+      "event_title": "Which bills will become law in 2026?",
+      "question": "Will AI-chip export licensing become law this year?",
+      "category": "Congress",
+      "tags": [
+        {
+          "id": "514",
+          "slug": "congress",
+          "label": "Congress",
+          "createdAt": "2023-11-16T16:28:14.438Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:41.123307Z",
+          "publishedAt": "2023-11-16 16:28:14.421+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "126",
+          "slug": "trump",
+          "label": "Trump",
+          "createdAt": "2023-11-02T21:23:16.39Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:05:42.017208Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:23:16.384+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "2",
+          "slug": "politics",
+          "label": "Politics",
+          "createdAt": "2023-10-25T18:55:50.681Z",
+          "forceHide": true,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:21.058056Z",
+          "updatedBy": 13,
+          "publishedAt": "2023-10-25 18:55:50.674+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 5.0,
+      "liquidity_usd": 89.1752,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.156879695377846,
+        "base_score": 0.52,
+        "quality_multiplier": 0.301691721880472,
+        "market_strength": 0.11268863309817127
+      },
+      "filter_decision": {
+        "quality_score": 0.301691721880472,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 3,
+          "slug": "us_china_semis_export_controls",
+          "title": "US–China semiconductor export controls",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "export licensing"
+            ],
+            "keyword_hits": [
+              "export licensing"
+            ],
+            "matched_terms": [
+              "anchor:export licensing",
+              "export licensing"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "discovery_embedding",
+          "match_strength": 0.510784149169922,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.5107841491699219,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "b74bcd0913fbe68efc33d17fb029a3c64850875a1ba2525b00fcb0330e30e08f",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 3,
+          "slug": "us_china_semis_export_controls",
+          "title": "US–China semiconductor export controls",
+          "method": "discovery_lexical",
+          "match_strength": 0.5,
+          "evidence": {
+            "hit_count": 1,
+            "target_hits": 2,
+            "lexical_score": 0.5,
+            "matched_keywords": [
+              "export licensing"
+            ],
+            "lexical_gate_hits": [
+              "export licensing"
+            ],
+            "lexical_gate_required": true
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "us_china_semis_export_controls",
+            "method": "rule_classification",
+            "contribution": 0.5200000000000004,
+            "family_effect": 0.7428571428571434,
+            "match_strength": 0.7,
+            "signal_family_id": 3
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.30000000000000027,
+            "macro_domain_id": 2
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.1200000000000001,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.06000000000000005,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.040000000000000036,
+            "macro_domain_id": 4
+          }
+        ]
+      }
+    },
+    {
+      "rank": 17,
+      "market_id": 1068733,
+      "event_id": 133787,
+      "event_title": "Will stablecoins hit $500B before 2027?",
+      "question": "Will stablecoins hit $500B before 2027?",
+      "category": "Stablecoins",
+      "tags": [
+        {
+          "id": "100171",
+          "slug": "stablecoins",
+          "label": "Stablecoins",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:11.145929Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "21",
+          "slug": "crypto",
+          "label": "Crypto",
+          "createdAt": "2023-11-02T21:03:54.564Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:08:42.483174Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:03:54.55+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 553311.061589,
+      "liquidity_usd": 15282.5139,
+      "end_date": "2027-01-01T05:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.144081398135558,
+        "base_score": 0.16,
+        "quality_multiplier": 0.900508738347237,
+        "market_strength": 0.7298790468730219
+      },
+      "filter_decision": {
+        "quality_score": 0.900508738347237,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "stablecoins"
+            ],
+            "keyword_hits": [
+              "stablecoins"
+            ],
+            "matched_terms": [
+              "anchor:stablecoins",
+              "stablecoins"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_lexical",
+          "match_strength": 0.5,
+          "evidence": {
+            "hit_count": 1,
+            "target_hits": 2,
+            "lexical_score": 0.5,
+            "matched_keywords": [
+              "stablecoins"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.469702303409576,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.4697023034095764,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "crypto_regime_changes",
+            "method": "rule_classification",
+            "contribution": 0.16000000000000014,
+            "family_effect": 0.2285714285714288,
+            "match_strength": 0.7,
+            "signal_family_id": 5
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.10000000000000009,
+            "macro_domain_id": 4
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.040000000000000036,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.020000000000000018,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.0,
+            "macro_domain_id": 2
+          }
+        ]
+      }
+    },
+    {
+      "rank": 18,
+      "market_id": 1108760,
+      "event_id": 143812,
+      "event_title": "Will USD-denominated stablecoin market share fall below 99% in 2026?",
+      "question": "Will USD-denominated stablecoin market share fall below 99% in 2026?",
+      "category": "Crypto",
+      "tags": [
+        {
+          "id": "21",
+          "slug": "crypto",
+          "label": "Crypto",
+          "createdAt": "2023-11-02T21:03:54.564Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:08:42.483174Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:03:54.55+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100171",
+          "slug": "stablecoins",
+          "label": "Stablecoins",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:11.145929Z",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 36849.166123,
+      "liquidity_usd": 7552.3694,
+      "end_date": "2027-01-01T05:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.123764030361599,
+        "base_score": 0.16,
+        "quality_multiplier": 0.773525189759996,
+        "market_strength": 0.5297217393393073
+      },
+      "filter_decision": {
+        "quality_score": 0.773525189759996,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "stablecoin"
+            ],
+            "keyword_hits": [
+              "stablecoin"
+            ],
+            "matched_terms": [
+              "anchor:stablecoin",
+              "stablecoin"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_lexical",
+          "match_strength": 1.0,
+          "evidence": {
+            "hit_count": 2,
+            "target_hits": 2,
+            "lexical_score": 1.0,
+            "matched_keywords": [
+              "stablecoin",
+              "stablecoins"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.385864228010178,
+          "evidence": {
+            "rank": 1,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3858642280101776,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "crypto_regime_changes",
+            "method": "rule_classification",
+            "contribution": 0.16000000000000014,
+            "family_effect": 0.2285714285714288,
+            "match_strength": 0.7,
+            "signal_family_id": 5
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.10000000000000009,
+            "macro_domain_id": 4
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.040000000000000036,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.020000000000000018,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.0,
+            "macro_domain_id": 2
+          }
+        ]
+      }
+    },
+    {
+      "rank": 19,
+      "market_id": 1426021,
+      "event_id": 227654,
+      "event_title": "Ethereum ETF Flows on February 26?",
+      "question": "Ethereum ETF Flows on February 26?",
+      "category": "ETF",
+      "tags": [
+        {
+          "id": "833",
+          "slug": "etf",
+          "label": "ETF",
+          "createdAt": "2024-01-03T22:22:38.205Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:11:02.856149Z",
+          "isCarousel": false,
+          "publishedAt": "2024-01-03 22:22:38.186+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "101757",
+          "slug": "recurring",
+          "label": "Recurring",
+          "createdAt": "2025-02-01T00:45:26.493838Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:14:50.341819Z",
+          "requiresTranslation": false
+        },
+        {
+          "id": "102169",
+          "slug": "hide-from-new",
+          "label": "Hide From New",
+          "createdAt": "2025-05-23T18:47:07.430147Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:15:10.460422Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        },
+        {
+          "id": "102281",
+          "slug": "daily",
+          "label": "Daily",
+          "createdAt": "2025-06-17T20:32:17.531984Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:09:52.809091Z",
+          "isCarousel": false,
+          "requiresTranslation": false
+        },
+        {
+          "id": "39",
+          "slug": "ethereum",
+          "label": "Ethereum",
+          "createdAt": "2023-11-02T21:08:15.95Z",
+          "forceHide": false,
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:10:12.849291Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:08:15.934+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "21",
+          "slug": "crypto",
+          "label": "Crypto",
+          "createdAt": "2023-11-02T21:03:54.564Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:08:42.483174Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:03:54.55+00",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 520292.405446,
+      "liquidity_usd": 42.1375,
+      "end_date": "2026-02-26T23:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.116300668678988,
+        "base_score": 0.16,
+        "quality_multiplier": 0.726879179243677,
+        "market_strength": 0.5228848441160107
+      },
+      "filter_decision": {
+        "quality_score": 0.726879179243677,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "ethereum etf"
+            ],
+            "keyword_hits": [
+              "ethereum etf"
+            ],
+            "matched_terms": [
+              "anchor:ethereum etf",
+              "ethereum etf"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_lexical",
+          "match_strength": 0.5,
+          "evidence": {
+            "hit_count": 1,
+            "target_hits": 2,
+            "lexical_score": 0.5,
+            "matched_keywords": [
+              "ethereum etf"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.335986614227295,
+          "evidence": {
+            "rank": 1,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.3359866142272949,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_embedding",
+          "match_strength": 0.260629832744598,
+          "evidence": {
+            "rank": 2,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.2606298327445984,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "88efdc7b3eecd6689719b854ff79ba2d25916f8b83e30d1504599197585e4a82",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "crypto_regime_changes",
+            "method": "rule_classification",
+            "contribution": 0.16000000000000014,
+            "family_effect": 0.2285714285714288,
+            "match_strength": 0.7,
+            "signal_family_id": 5
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.10000000000000009,
+            "macro_domain_id": 4
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.040000000000000036,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.020000000000000018,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.0,
+            "macro_domain_id": 2
+          }
+        ]
+      }
+    },
+    {
+      "rank": 20,
+      "market_id": 1058192,
+      "event_id": 131229,
+      "event_title": "Stablecoins depeg before 2027?",
+      "question": "USDC depeg by December 31?",
+      "category": "Crypto",
+      "tags": [
+        {
+          "id": "21",
+          "slug": "crypto",
+          "label": "Crypto",
+          "createdAt": "2023-11-02T21:03:54.564Z",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:08:42.483174Z",
+          "updatedBy": 15,
+          "publishedAt": "2023-11-02 21:03:54.55+00",
+          "requiresTranslation": false
+        },
+        {
+          "id": "100171",
+          "slug": "stablecoins",
+          "label": "Stablecoins",
+          "forceShow": false,
+          "updatedAt": "2026-02-06T20:24:11.145929Z",
+          "requiresTranslation": false
+        }
+      ],
+      "outcomes": null,
+      "probability": null,
+      "volume_usd": 7560.904895,
+      "liquidity_usd": 7975.50507,
+      "end_date": "2027-01-01T05:00:00+00:00",
+      "is_rate_like": false,
+      "scores": {
+        "final_score": 0.114063476280088,
+        "base_score": 0.16,
+        "quality_multiplier": 0.712896726750551,
+        "market_strength": 0.44423937801663455
+      },
+      "filter_decision": {
+        "quality_score": 0.712896726750551,
+        "template_score": 0.0,
+        "equity_relevance_score": 0.0
+      },
+      "match_vector_topk": [
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "evidence": {
+            "min_hits": 1,
+            "min_score": 0.7,
+            "anchor_mode": "required",
+            "anchors_hit": [
+              "stablecoins"
+            ],
+            "keyword_hits": [
+              "stablecoins"
+            ],
+            "matched_terms": [
+              "anchor:stablecoins",
+              "stablecoins"
+            ],
+            "override_hits": [],
+            "exclusions_hit": [],
+            "min_anchor_hits": 1
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_lexical",
+          "match_strength": 0.5,
+          "evidence": {
+            "hit_count": 1,
+            "target_hits": 2,
+            "lexical_score": 0.5,
+            "matched_keywords": [
+              "stablecoins"
+            ],
+            "lexical_gate_hits": [],
+            "lexical_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 5,
+          "slug": "crypto_regime_changes",
+          "title": "Crypto regulation regime changes",
+          "method": "discovery_embedding",
+          "match_strength": 0.457210004329681,
+          "evidence": {
+            "rank": 1,
+            "top_k": 5,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.4572100043296814,
+            "min_similarity": 0.4,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "64108cab6303d08e54359821f5e9635a024de72199fd0a424e2dbd22beb04cde",
+            "embedding_gate_required": false
+          }
+        },
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "discovery_embedding",
+          "match_strength": 0.260979443788528,
+          "evidence": {
+            "rank": 2,
+            "top_k": 15,
+            "provider": "sentence_transformers",
+            "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+            "similarity": 0.26097944378852844,
+            "min_similarity": 0.25,
+            "embedding_gate_hits": [],
+            "family_query_text_hash": "88efdc7b3eecd6689719b854ff79ba2d25916f8b83e30d1504599197585e4a82",
+            "embedding_gate_required": false
+          }
+        }
+      ],
+      "score_breakdown_top": {
+        "top_families": [
+          {
+            "slug": "crypto_regime_changes",
+            "method": "rule_classification",
+            "contribution": 0.16000000000000014,
+            "family_effect": 0.2285714285714288,
+            "match_strength": 0.7,
+            "signal_family_id": 5
+          }
+        ],
+        "top_domains": [
+          {
+            "name": "Crypto Infra",
+            "contribution": 0.10000000000000009,
+            "macro_domain_id": 4
+          },
+          {
+            "name": "AI & Big Tech",
+            "contribution": 0.040000000000000036,
+            "macro_domain_id": 1
+          },
+          {
+            "name": "Cloud / Dev",
+            "contribution": 0.020000000000000018,
+            "macro_domain_id": 3
+          },
+          {
+            "name": "Semis & Compute",
+            "contribution": 0.0,
+            "macro_domain_id": 2
+          }
+        ]
+      }
+    }
+  ],
+  "constraints": {
+    "no_external_facts": true,
+    "prefer_final_score_ordering": true,
+    "source_of_candidates": "pm_market_security_relevance_selection"
+  }
+}

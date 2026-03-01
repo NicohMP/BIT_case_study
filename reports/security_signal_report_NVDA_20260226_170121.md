@@ -1,0 +1,442 @@
+# NVIDIA (NVDA) Signal Report
+
+_As of_: `2026-02-26T17:01:01.846780+00:00`
+_Pipeline_: filter `hard_filters_v8`, matcher `matcher_v10`, scoring `relevance_v5`, selection `selected_v1`, prompt `security_signal_report_v1`, model `gemini-2.0-flash`
+
+<details>
+<summary>Run metadata</summary>
+
+- run_id: `5d9e52f2-0938-4fea-88f6-14341ee4eb1a`
+</details>
+
+**Security:** `NVDA` — NVIDIA Corp (XNAS)
+
+## Executive Summary
+Geopolitical tensions surrounding Taiwan and potential shifts in US monetary policy present key risks to NVIDIA (NVDA). A potential Chinese blockade or invasion of Taiwan could disrupt semiconductor supply chains, impacting NVIDIA's GPU availability and data center build-out. Additionally, unexpected tightening of monetary policy by the Federal Reserve could negatively affect NVIDIA's valuation, as its long-dated cash flows are sensitive to discount rate changes.
+
+Top signals: **Will China blockade Taiwan by June 30?** (magnitude: medium; timeline: quarters; actionability: High); **Will Trump nominate Judy Shelton as the next Fed chair?** (magnitude: medium; timeline: years; actionability: High).
+
+## Top Signals
+### 1) Will China blockade Taiwan by June 30?
+
+**Current probability:** 6%
+_Snapshot:_ resolves `2026-06-30T00:00:00+00:00` (123d); volume $565.2k; liquidity $54.8k; structural relevance High; actionability High; confidence High; magnitude medium; timeline quarters.
+
+**Why it matters.** This market's structural relevance to NVDA is high. A Chinese blockade of Taiwan would disrupt semiconductor supply chains, directly impacting NVIDIA's ability to manufacture and distribute its GPUs. This is because a large share of advanced fabrication sits on the island, making the company vulnerable to supply chain disruptions.
+**Why now.** This market offers high actionability. The market card indicates that the market resolves in 123 days, with medium liquidity and volume, providing a clear pricing and context for potential investment decisions.
+
+**Transmission chain.** Market → **Taiwan geopolitical risk** → macro domains → `NVDA`.
+
+> **Semis & Compute** — influence: High; exposure: 43%
+> _Influence rationale:_ Taiwan‑focused studies emphasize that a large share of advanced fabrication sits on the island, and that quarantine/blockade scenarios could significantly disrupt global semiconductor supply. That makes Taiwan geopolitical risk a first‑order, persistent threat to semis and compute infrastructure.
+> _Exposure rationale:_ 3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products
+>
+> **AI & Big Tech** — influence: Medium; exposure: 29%
+> _Influence rationale:_ Research on Taiwan’s semiconductor industry highlights its centrality to advanced chip fabrication and the vulnerability of global supply chains to quarantine, blockade, or conflict scenarios in the Taiwan Strait. For AI platforms, this translates into tail risks to GPU availability, data‑center build‑out, and regional operations.
+> _Exposure rationale:_ 2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform
+>
+
+**What to watch.** Monitor geopolitical tensions between China and Taiwan; Track semiconductor supply chain developments; Assess alternative sourcing options for NVIDIA.
+**Key unknowns.** The likelihood of a Chinese blockade of Taiwan; The extent of disruption to semiconductor supply chains; NVIDIA's ability to mitigate supply chain risks.
+_IDs:_ `market_id=604470, event_id=46844`
+
+---
+
+### 2) Will Trump nominate Judy Shelton as the next Fed chair?
+
+**Event:** Who will Trump nominate as Fed Chair?
+**Current probability:** 4%
+_Snapshot:_ resolves `2026-12-31T00:00:00+00:00` (307d); volume $96.42M; liquidity $1.41M; structural relevance High; actionability High; confidence High; magnitude medium; timeline years.
+
+**Why it matters.** This market has high structural relevance. Monetary policy surprises, such as unexpected Fed chair nominations, can significantly impact equity valuations, especially for growth and tech sectors like NVIDIA. This is because AI mega-caps, priced on long-dated cash flows, sell off disproportionately on surprise hikes.
+**Why now.** This market offers high actionability. The market card indicates that the market resolves in 307 days, with high liquidity and volume, providing a clear pricing and context for potential investment decisions.
+
+**Transmission chain.** Market → **Monetary policy surprises (FOMC)** → macro domains → `NVDA`.
+
+> **AI & Big Tech** — influence: High; exposure: 29%
+> _Influence rationale:_ Event‑study work on FOMC surprises shows statistically significant negative stock returns when policy tightens unexpectedly, with growth and tech sectors generally more sensitive than defensives. This justifies a high prior that AI mega‑caps, priced on long‑dated cash flows, sell off disproportionately on surprise hikes.
+> _Exposure rationale:_ 2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform
+>
+> **Semis & Compute** — influence: Medium; exposure: 43%
+> _Influence rationale:_ Monetary policy surprise studies document broad equity sensitivity, but manufacturing and cyclicals like semis have more mixed reactions because earnings cyclicality and global trade matter alongside discount‑rate effects. The same event‑study evidence supports a meaningful yet slightly lower prior than for pure growth platforms.
+> _Exposure rationale:_ 3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products
+>
+
+**What to watch.** Monitor US Federal Reserve policy decisions; Track potential nominees for Fed Chair; Assess the impact of monetary policy on growth stocks.
+**Key unknowns.** The likelihood of Judy Shelton's nomination as Fed Chair; The timing and magnitude of future interest rate changes; The sensitivity of NVIDIA's stock price to monetary policy shifts.
+_IDs:_ `market_id=572473, event_id=35908`
+
+---
+
+## Themes
+
+**Geopolitical Risk: Taiwan Blockade.** A potential Chinese blockade of Taiwan poses a significant threat to NVIDIA's supply chain and manufacturing capabilities, given Taiwan's dominance in semiconductor fabrication. (markets: 604470)
+
+**Monetary Policy and Valuation.** Changes in US monetary policy, particularly unexpected tightening, can negatively impact NVIDIA's valuation due to its long-duration cash flows and sensitivity to discount rate changes. (markets: 572473)
+
+## What To Monitor Next
+Monitor geopolitical tensions between China and Taiwan; Track US Federal Reserve policy decisions and potential nominees for Fed Chair; Assess alternative sourcing options for NVIDIA.
+
+## Appendix: Evidence & Metrics
+
+### Metrics (raw)
+| market_id | event_id | final_score | base_score | quality_mult | market_strength | confidence |
+|---:|---:|---:|---:|---:|---:|---:|
+| 604470 | 46844 | 0.697236220702031 | 0.742857142857143 | 0.93858722017581 | 0.7918987977721407 | 0.7 |
+| 572473 | 35908 | 0.771428571428572 | 0.771428571428572 | 1.0 | 0.9400000000000001 | 0.8 |
+
+### Exclusions
+- dropped_due_to_duplicate_event:
+  - 567621: duplicate event
+  - 701290: duplicate event
+  - 956590: duplicate event
+  - 677407: duplicate event
+  - 540843: duplicate event
+- dropped_due_to_rate_cap:
+  - 654412: rate cap
+  - 669660: rate cap
+- dropped_due_to_low_actionability:
+  - 1322996: low actionability
+  - 957986: low actionability
+  - 1322973: low actionability
+  - 676842: low actionability
+  - 1302430: low actionability
+  - 1228017: low actionability
+  - 1426261: low actionability
+  - 1068733: low actionability
+  - 1426021: low actionability
+  - 1108760: low actionability
+  - 1058192: low actionability
+
+<details>
+<summary>Raw LLM JSON</summary>
+
+```json
+{
+  "title": "NVIDIA (NVDA) Signal Report",
+  "as_of_utc": "2026-02-26T17:01:01.846780+00:00",
+  "top_take": "Geopolitical tensions surrounding Taiwan and potential shifts in US monetary policy present key risks to NVIDIA (NVDA). A potential Chinese blockade or invasion of Taiwan could disrupt semiconductor supply chains, impacting NVIDIA's GPU availability and data center build-out. Additionally, unexpected tightening of monetary policy by the Federal Reserve could negatively affect NVIDIA's valuation, as its long-dated cash flows are sensitive to discount rate changes.",
+  "versions": {
+    "run_id": "5d9e52f2-0938-4fea-88f6-14341ee4eb1a",
+    "filter_version": "hard_filters_v8",
+    "matcher_version": "matcher_v10",
+    "scoring_version": "relevance_v5",
+    "selection_version": "selected_v1",
+    "prompt_version": "security_signal_report_v1",
+    "model": "gemini-2.0-flash"
+  },
+  "security": {
+    "security_id": 17,
+    "ticker": "NVDA",
+    "company_name": "NVIDIA Corp",
+    "exchange_mic": "XNAS"
+  },
+  "top_markets": [
+    {
+      "market_id": 604470,
+      "event_id": 46844,
+      "question": "Will China blockade Taiwan by June 30?",
+      "event_title": "Will China blockade Taiwan by June 30?",
+      "probability": 0.055,
+      "pricing": {
+        "kind": "binary",
+        "yes_probability": 0.055,
+        "top_outcomes": [],
+        "note": null
+      },
+      "end_date": "2026-06-30T00:00:00+00:00",
+      "volume_usd": 565158.433103,
+      "liquidity_usd": 54804.2942,
+      "scores": {
+        "final_score": 0.697236220702031,
+        "base_score": 0.742857142857143,
+        "quality_multiplier": 0.93858722017581,
+        "market_strength": 0.7918987977721407
+      },
+      "structural_relevance": "This market's structural relevance to NVDA is high. A Chinese blockade of Taiwan would disrupt semiconductor supply chains, directly impacting NVIDIA's ability to manufacture and distribute its GPUs. This is because a large share of advanced fabrication sits on the island, making the company vulnerable to supply chain disruptions.",
+      "actionability": "This market offers high actionability. The market card indicates that the market resolves in 123 days, with medium liquidity and volume, providing a clear pricing and context for potential investment decisions.",
+      "transmission_chain": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "domains": [
+            {
+              "macro_domain_id": 2,
+              "macro_domain_name": "Semis & Compute",
+              "family_influence_score": 5,
+              "security_exposure_weight": 0.428571428571429,
+              "edge_rationale": "Taiwan‑focused studies emphasize that a large share of advanced fabrication sits on the island, and that quarantine/blockade scenarios could significantly disrupt global semiconductor supply. That makes Taiwan geopolitical risk a first‑order, persistent threat to semis and compute infrastructure.",
+              "exposure_rationale": "3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products"
+            },
+            {
+              "macro_domain_id": 1,
+              "macro_domain_name": "AI & Big Tech",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.285714285714286,
+              "edge_rationale": "Research on Taiwan’s semiconductor industry highlights its centrality to advanced chip fabrication and the vulnerability of global supply chains to quarantine, blockade, or conflict scenarios in the Taiwan Strait. For AI platforms, this translates into tail risks to GPU availability, data‑center build‑out, and regional operations.",
+              "exposure_rationale": "2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform"
+            },
+            {
+              "macro_domain_id": 3,
+              "macro_domain_name": "Cloud / Dev",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "Cloud / dev‑infra depends on reliable supply of server CPUs, GPUs, and networking hardware, so the Taiwan risk literature implies medium‑to‑high exposure through potential hardware shortages and cost spikes. Liu et al. explicitly frame Taiwan’s fab ecosystem as a critical node whose disruption would cascade into ICT, including AI and cloud.",
+              "exposure_rationale": "1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub"
+            },
+            {
+              "macro_domain_id": 4,
+              "macro_domain_name": "Crypto Infra",
+              "family_influence_score": 2,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "Crypto infra is linked more weakly: mining hardware and some infra equipment would face supply disruptions, but miners can shift to non‑Taiwan fabs over time, and the main risk comes via global macro stress. The Taiwan semiconductor risk papers show the centrality of Taiwan for advanced nodes, yet crypto ASIC production is more geographically diversified than AI leading‑edge nodes.",
+              "exposure_rationale": "1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)"
+            }
+          ]
+        }
+      ],
+      "magnitude_bucket": "medium",
+      "timeline_bucket": "quarters",
+      "what_to_watch": [
+        "Monitor geopolitical tensions between China and Taiwan.",
+        "Track semiconductor supply chain developments.",
+        "Assess alternative sourcing options for NVIDIA."
+      ],
+      "key_unknowns": [
+        "The likelihood of a Chinese blockade of Taiwan.",
+        "The extent of disruption to semiconductor supply chains.",
+        "NVIDIA's ability to mitigate supply chain risks."
+      ],
+      "evidence_refs": [
+        {
+          "kind": "market",
+          "market_id": 604470
+        },
+        {
+          "kind": "family_match",
+          "market_id": 604470,
+          "signal_family_id": 4
+        },
+        {
+          "kind": "influence_edge",
+          "signal_family_id": 4,
+          "macro_domain_id": 2
+        },
+        {
+          "kind": "security_exposure",
+          "signal_family_id": 4,
+          "macro_domain_id": 2
+        }
+      ],
+      "confidence": 0.7
+    },
+    {
+      "market_id": 572473,
+      "event_id": 35908,
+      "question": "Will Trump nominate Judy Shelton as the next Fed chair?",
+      "event_title": "Who will Trump nominate as Fed Chair?",
+      "probability": 0.0375,
+      "pricing": {
+        "kind": "binary",
+        "yes_probability": 0.0375,
+        "top_outcomes": [],
+        "note": null
+      },
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "volume_usd": 96420304.477184,
+      "liquidity_usd": 1410750.27563,
+      "scores": {
+        "final_score": 0.771428571428572,
+        "base_score": 0.771428571428572,
+        "quality_multiplier": 1.0,
+        "market_strength": 0.9400000000000001
+      },
+      "structural_relevance": "This market has high structural relevance. Monetary policy surprises, such as unexpected Fed chair nominations, can significantly impact equity valuations, especially for growth and tech sectors like NVIDIA. This is because AI mega-caps, priced on long-dated cash flows, sell off disproportionately on surprise hikes.",
+      "actionability": "This market offers high actionability. The market card indicates that the market resolves in 307 days, with high liquidity and volume, providing a clear pricing and context for potential investment decisions.",
+      "transmission_chain": [
+        {
+          "signal_family_id": 1,
+          "slug": "fomc_surprises",
+          "title": "Monetary policy surprises (FOMC)",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "domains": [
+            {
+              "macro_domain_id": 1,
+              "macro_domain_name": "AI & Big Tech",
+              "family_influence_score": 5,
+              "security_exposure_weight": 0.285714285714286,
+              "edge_rationale": "Event‑study work on FOMC surprises shows statistically significant negative stock returns when policy tightens unexpectedly, with growth and tech sectors generally more sensitive than defensives. This justifies a high prior that AI mega‑caps, priced on long‑dated cash flows, sell off disproportionately on surprise hikes.",
+              "exposure_rationale": "2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform"
+            },
+            {
+              "macro_domain_id": 2,
+              "macro_domain_name": "Semis & Compute",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.428571428571429,
+              "edge_rationale": "Monetary policy surprise studies document broad equity sensitivity, but manufacturing and cyclicals like semis have more mixed reactions because earnings cyclicality and global trade matter alongside discount‑rate effects. The same event‑study evidence supports a meaningful yet slightly lower prior than for pure growth platforms.",
+              "exposure_rationale": "3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products"
+            },
+            {
+              "macro_domain_id": 3,
+              "macro_domain_name": "Cloud / Dev",
+              "family_influence_score": 5,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "High‑duration SaaS / cloud names behave like textbook “long‑duration equities”: event‑driven sell‑offs around hawkish surprises have repeatedly hit this segment hardest in practice. The equity‑duration literature supports stronger sensitivity of high‑growth, low‑cash‑payout firms to discount‑rate shocks, matching the profile of cloud and dev‑infra names.",
+              "exposure_rationale": "1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub"
+            },
+            {
+              "macro_domain_id": 4,
+              "macro_domain_name": "Crypto Infra",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "Crypto infra equities are not classic DCF assets, but empirical work and market commentary show that FOMC surprises still transmit via global risk appetite and liquidity, affecting exchange volumes and miner financing conditions. The mechanism is thus indirect (through the macro risk channel rather than discount factors on cash flows) but strong enough to warrant a medium prior.",
+              "exposure_rationale": "1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)"
+            }
+          ]
+        }
+      ],
+      "magnitude_bucket": "medium",
+      "timeline_bucket": "years",
+      "what_to_watch": [
+        "Monitor US Federal Reserve policy decisions.",
+        "Track potential nominees for Fed Chair.",
+        "Assess the impact of monetary policy on growth stocks."
+      ],
+      "key_unknowns": [
+        "The likelihood of Judy Shelton's nomination as Fed Chair.",
+        "The timing and magnitude of future interest rate changes.",
+        "The sensitivity of NVIDIA's stock price to monetary policy shifts."
+      ],
+      "evidence_refs": [
+        {
+          "kind": "market",
+          "market_id": 572473
+        },
+        {
+          "kind": "family_match",
+          "market_id": 572473,
+          "signal_family_id": 1
+        },
+        {
+          "kind": "influence_edge",
+          "signal_family_id": 1,
+          "macro_domain_id": 1
+        },
+        {
+          "kind": "security_exposure",
+          "signal_family_id": 1,
+          "macro_domain_id": 1
+        }
+      ],
+      "confidence": 0.8
+    }
+  ],
+  "themes": [
+    {
+      "title": "Geopolitical Risk: Taiwan Blockade",
+      "why": "A potential Chinese blockade of Taiwan poses a significant threat to NVIDIA's supply chain and manufacturing capabilities, given Taiwan's dominance in semiconductor fabrication.",
+      "market_ids": [
+        604470
+      ]
+    },
+    {
+      "title": "Monetary Policy and Valuation",
+      "why": "Changes in US monetary policy, particularly unexpected tightening, can negatively impact NVIDIA's valuation due to its long-duration cash flows and sensitivity to discount rate changes.",
+      "market_ids": [
+        572473
+      ]
+    }
+  ],
+  "monitor_next": [
+    "Monitor geopolitical tensions between China and Taiwan.",
+    "Track US Federal Reserve policy decisions and potential nominees for Fed Chair.",
+    "Assess alternative sourcing options for NVIDIA."
+  ],
+  "exclusions": {
+    "dropped_due_to_duplicate_event": [
+      {
+        "market_id": 567621,
+        "reason": "duplicate event"
+      },
+      {
+        "market_id": 701290,
+        "reason": "duplicate event"
+      },
+      {
+        "market_id": 956590,
+        "reason": "duplicate event"
+      },
+      {
+        "market_id": 677407,
+        "reason": "duplicate event"
+      },
+      {
+        "market_id": 540843,
+        "reason": "duplicate event"
+      }
+    ],
+    "dropped_due_to_rate_cap": [
+      {
+        "market_id": 654412,
+        "reason": "rate cap"
+      },
+      {
+        "market_id": 669660,
+        "reason": "rate cap"
+      }
+    ],
+    "dropped_due_to_low_actionability": [
+      {
+        "market_id": 1322996,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 957986,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1322973,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 676842,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1302430,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1228017,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1426261,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1068733,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1426021,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1108760,
+        "reason": "low actionability"
+      },
+      {
+        "market_id": 1058192,
+        "reason": "low actionability"
+      }
+    ]
+  },
+  "notes": []
+}
+```
+</details>

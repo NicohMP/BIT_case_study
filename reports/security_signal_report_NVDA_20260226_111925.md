@@ -1,0 +1,520 @@
+# NVDA Signal Report
+
+- as_of_utc: `2026-02-26T10:51:31.642793+00:00`
+- versions:
+  - run_id: `57bfd305-0c3c-49d4-a6c1-28d507197857`
+  - filter_version: `hard_filters_v8`
+  - matcher_version: `matcher_v10`
+  - scoring_version: `relevance_v5`
+  - selection_version: `selected_v1`
+  - prompt_version: `string`
+  - model: `string`
+- security: `NVDA` (NVIDIA Corp)
+
+## Themes
+- **Geopolitical Risk: Taiwan** — Heightened tensions between China and Taiwan could significantly disrupt semiconductor supply chains, impacting NVIDIA's production and revenue.
+  - markets: 604470
+- **AI Regulation** — Increasing regulatory scrutiny of AI could impact NVIDIA's AI-related businesses, potentially affecting its growth trajectory.
+  - markets: 676842
+- **IT Spending Cycle** — Fluctuations in IT spending, particularly on GPUs, can directly impact NVIDIA's revenue and profitability.
+  - markets: 1322996
+
+## Top Markets
+### 1. Will China blockade Taiwan by June 30?
+- `market_id`: 604470
+- event: Will China blockade Taiwan by June 30?
+- `event_id`: 46844
+- end_date: `2026-06-30T00:00:00+00:00`
+- volume_usd: 563927.026438
+- liquidity_usd: 59152.1184
+- scores: final_score=0.698826651740332, base_score=0.742857142857143, quality_multiplier=0.940728185035062, market_strength=0.795442884424437
+- structural_relevance: This market's relevance is derived from the Taiwan geopolitical risk signal family, which has a strong influence on the Semis & Compute domain. NVIDIA is fundamentally a semiconductor and compute platform company, making it highly exposed to this domain.
+- actionability: This market has a market strength of 0.795 and liquidity of $59,152.12, offering reasonable actionability with an end date of June 30, 2026.
+- buckets: magnitude=medium timeline=quarters
+- transmission_chain:
+  - family: taiwan_geopolitical_risk (match=1.0, method=rule_classification)
+    - Semis & Compute: influence=5 exposure=0.428571428571429
+      - exposure_rationale: 3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products
+    - AI & Big Tech: influence=3 exposure=0.285714285714286
+      - exposure_rationale: 2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform
+    - Cloud / Dev: influence=3 exposure=0.142857142857143
+      - exposure_rationale: 1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub
+    - Crypto Infra: influence=2 exposure=0.142857142857143
+      - exposure_rationale: 1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)
+- what_to_watch:
+  - geopolitical tensions between China and Taiwan
+  - diplomatic efforts to de-escalate the situation
+- key_unknowns:
+  - the likelihood of military intervention by the United States
+  - the economic consequences of a blockade
+
+### 2. Will the Silicon Data H100 Index (SDH100RT) hit $2.25 (LOW) by February 28, 2026?
+- `market_id`: 1322996
+- event: GPU rental prices (H100) hit___ in February?
+- `event_id`: 197059
+- end_date: `2026-02-28T00:00:00+00:00`
+- volume_usd: 46187.97339
+- liquidity_usd: 5507.07982
+- scores: final_score=0.441822230314528, base_score=0.571428571428572, quality_multiplier=0.773188903050423, market_strength=0.5766501947463404
+- structural_relevance: This market's relevance is derived from the IT spending cycle signal family, which has a strong influence on the Semis & Compute domain. NVIDIA is fundamentally a semiconductor and compute platform company, making it highly exposed to this domain.
+- actionability: This market has a market strength of 0.577 and liquidity of $5,507.08, offering limited actionability with an end date of February 28, 2026.
+- buckets: magnitude=low timeline=days
+- transmission_chain:
+  - family: it_spending_cycle_enterprise_cloud_ai (match=1.0, method=rule_classification)
+    - Semis & Compute: influence=3 exposure=0.428571428571429
+      - exposure_rationale: 3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products
+    - AI & Big Tech: influence=3 exposure=0.285714285714286
+      - exposure_rationale: 2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform
+    - Cloud / Dev: influence=4 exposure=0.142857142857143
+      - exposure_rationale: 1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub
+    - Crypto Infra: influence=1 exposure=0.142857142857143
+      - exposure_rationale: 1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)
+- what_to_watch:
+  - trends in GPU rental prices
+  - demand for H100 GPUs
+- key_unknowns:
+  - the impact of new GPU models on rental prices
+  - the overall health of the IT spending cycle
+
+### 3. U.S. enacts AI safety bill before 2027?
+- `market_id`: 676842
+- event: U.S. enacts AI safety bill before 2027?
+- `event_id`: 79075
+- end_date: `2026-12-31T00:00:00+00:00`
+- volume_usd: 44944.664436
+- liquidity_usd: 3905.5152
+- scores: final_score=0.304838447986326, base_score=0.4, quality_multiplier=0.762096119965814, market_strength=0.5151902309655143
+- structural_relevance: This market's relevance is derived from the AI regulation signal family, which has a strong influence on the AI & Big Tech domain. NVIDIA’s data‑center business is now dominated by AI training and inference workloads, making it exposed to this domain.
+- actionability: This market has a market strength of 0.515 and liquidity of $3,905.52, offering limited actionability with an end date of December 31, 2026.
+- buckets: magnitude=low timeline=quarters
+- transmission_chain:
+  - family: ai_regulation_big_tech_enforcement (match=0.7, method=rule_classification)
+    - AI & Big Tech: influence=5 exposure=0.285714285714286
+      - exposure_rationale: 2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform
+    - Semis & Compute: influence=2 exposure=0.428571428571429
+      - exposure_rationale: 3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products
+    - Cloud / Dev: influence=4 exposure=0.142857142857143
+      - exposure_rationale: 1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub
+    - Crypto Infra: influence=0 exposure=0.142857142857143
+      - exposure_rationale: 1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)
+- what_to_watch:
+  - progress of AI safety bill in the U.S. Congress
+  - public and political sentiment towards AI regulation
+- key_unknowns:
+  - the specific provisions of any AI safety bill that may be enacted
+  - the impact of AI regulation on NVIDIA's business
+
+## Monitor Next
+- Monitor geopolitical developments in the Taiwan Strait.
+- Track the progress of AI regulation in the U.S. and other major markets.
+- Follow trends in IT spending and GPU rental prices.
+
+## Notes
+- The influence_matrix_slice.rationale_md is empty for all signal families and macro domains.
+- The prompt version is missing from the input pack.
+
+---
+## Raw LLM JSON
+```json
+{
+  "title": "NVDA Signal Report",
+  "as_of_utc": "2026-02-26T10:51:31.642793+00:00",
+  "versions": {
+    "run_id": "57bfd305-0c3c-49d4-a6c1-28d507197857",
+    "filter_version": "hard_filters_v8",
+    "matcher_version": "matcher_v10",
+    "scoring_version": "relevance_v5",
+    "selection_version": "selected_v1",
+    "prompt_version": "string",
+    "model": "string"
+  },
+  "security": {
+    "security_id": 17,
+    "ticker": "NVDA",
+    "company_name": "NVIDIA Corp",
+    "exchange_mic": "XNAS"
+  },
+  "top_markets": [
+    {
+      "market_id": 604470,
+      "event_id": 46844,
+      "question": "Will China blockade Taiwan by June 30?",
+      "event_title": "Will China blockade Taiwan by June 30?",
+      "probability": null,
+      "end_date": "2026-06-30T00:00:00+00:00",
+      "volume_usd": 563927.026438,
+      "liquidity_usd": 59152.1184,
+      "scores": {
+        "final_score": 0.698826651740332,
+        "base_score": 0.742857142857143,
+        "quality_multiplier": 0.940728185035062,
+        "market_strength": 0.795442884424437
+      },
+      "structural_relevance": "This market's relevance is derived from the Taiwan geopolitical risk signal family, which has a strong influence on the Semis & Compute domain. NVIDIA is fundamentally a semiconductor and compute platform company, making it highly exposed to this domain.",
+      "actionability": "This market has a market strength of 0.795 and liquidity of $59,152.12, offering reasonable actionability with an end date of June 30, 2026.",
+      "transmission_chain": [
+        {
+          "signal_family_id": 4,
+          "slug": "taiwan_geopolitical_risk",
+          "title": "Taiwan geopolitical risk",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "domains": [
+            {
+              "macro_domain_id": 2,
+              "macro_domain_name": "Semis & Compute",
+              "family_influence_score": 5,
+              "security_exposure_weight": 0.428571428571429,
+              "edge_rationale": "",
+              "exposure_rationale": "3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products"
+            },
+            {
+              "macro_domain_id": 1,
+              "macro_domain_name": "AI & Big Tech",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.285714285714286,
+              "edge_rationale": "",
+              "exposure_rationale": "2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform"
+            },
+            {
+              "macro_domain_id": 3,
+              "macro_domain_name": "Cloud / Dev",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "",
+              "exposure_rationale": "1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub"
+            },
+            {
+              "macro_domain_id": 4,
+              "macro_domain_name": "Crypto Infra",
+              "family_influence_score": 2,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "",
+              "exposure_rationale": "1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)"
+            }
+          ]
+        }
+      ],
+      "magnitude_bucket": "medium",
+      "timeline_bucket": "quarters",
+      "what_to_watch": [
+        "geopolitical tensions between China and Taiwan",
+        "diplomatic efforts to de-escalate the situation"
+      ],
+      "key_unknowns": [
+        "the likelihood of military intervention by the United States",
+        "the economic consequences of a blockade"
+      ],
+      "evidence_refs": [
+        {
+          "kind": "market",
+          "market_id": 604470
+        },
+        {
+          "kind": "family_match",
+          "market_id": 604470,
+          "signal_family_id": 4
+        },
+        {
+          "kind": "influence_edge",
+          "signal_family_id": 4,
+          "macro_domain_id": 2
+        },
+        {
+          "kind": "security_exposure",
+          "macro_domain_id": 2
+        }
+      ],
+      "confidence": 0.7
+    },
+    {
+      "market_id": 1322996,
+      "event_id": 197059,
+      "question": "Will the Silicon Data H100 Index (SDH100RT) hit $2.25 (LOW) by February 28, 2026?",
+      "event_title": "GPU rental prices (H100) hit___ in February?",
+      "probability": null,
+      "end_date": "2026-02-28T00:00:00+00:00",
+      "volume_usd": 46187.97339,
+      "liquidity_usd": 5507.07982,
+      "scores": {
+        "final_score": 0.441822230314528,
+        "base_score": 0.571428571428572,
+        "quality_multiplier": 0.773188903050423,
+        "market_strength": 0.5766501947463404
+      },
+      "structural_relevance": "This market's relevance is derived from the IT spending cycle signal family, which has a strong influence on the Semis & Compute domain. NVIDIA is fundamentally a semiconductor and compute platform company, making it highly exposed to this domain.",
+      "actionability": "This market has a market strength of 0.577 and liquidity of $5,507.08, offering limited actionability with an end date of February 28, 2026.",
+      "transmission_chain": [
+        {
+          "signal_family_id": 9,
+          "slug": "it_spending_cycle_enterprise_cloud_ai",
+          "title": "IT spending cycle (enterprise / cloud / AI)",
+          "method": "rule_classification",
+          "match_strength": 1.0,
+          "domains": [
+            {
+              "macro_domain_id": 2,
+              "macro_domain_name": "Semis & Compute",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.428571428571429,
+              "edge_rationale": "",
+              "exposure_rationale": "3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products"
+            },
+            {
+              "macro_domain_id": 1,
+              "macro_domain_name": "AI & Big Tech",
+              "family_influence_score": 3,
+              "security_exposure_weight": 0.285714285714286,
+              "edge_rationale": "",
+              "exposure_rationale": "2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform"
+            },
+            {
+              "macro_domain_id": 3,
+              "macro_domain_name": "Cloud / Dev",
+              "family_influence_score": 4,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "",
+              "exposure_rationale": "1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub"
+            },
+            {
+              "macro_domain_id": 4,
+              "macro_domain_name": "Crypto Infra",
+              "family_influence_score": 1,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "",
+              "exposure_rationale": "1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)"
+            }
+          ]
+        }
+      ],
+      "magnitude_bucket": "low",
+      "timeline_bucket": "days",
+      "what_to_watch": [
+        "trends in GPU rental prices",
+        "demand for H100 GPUs"
+      ],
+      "key_unknowns": [
+        "the impact of new GPU models on rental prices",
+        "the overall health of the IT spending cycle"
+      ],
+      "evidence_refs": [
+        {
+          "kind": "market",
+          "market_id": 1322996
+        },
+        {
+          "kind": "family_match",
+          "market_id": 1322996,
+          "signal_family_id": 9
+        },
+        {
+          "kind": "influence_edge",
+          "signal_family_id": 9,
+          "macro_domain_id": 2
+        },
+        {
+          "kind": "security_exposure",
+          "macro_domain_id": 2
+        }
+      ],
+      "confidence": 0.5
+    },
+    {
+      "market_id": 676842,
+      "event_id": 79075,
+      "question": "U.S. enacts AI safety bill before 2027?",
+      "event_title": "U.S. enacts AI safety bill before 2027?",
+      "probability": null,
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "volume_usd": 44944.664436,
+      "liquidity_usd": 3905.5152,
+      "scores": {
+        "final_score": 0.304838447986326,
+        "base_score": 0.4,
+        "quality_multiplier": 0.762096119965814,
+        "market_strength": 0.5151902309655143
+      },
+      "structural_relevance": "This market's relevance is derived from the AI regulation signal family, which has a strong influence on the AI & Big Tech domain. NVIDIA’s data‑center business is now dominated by AI training and inference workloads, making it exposed to this domain.",
+      "actionability": "This market has a market strength of 0.515 and liquidity of $3,905.52, offering limited actionability with an end date of December 31, 2026.",
+      "transmission_chain": [
+        {
+          "signal_family_id": 6,
+          "slug": "ai_regulation_big_tech_enforcement",
+          "title": "AI regulation + Big Tech enforcement",
+          "method": "rule_classification",
+          "match_strength": 0.7,
+          "domains": [
+            {
+              "macro_domain_id": 1,
+              "macro_domain_name": "AI & Big Tech",
+              "family_influence_score": 5,
+              "security_exposure_weight": 0.285714285714286,
+              "edge_rationale": "",
+              "exposure_rationale": "2 – NVIDIA’s data‑center business is now dominated by **AI training and inference workloads**, and it ships a full AI data platform stack (Blackwell, NIM, NeMo, CUDA‑X), so AI & data platforms are a major growth and strategy pillar, though revenue is still booked primarily as hardware and platform sales. NVIDIA AI Data Platform"
+            },
+            {
+              "macro_domain_id": 2,
+              "macro_domain_name": "Semis & Compute",
+              "family_influence_score": 2,
+              "security_exposure_weight": 0.428571428571429,
+              "edge_rationale": "",
+              "exposure_rationale": "3 – NVIDIA is fundamentally a **semiconductor and compute platform company**, with GPUs, accelerated systems and networking at the heart of its P&L; nearly all value creation is tied to designing and selling compute hardware for AI/HPC/graphics. NVIDIA data center & GPU products"
+            },
+            {
+              "macro_domain_id": 3,
+              "macro_domain_name": "Cloud / Dev",
+              "family_influence_score": 4,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "",
+              "exposure_rationale": "1 – It offers DGX Cloud and enterprise AI software (NVIDIA AI Enterprise, NIM microservices), but these are still extensions riding on its hardware franchise rather than a hyperscaler‑scale cloud business, so infra SaaS is important but not dominant. NVIDIA AI Enterprise & DGX cloud pages via same hub"
+            },
+            {
+              "macro_domain_id": 4,
+              "macro_domain_name": "Crypto Infra",
+              "family_influence_score": 0,
+              "security_exposure_weight": 0.142857142857143,
+              "edge_rationale": "",
+              "exposure_rationale": "1 – Historically, NVIDIA sold large volumes of GPUs into crypto mining, and while that exposure has declined with the shift to AI, crypto demand remains a non‑zero, cyclical driver of certain product segments. (No dedicated NVIDIA‑crypto URL was in the retrieved set; this is based on widely documented past mining demand.)"
+            }
+          ]
+        }
+      ],
+      "magnitude_bucket": "low",
+      "timeline_bucket": "quarters",
+      "what_to_watch": [
+        "progress of AI safety bill in the U.S. Congress",
+        "public and political sentiment towards AI regulation"
+      ],
+      "key_unknowns": [
+        "the specific provisions of any AI safety bill that may be enacted",
+        "the impact of AI regulation on NVIDIA's business"
+      ],
+      "evidence_refs": [
+        {
+          "kind": "market",
+          "market_id": 676842
+        },
+        {
+          "kind": "family_match",
+          "market_id": 676842,
+          "signal_family_id": 6
+        },
+        {
+          "kind": "influence_edge",
+          "signal_family_id": 6,
+          "macro_domain_id": 1
+        },
+        {
+          "kind": "security_exposure",
+          "macro_domain_id": 1
+        }
+      ],
+      "confidence": 0.4
+    }
+  ],
+  "themes": [
+    {
+      "title": "Geopolitical Risk: Taiwan",
+      "why": "Heightened tensions between China and Taiwan could significantly disrupt semiconductor supply chains, impacting NVIDIA's production and revenue.",
+      "market_ids": [
+        604470
+      ]
+    },
+    {
+      "title": "AI Regulation",
+      "why": "Increasing regulatory scrutiny of AI could impact NVIDIA's AI-related businesses, potentially affecting its growth trajectory.",
+      "market_ids": [
+        676842
+      ]
+    },
+    {
+      "title": "IT Spending Cycle",
+      "why": "Fluctuations in IT spending, particularly on GPUs, can directly impact NVIDIA's revenue and profitability.",
+      "market_ids": [
+        1322996
+      ]
+    }
+  ],
+  "monitor_next": [
+    "Monitor geopolitical developments in the Taiwan Strait.",
+    "Track the progress of AI regulation in the U.S. and other major markets.",
+    "Follow trends in IT spending and GPU rental prices."
+  ],
+  "exclusions": {
+    "dropped_due_to_duplicate_event": [
+      {
+        "market_id": 567621,
+        "reason": "Duplicate event: China invades Taiwan"
+      },
+      {
+        "market_id": 701290,
+        "reason": "Duplicate event: China invades Taiwan"
+      },
+      {
+        "market_id": 956590,
+        "reason": "Duplicate event: China invades Taiwan"
+      },
+      {
+        "market_id": 677407,
+        "reason": "Duplicate event: China x Taiwan military clash"
+      },
+      {
+        "market_id": 654412,
+        "reason": "Duplicate event: Fed decision in March"
+      },
+      {
+        "market_id": 669660,
+        "reason": "Duplicate event: Fed decision in April"
+      },
+      {
+        "market_id": 540843,
+        "reason": "Duplicate event: China invades Taiwan"
+      },
+      {
+        "market_id": 1322973,
+        "reason": "Duplicate event: GPU rental prices (H100)"
+      },
+      {
+        "market_id": 957986,
+        "reason": "Duplicate event: AI data center moratorium"
+      }
+    ],
+    "dropped_due_to_rate_cap": [
+      {
+        "market_id": 572473,
+        "reason": "Rate cap reached"
+      }
+    ],
+    "dropped_due_to_low_actionability": [
+      {
+        "market_id": 1228017,
+        "reason": "Low actionability"
+      },
+      {
+        "market_id": 1426260,
+        "reason": "Low actionability"
+      },
+      {
+        "market_id": 1068733,
+        "reason": "Low actionability"
+      },
+      {
+        "market_id": 1108760,
+        "reason": "Low actionability"
+      },
+      {
+        "market_id": 1426021,
+        "reason": "Low actionability"
+      },
+      {
+        "market_id": 1302430,
+        "reason": "Low actionability"
+      }
+    ]
+  },
+  "notes": [
+    "The influence_matrix_slice.rationale_md is empty for all signal families and macro domains.",
+    "The prompt version is missing from the input pack."
+  ]
+}
+```

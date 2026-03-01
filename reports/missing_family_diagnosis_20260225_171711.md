@@ -1,0 +1,210 @@
+# Missing Family Diagnosis (Step 3)
+
+- as_of_utc: `2026-02-25T17:17:11.592308+00:00`
+- filter_version: `hard_filters_v8`
+- matcher_version: `matcher_v8`
+
+## US–China semiconductor export controls
+- slug: `us_china_semis_export_controls`
+
+### Top discovery candidates (embedding)
+- (sim=0.440) `1323317` — Will the US federal government take a stake in Taiwan Semiconductor Manufacturing Company Limited?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `["semiconductor"]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.4403936266899109, "min_similarity": 0.25, "rank": 1, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.373) `1323332` — Will the US federal government take a stake in Samsung Electronics Co., Ltd.?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3725689649581909, "min_similarity": 0.25, "rank": 1, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.361) `1323320` — Will the US federal government take a stake in NVIDIA Corporation?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `["nvidia"]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.36077454686164856, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.355) `1323325` — Will the US federal government take a stake in IonQ, Inc.?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3545973598957062, "min_similarity": 0.25, "rank": 3, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.353) `1323331` — Will the US federal government take a stake in Pfizer Inc.?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3533540964126587, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.340) `1323322` — Will the US federal government take a stake in Lockheed Martin Corporation?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3398686647415161, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.338) `1323323` — Will the US federal government take a stake in TikTok USDS Joint Venture LLC or Bytedance?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3378663659095764, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.329) `665258` — Will China unban Bitcoin by 2027?
+  - event: Will China unban Bitcoin by 2027?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `["china"]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.32877105474472046, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.328) `1323316` — Will the US federal government take a stake in The Boeing Company?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3284430503845215, "min_similarity": 0.25, "rank": 3, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+- (sim=0.314) `1323321` — Will the US federal government take a stake in GlobalFoundries Inc.?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.31399470567703247, "min_similarity": 0.25, "rank": 4, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "dac25c9d12d2a0459317b19bcfa20891130c6d8059bbc5ac99e1c8388152c07b"}`
+
+### Top discovery candidates (lexical)
+- (score=1.000) `1322996` — Will the Silicon Data H100 Index (SDH100RT) hit $2.25 (LOW) by February 28, 2026?
+  - event: GPU rental prices (H100) hit___ in February?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322993` — Will the Silicon Data H100 Index (SDH100RT) hit $2.45 (HIGH) by February 28, 2026?
+  - event: GPU rental prices (H100) hit___ in February?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322994` — Will the Silicon Data H100 Index (SDH100RT) hit $2.40 (HIGH) by February 28, 2026?
+  - event: GPU rental prices (H100) hit___ in February?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322973` — Will the Silicon Data H100 Index (SDH100RT) hit $2.50 (HIGH) by April 30, 2026?
+  - event: GPU rental prices (H100) hit___ by April 30?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322990` — Will the Silicon Data H100 Index (SDH100RT) hit $2.80 (HIGH) by February 28, 2026?
+  - event: GPU rental prices (H100) hit___ in February?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322972` — Will the Silicon Data H100 Index (SDH100RT) hit $2.75 (HIGH) by April 30, 2026?
+  - event: GPU rental prices (H100) hit___ by April 30?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322992` — Will the Silicon Data H100 Index (SDH100RT) hit $2.50 (HIGH) by February 28, 2026?
+  - event: GPU rental prices (H100) hit___ in February?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322997` — Will the Silicon Data H100 Index (SDH100RT) hit $2.20 (LOW) by February 28, 2026?
+  - event: GPU rental prices (H100) hit___ in February?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322995` — Will the Silicon Data H100 Index (SDH100RT) hit $2.35 (HIGH) by February 28, 2026?
+  - event: GPU rental prices (H100) hit___ in February?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+- (score=1.000) `1322975` — Will the Silicon Data H100 Index (SDH100RT) hit $2.20 (LOW) by April 30, 2026?
+  - event: GPU rental prices (H100) hit___ by April 30?
+  - discovery_evidence: `{"matched_keywords": ["h100", "nvidia"], "hit_count": 2, "target_hits": 2, "lexical_score": 1.0}`
+
+## Antitrust (platforms, app stores, ad markets)
+- slug: `antitrust_platforms_app_stores_ads`
+
+### Top discovery candidates (embedding)
+- (sim=0.354) `549618` — Will Pump.fun perform an airdrop by July 31?
+  - event: Pump.fun airdrop by ....?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3537631630897522, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.351) `561700` — Will Pump.fun perform an airdrop by August 31?
+  - event: Pump.fun airdrop by ....?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.35098278522491455, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.342) `567468` — Will Pump.fun perform an airdrop by September 30?
+  - event: Pump.fun airdrop by ....?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3422551155090332, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.342) `567469` — Will Pump.fun perform an airdrop by December 31?
+  - event: Pump.fun airdrop by ....?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3417258560657501, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.339) `561699` — Will Pump.fun perform an airdrop by July 18?
+  - event: Pump.fun airdrop by ....?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3386117219924927, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.338) `549617` — Will Pump.fun perform an airdrop by June 30?
+  - event: Pump.fun airdrop by ....?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3384380340576172, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.338) `1021180` — Will Bank Q or any of its underwriting affiliates serve as the lead underwriter in SpaceX’s initial public offering?
+  - event: Lead Bank in SpaceX’s IPO?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.33829036355018616, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.338) `1323325` — Will the US federal government take a stake in IonQ, Inc.?
+  - event: Which companies will the US take a stake in?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3376201391220093, "min_similarity": 0.25, "rank": 4, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.337) `1068327` — Will Pump.fun perform an airdrop by December 31, 2026
+  - event: Pump.fun airdrop by ....?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3370892107486725, "min_similarity": 0.25, "rank": 2, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+- (sim=0.337) `995773` — SpaceX goes public through Bill Ackman "SPAR" company?
+  - event: SpaceX goes public through Bill Ackman "SPAR" company?
+  - rule_score: 0.000
+  - anchors_hit: `[]`
+  - keyword_hits: `[]`
+  - exclusions_hit: `[]`
+  - discovery_evidence: `{"similarity": 0.3369091749191284, "min_similarity": 0.25, "rank": 1, "top_k": 15, "provider": "sentence_transformers", "model_name": "sentence-transformers/all-MiniLM-L6-v2", "family_query_text_hash": "67be8883c7423765fee70c3b89144fe29d2e6c12323a2211dec36abe5fddbc4d"}`
+
+### Top discovery candidates (lexical)
+- (score=0.500) `1321867` — Epic Games IPO before 2027?
+  - event: IPOs before 2027?
+  - discovery_evidence: `{"matched_keywords": ["epic games"], "hit_count": 1, "target_hits": 2, "lexical_score": 0.5}`
+- (score=0.500) `1403678` — Trump sued over tariff powers again by March 31?
+  - event: Trump sued over tariff powers again by March 31?
+  - discovery_evidence: `{"matched_keywords": ["lawsuit"], "hit_count": 1, "target_hits": 2, "lexical_score": 0.5}`
+- (score=0.500) `1198966` — Von der Leyen out as European Commission President in 2026?
+  - event: Von der Leyen out as European Commission President in 2026?
+  - discovery_evidence: `{"matched_keywords": ["european commission"], "hit_count": 1, "target_hits": 2, "lexical_score": 0.5}`
+- (score=0.500) `1245198` — Will Trump sue NYT/Siena over polling by Feb 28?
+  - event: Will Trump sue NYT/Siena over polling by Feb 28?
+  - discovery_evidence: `{"matched_keywords": ["lawsuit"], "hit_count": 1, "target_hits": 2, "lexical_score": 0.5}`
+- (score=0.500) `703914` — Will Laura Fine be the Democratic nominee for IL-09?
+  - event: IL-09 Democratic Primary Winner
+  - discovery_evidence: `{"matched_keywords": ["fine"], "hit_count": 1, "target_hits": 2, "lexical_score": 0.5}`
+- (score=0.500) `1228017` — SCOTUS lets Trump fire FTC commissioners in Trump v. Slaughter?
+  - event: SCOTUS lets Trump fire FTC commissioners in Trump v. Slaughter?
+  - discovery_evidence: `{"matched_keywords": ["ftc"], "hit_count": 1, "target_hits": 2, "lexical_score": 0.5}`
+- (score=0.500) `1243055` — Jack Smith charged by March 31?
+  - event: Jack Smith charged by March 31?
+  - discovery_evidence: `{"matched_keywords": ["doj"], "hit_count": 1, "target_hits": 2, "lexical_score": 0.5}`
