@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ sec.ticker }} · Securities{% endblock %}
+{% block content %}
+  <h1>{{ sec.company_name }} <span class="muted">({{ sec.ticker }})</span></h1>
+  <div class="card">
+    <div class="k">Macro-domain exposure (authority)</div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Domain</th>
+          <th>Weight</th>
+          <th>Basis</th>
+          <th>As of</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in exposures %}
+        <tr>
+          <td>{{ e.macro_domain_name }}</td>
+          <td><code>{{ '%.3f'|format(e.weight) }}</code></td>
+          <td class="muted">{{ e.weight_basis }}</td>
+          <td class="muted">{{ e.as_of_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="muted">Edit authority weights via <code>data/authorities/security_domain_exposure_scores.md</code> and re-run <code>scripts/seed_security_domain_exposure.py</code>.</p>
+  </div>
+{% endblock %}

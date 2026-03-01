@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Add stock · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Add a new stock (optional)</h1>
+
+  <div class="card">
+    <p class="muted">
+      DB-wise this is supported: we insert into <code>bit_security</code> and seed a minimal exposure vector in
+      <code>bit_security_macro_domain_exposure</code> so relevance scoring can work. For v1 we ask you to pick a
+      single “primary” macro domain (weight=1.0). You can refine weights later.
+    </p>
+  </div>
+
+  <div class="card">
+    <form method="post" action="/stocks/new" class="stack">
+      <div class="row">
+        <label>
+          Company name
+          <input name="company_name" placeholder="NVIDIA Corp" required />
+        </label>
+        <label>
+          Ticker
+          <input name="ticker" placeholder="NVDA" required />
+        </label>
+        <label>
+          Exchange MIC
+          <input name="exchange_mic" placeholder="XNAS" value="XNAS" required />
+        </label>
+      </div>
+
+      <div class="row">
+        <label>
+          Primary macro domain
+          <select name="primary_macro_domain_id" required>
+            {% for d in macro_domains %}
+              <option value="{{ d.macro_domain_id }}">{{ d.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          ISIN (optional)
+          <input name="isin" placeholder="US..." />
+        </label>
+        <label class="cb-inline">
+          <span class="muted">Add to watchlist</span>
+          <input type="checkbox" name="add_to_watchlist" checked />
+        </label>
+      </div>
+
+      <div class="row">
+        <button type="submit">Create stock</button>
+        <a class="muted" href="/">← back</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+

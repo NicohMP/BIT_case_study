@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Kept markets · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Kept markets (latest run)</h1>
+  <div class="card">
+    <form method="get" action="/markets" class="row">
+      <label>
+        Search question
+        <input type="text" name="q" value="{{ q }}" placeholder="e.g., Taiwan, tariff, rates" />
+      </label>
+      <label>
+        Limit
+        <input type="number" name="limit" value="{{ limit }}" min="10" max="1000" />
+      </label>
+      <button type="submit">Search</button>
+    </form>
+    <p class="muted">Source: <code>v_pm_market_kept_latest</code> (post hard filters).</p>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>market_id</th>
+          <th>question</th>
+          <th>prob</th>
+          <th>end</th>
+          <th>vol</th>
+          <th>liq</th>
+          <th>quality</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td><code>{{ r.market_id }}</code></td>
+          <td><a href="{{ request.url_for('market_detail', market_id=r.market_id) }}">{{ r.question }}</a></td>
+          <td><code>{{ r.probability }}</code></td>
+          <td class="muted"><code>{{ r.end_date }}</code></td>
+          <td><code>{{ r.volume_usd }}</code></td>
+          <td><code>{{ r.liquidity_usd }}</code></td>
+          <td class="muted"><code>{{ r.quality_score }}</code></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

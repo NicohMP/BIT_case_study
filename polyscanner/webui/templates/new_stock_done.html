@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Added · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Stock added</h1>
+  <div class="card">
+    <div class="muted">security_id <code>{{ security_id }}</code> · ticker <code>{{ ticker }}</code></div>
+    <p class="muted">
+      The stock will start showing “signals” after the next refresh run (or if you run the refresh pipeline manually).
+    </p>
+    <div class="row">
+      <a href="/">Back to stock selection</a>
+      <a href="/signals?ticker={{ ticker }}">View signals</a>
+      <a href="/generate">Generate reports</a>
+    </div>
+  </div>
+{% endblock %}
+

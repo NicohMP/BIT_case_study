@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Reports · Polymarket Signal Scanner{% endblock %}
+{% block content %}
+  <h1>Past signal reports</h1>
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>created_at</th>
+          <th>ticker</th>
+          <th>model</th>
+          <th>prompt</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="muted"><code>{{ r.created_at }}</code></td>
+          <td><code>{{ r.ticker }}</code></td>
+          <td class="muted">{{ r.model }}</td>
+          <td class="muted">{{ r.prompt_version }}</td>
+          <td><a href="/reports/{{ r.report_id }}">markdown</a> · <a href="/reports/{{ r.report_id }}?view=json">json</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
