@@ -86,6 +86,15 @@ def main() -> int:
     else:
         _print_kv("docker", "not found (optional; needed for ops/docker scheduler)", ok=False)
 
+    # Web UI dependency: FastAPI requires python-multipart for form handling.
+    try:
+        import multipart  # type: ignore
+
+        _print_kv("python-multipart", "installed", ok=True)
+    except Exception:
+        _print_kv("python-multipart", "missing (needed for Web UI forms)", ok=False)
+        _print_kv("hint", "Install deps with `./venv/bin/pip install -r requirements.txt`.", ok=None)
+
     if args.no_db:
         return 0
 
