@@ -11,6 +11,8 @@ import random
 import re
 import time
 from typing import Any
+from datetime import datetime, timezone
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -181,8 +183,6 @@ def generate_json(
         try:
             with urlopen(req, timeout=timeout_s) as resp:
                 body = resp.read().decode("utf-8")
-            last_err = None
-            break
         except HTTPError as e:
             last_err = e
             if e.code in {429, 500, 502, 503, 504} and attempt < max_retries:
@@ -218,25 +218,45 @@ def generate_json(
                 continue
             raise GeminiError(f"Gemini request failed: {e}") from e
 
-    if last_err is not None:
-        raise GeminiError(f"Gemini request failed after retries: {last_err}") from last_err
+        # HTTP succeeded; now parse response + JSON payload. Treat parse failures as retryable,
+        # because Gemini occasionally returns near-JSON even in JSON mode.
+        try:
+            data = json.loads(body)
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
+            parsed = _parse_json_object(text)
+            parsed["_raw"] = data
+            return parsed
+        except Exception as e:  # noqa: BLE001
+            last_err = e
 
-    data = json.loads(body)
-    try:
-        text = data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e:  # noqa: BLE001
-        raise GeminiError(f"Unexpected Gemini response shape: {e}; body={data}") from e
+            snippet = None
+            try:
+                snippet = _strip_code_fences(text)  # type: ignore[name-defined]
+            except Exception:
+                snippet = None
 
-    try:
-        parsed = _parse_json_object(text)
-    except Exception as e:  # noqa: BLE001
-        snippet = _strip_code_fences(text)
-        head = snippet[:800]
-        tail = snippet[-800:] if len(snippet) > 800 else ""
-        msg = f"Gemini returned invalid JSON: {e}. head={head!r}"
-        if tail:
-            msg += f" tail={tail!r}"
-        raise GeminiError(msg) from e
+            if snippet:
+                try:
+                    Path("reports").mkdir(parents=True, exist_ok=True)
+                    ts = datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
+                    out = Path("reports") / f"gemini_invalid_json_{ts}.txt"
+                    out.write_text(snippet, encoding="utf-8")
+                except Exception:
+                    pass
 
-    parsed["_raw"] = data
-    return parsed
+            if attempt < max_retries:
+                sleep_s = retry_base_s * (2**attempt)
+                if retry_max_s is not None:
+                    sleep_s = min(sleep_s, float(retry_max_s))
+                sleep_s = sleep_s + random.uniform(0.0, min(0.25 * sleep_s, 2.0))
+                time.sleep(sleep_s)
+                continue
+
+            head = (snippet or "")[:800]
+            tail = (snippet or "")[-800:] if snippet and len(snippet) > 800 else ""
+            msg = f"Gemini returned invalid JSON: {e}. head={head!r}"
+            if tail:
+                msg += f" tail={tail!r}"
+            raise GeminiError(msg) from e
+
+    raise GeminiError(f"Gemini request failed after retries: {last_err}") from last_err
