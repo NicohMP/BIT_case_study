@@ -85,7 +85,6 @@ tdqm==0.0.1
 tenacity==9.1.4
 threadpoolctl==3.6.0
 tokenizers==0.22.2
-torch==2.10.0
 tornado==6.5.4
 tqdm==4.67.3
 traitlets==5.14.3

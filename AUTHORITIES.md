@@ -14,4 +14,4 @@ This project is intentionally built around explicit, reviewable â€œauthoritiesâ€
 ## How to read them
 
 - Conceptual guide (what the matrices imply, and why Step 4b diversification exists): `docs/authorities/insights.md`
-- Authority-layer overview: `docs/authorities/README.md`
+- Authority-layer overview: `docs/authorities/INDEX.md`

@@ -5,7 +5,7 @@ This folder organizes reviewer-facing documentation and clarifies where the proj
 ## Core case-study narrative
 
 - `project_report.md` (repo root): architecture, quantitative framing, and implementation evidence.
-- `project_instructions.txt` (repo root): the internship prompt / evaluation rubric.
+  - Note: the internship prompt / evaluation rubric is not included in this repo.
 
 ## Authority layer (source-of-truth assumptions)
 
@@ -19,7 +19,7 @@ The system is intentionally built around explicit, inspectable “authorities”
   - `data/authorities/security_domain_exposure_rationale.md` (per-security exposure rationales)
 
 Reading guide and distilled takeaways:
-- `docs/authorities/README.md`
+- `docs/authorities/INDEX.md`
 - `docs/authorities/insights.md`
 
 Quick entrypoint:

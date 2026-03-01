@@ -12,9 +12,39 @@ All intermediate decisions are written to Postgres tables with explicit version 
 - A `.env` file with at least `DATABASE_URL`. For report generation via Gemini, also set `GOOGLE_API_KEY`.
 - Python environment (the repo uses `./venv/bin/python` in examples).
 
+## Pipeline steps (nomenclature)
+
+- **Step 1 (Ingestion):** ingest all active Polymarket events + markets from Gamma `/events` into Postgres (`pm_event`, `pm_market`).
+- **Step 2 (Hard filters):** deterministically reject template/junk markets and store auditable decisions (`pm_market_filter_decision`).
+- **Step 3 (Signal-family matching):** high-recall discovery (lexical + optional local embeddings) + strict rules, persisted with evidence (`pm_market_signal_family_match`).
+- **Step 4 (Relevance scoring):** deterministic market relevance per BIT security using the authority matrices (`pm_market_security_relevance`).
+- **Step 4b (Selection):** persisted diversified top‑K per security (`pm_market_security_relevance_selection`).
+- **Step 5 (LLM report, on-demand):** build a deterministic context pack from DB outputs, then generate a grounded report (does not run during refresh).
+
+### Optional: CUDA embeddings (Linux/NVIDIA)
+
+Step 3 “discovery” can use local sentence-transformers embeddings. This supports CUDA if PyTorch is installed with CUDA support.
+
+Recommended setup:
+1) Install a CUDA-enabled PyTorch build (use the official PyTorch “Start Locally” selector for your OS/CUDA version).
+2) Verify CUDA:
+   `python -c "import torch; print(torch.cuda.is_available())"`
+3) Install the rest of the repo deps without re-installing torch:
+   `./venv/bin/pip install -r requirements-nontorch.txt`
+   (If you already installed `requirements.txt`, you likely have CPU-only torch and should reinstall torch using the CUDA build.)
+4) Enable CUDA in `.env`:
+   `EMBEDDING_DEVICE=cuda` (or `cuda:0`)
+
 ## 1) Database schema
 
-Apply Supabase migrations:
+Recommended (Supabase local):
+
+```bash
+supabase start
+supabase db reset
+```
+
+Or apply migrations manually via `psql` (at minimum these report-related migrations must be present):
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/20260225210000_add_pm_security_signal_report.sql
@@ -28,16 +58,77 @@ Run a single refresh to populate:
 `pm_market_security_relevance`, `pm_market_security_relevance_selection`.
 
 ```bash
-./venv/bin/python scripts/run_polymarket_refresh.py \
-  --ingest-max-pages 200 \
-  --matcher-version matcher_v10 \
-  --scoring-version relevance_v5 \
-  --persist-selection true \
-  --selection-version selected_v1 \
-  --run-audit true
+./venv/bin/python scripts/refresh_basic.py
 ```
 
 This writes a pipeline audit under `reports/pipeline_audit_*.md`.
+
+For best Step 3 discovery coverage (embeddings enabled), use:
+
+```bash
+./venv/bin/python scripts/refresh_embeddings.py
+```
+
+## 2b) Advanced: run each step separately (single-step scripts)
+
+This section is for reviewers who want to inspect intermediate outputs, rerun a single step, or tweak versions/thresholds.
+For the authoritative list of flags, use each script’s `--help`.
+
+### Step 1: ingestion only
+
+```bash
+./venv/bin/python scripts/ingest_active_events.py --help
+./venv/bin/python scripts/ingest_active_events.py --limit 100 --max-pages 50
+```
+
+Key outputs:
+- DB upserts into `pm_event`, `pm_market`
+
+### Step 2: hard filters only
+
+```bash
+./venv/bin/python scripts/run_hard_filters.py --help
+./venv/bin/python scripts/run_hard_filters.py
+```
+
+Key outputs:
+- DB upserts into `pm_market_filter_decision` (versioned by `filter_version`)
+- Markdown audit: `reports/hard_filter_audit_*.md`
+
+### Step 3: family matching only
+
+```bash
+./venv/bin/python scripts/run_family_matching.py --help
+./venv/bin/python scripts/run_family_matching.py --matcher-version matcher_v10 --limit 5000 --use-embeddings false
+```
+
+Key outputs:
+- DB upserts into `pm_market_signal_family_match` (versioned by `matcher_version`)
+- Audit artifacts in `reports/`:
+  - `family_coverage_*.csv`
+  - `false_positive_audit_*.md`
+  - `missing_family_diagnosis_*.md`
+
+### Step 4 + 4b: relevance scoring + selection only
+
+```bash
+./venv/bin/python scripts/run_relevance_scoring.py --help
+./venv/bin/python scripts/run_relevance_scoring.py --matcher-version matcher_v10 --scoring-version relevance_v5 --trusted-only true
+```
+
+Key outputs:
+- DB upserts into `pm_market_security_relevance` (versioned by `scoring_version`)
+- DB upserts into `pm_market_security_relevance_selection` (versioned by `selection_version`) unless you pass `--persist-selection false`
+
+### Pipeline audit only
+
+```bash
+./venv/bin/python scripts/run_pipeline_audit.py --help
+./venv/bin/python scripts/run_pipeline_audit.py --matcher-version matcher_v10 --scoring-version relevance_v5 --selection-version selected_v1
+```
+
+Key outputs:
+- Markdown audit: `reports/pipeline_audit_*.md`
 
 ## 3) (Optional) Record daily market snapshots (for Δp)
 
@@ -88,10 +179,66 @@ Audit grounding:
 Run the UI on top of the populated database:
 
 ```bash
-./venv/bin/python -m uvicorn polyscanner.webui.app:app --reload --port 8000
+./venv/bin/python scripts/run_webui.py
 ```
 
 The UI reads from the versioned pipeline tables (Steps 1–4b) and displays persisted reports (Step 5).
+
+## Key arguments (what they mean)
+
+These are the “reviewer knobs” that control versioning, precision/recall tradeoffs, and auditability. For the full list, see `--help`.
+
+- `filter_version` (Step 2 → downstream):
+  - Identifies the hard-filter ruleset used to keep/reject markets.
+  - Default comes from `polyscanner/filtering/hard_filter_rules.yaml`.
+  - Stored alongside decisions in `pm_market_filter_decision`.
+- `matcher_version` (Step 3 → downstream):
+  - Required label for market→family matches.
+  - Lets you rerun matching with new rules/thresholds without overwriting previous runs.
+  - Stored on `pm_market_signal_family_match`.
+- `use_embeddings`, `embedding_model`, `embedding_device` (Step 3 discovery):
+  - Embeddings improve recall/discovery but may require model download and hardware-specific setup.
+  - `embedding_device` can be `cpu`, `mps`, `cuda`/`cuda:0` depending on your machine.
+- `trusted_only` (Step 4):
+  - If `true`, score only strict rule-classification matches (higher precision).
+  - If `false`, allow weaker discovery matches (higher recall, more noise).
+- `scoring_version` (Step 4):
+  - Version label for security relevance outputs in `pm_market_security_relevance`.
+- `selection_version` (Step 4b):
+  - Version label for diversified top‑K outputs in `pm_market_security_relevance_selection`.
+- `limit` / `limit-markets` / `limit-securities` (varies by script):
+  - For fast smoke tests and reproducibility on limited time.
+
+## Evidence artifacts (what gets written under `reports/`)
+
+- Step 2 hard filters: `reports/hard_filter_audit_*.md`
+- Step 3 family matching:
+  - `reports/family_coverage_*.csv`
+  - `reports/false_positive_audit_*.md`
+  - `reports/missing_family_diagnosis_*.md`
+- End-to-end refresh audit: `reports/pipeline_audit_*.md`
+- Step 5:
+  - Context packs: `reports/context_pack_<TICKER>_*.json`
+  - Report JSON/MD: `reports/security_signal_report_<TICKER>_*.json` and `.md`
+  - Report grounding audit: `reports/security_signal_report_audit_<TICKER>_*.md`
+
+## How to verify it worked (quick checklist)
+
+After Steps 1→4b (via `scripts/refresh_basic.py` or step-by-step), these should be non-empty:
+- `pm_event`, `pm_market`
+- `pm_market_filter_decision`
+- `pm_market_signal_family_match`
+- `pm_market_security_relevance`
+- `pm_market_security_relevance_selection`
+
+If you want a quick DB sanity check via `psql`:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "select count(*) as pm_event from pm_event;"
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "select count(*) as pm_market from pm_market;"
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "select count(*) as kept_latest from v_pm_market_kept_latest;"
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "select count(*) as selected_latest from v_pm_security_market_relevance_selected_latest;"
+```
 
 ## Where to look for evidence
 
