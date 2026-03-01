@@ -22,6 +22,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+import math
 from typing import Any
 
 from polyscanner.db.pg import connect, fetch_macro_domains, fetch_signal_families, fetch_signal_family_domain_influence
@@ -270,7 +271,7 @@ def persist_relevance_selection(
     db_url: str,
     scoring_version: str,
     filter_version: str | None = None,
-    selection_version: str = "selected_v1",
+    selection_version: str = "selected_v2",
     top_k: int = 20,
     max_per_event: int = 1,
     max_rate_like: int = 3,
@@ -306,6 +307,50 @@ def persist_relevance_selection(
         if limit_securities is not None:
             securities = securities[: max(0, int(limit_securities))]
 
+        exposures = _fetch_security_exposures(conn)
+        use_structural_any = bool(str(selection_version) != "selected_v1")
+
+        market_mean_base_by_id: dict[int, float] = {}
+        market_coverage_n_by_id: dict[int, int] = {}
+        n_securities_total = 0
+        if use_structural_any:
+            n_securities_total = len(_fetch_securities(conn))
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select market_id, avg(base_score)::double precision as mean_base
+                    from pm_market_security_relevance
+                    where scoring_version = %s
+                    group by market_id;
+                    """,
+                    (str(scoring_version),),
+                )
+                for mid, mean_base in cur.fetchall():
+                    if mid is None:
+                        continue
+                    try:
+                        market_mean_base_by_id[int(mid)] = float(mean_base or 0.0)
+                    except Exception:
+                        continue
+
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select market_id, count(distinct security_id)::int as n
+                    from pm_market_security_relevance
+                    where scoring_version = %s
+                    group by market_id;
+                    """,
+                    (str(scoring_version),),
+                )
+                for mid, n in cur.fetchall():
+                    if mid is None:
+                        continue
+                    try:
+                        market_coverage_n_by_id[int(mid)] = int(n or 0)
+                    except Exception:
+                        continue
+
         params = {
             "top_k": int(top_k),
             "max_per_event": int(max_per_event),
@@ -317,7 +362,60 @@ def persist_relevance_selection(
             "sentiment_tau0_days": float(sparams.tau0_days),
             "sentiment_delta_p_half_life": float(sparams.delta_p_half_life),
             "sentiment_include_movement_in_g": bool(include_movement_in_g),
+            # Selection behavior:
+            # - selected_v1 keeps the original greedy selection (event + rate caps only).
+            # - selected_v2 (or any other version string) prioritizes structural relevance (base_score)
+            #   and dampens the quality multiplier so the top lists don't collapse into the same
+            #   handful of ultra-liquid macro markets for every stock.
+            "domain_diversify": bool(str(selection_version) != "selected_v1"),
+            "selection_use_structural_base_score": bool(str(selection_version) != "selected_v1"),
+            "selection_quality_beta": 0.50 if str(selection_version) != "selected_v1" else None,
+            "selection_use_relative_relevance": bool(str(selection_version) != "selected_v1"),
+            "selection_relative_clip": [0.50, 2.00] if str(selection_version) != "selected_v1" else None,
+            # New (selected_v2+): cap "global macro" markets that show up for almost every security.
+            # This prevents the per-stock lists collapsing into the same handful of FOMC/politics
+            # mega-markets, while still allowing a few of them through.
+            "selection_max_high_coverage": 3 if str(selection_version) != "selected_v1" else None,
+            "selection_high_coverage_ratio": 0.75 if str(selection_version) != "selected_v1" else None,
         }
+
+        def _parse_score_breakdown_primary_domain_id(v: Any) -> int | None:
+            try:
+                if isinstance(v, str):
+                    v = json.loads(v)
+                if not isinstance(v, dict):
+                    return None
+                top = v.get("top_domains")
+                if not isinstance(top, list) or not top:
+                    return None
+                first = top[0]
+                if not isinstance(first, dict):
+                    return None
+                did = int(first.get("macro_domain_id") or 0)
+                return did or None
+            except Exception:
+                return None
+
+        def _domain_quotas_for_security(*, security_id: int, k: int, max_domains: int = 3) -> dict[int, int]:
+            exp = exposures.get(int(security_id)) or {}
+            items = [(int(d), float(w)) for d, w in exp.items() if float(w) > 0.0]
+            items.sort(key=lambda t: (-t[1], t[0]))
+            items = items[: max(0, int(max_domains))]
+            if not items:
+                return {}
+
+            quotas: dict[int, int] = {}
+            for did, w in items:
+                quotas[did] = max(1, int(round(float(k) * float(w))))
+
+            # If rounding overshoots K, reduce smallest quotas first (but keep >=1).
+            while sum(quotas.values()) > int(k):
+                did = min(quotas.keys(), key=lambda d: (quotas[d], d))
+                if quotas[did] > 1:
+                    quotas[did] -= 1
+                else:
+                    break
+            return quotas
 
         rows_out: list[dict[str, Any]] = []
         sec_ids = [int(s["id"]) for s in securities]
@@ -326,12 +424,22 @@ def persist_relevance_selection(
 
         for s in securities:
             sid = int(s["id"])
+            use_structural = bool(params.get("selection_use_structural_base_score"))
+            order_col = "r.base_score" if use_structural else "r.final_score"
+            max_high_cov = int(params.get("selection_max_high_coverage") or 0) if use_structural else 0
+            cov_ratio = float(params.get("selection_high_coverage_ratio") or 0.0) if use_structural else 0.0
+            cov_threshold = 0
+            if use_structural and n_securities_total > 0 and cov_ratio > 0.0:
+                cov_threshold = int(math.ceil(float(cov_ratio) * float(n_securities_total)))
             with conn.cursor() as cur:
                 cur.execute(
-                    """
+                    f"""
                     select
+                      r.base_score,
+                      r.quality_multiplier,
                       r.final_score,
                       r.market_id,
+                      r.score_breakdown,
                       m.event_id,
                       m.question,
                       m.volume_usd,
@@ -341,26 +449,37 @@ def persist_relevance_selection(
                     join pm_market m on m.pm_market_id = r.market_id
                     where r.security_id = %s
                       and r.scoring_version = %s
-                    order by r.final_score desc
+                      and (m.end_date is null or m.end_date >= %s)
+                    order by {order_col} desc
                     limit %s;
                     """,
-                    (sid, str(scoring_version), int(candidate_pool)),
+                    (sid, str(scoring_version), now, int(candidate_pool)),
                 )
                 candidates = cur.fetchall()
 
-            cand_ids = [int(mid) for _final, mid, _event_id, _question, _vol, _end_date, _prob in candidates]
+            cand_ids = [int(mid) for _base, _qmult, _final, mid, _breakdown, _event_id, _question, _vol, _end_date, _prob in candidates]
             prev_probs = _fetch_daily_snapshot_probabilities(conn, market_ids=cand_ids, snapshot_date_iso=str(prev_snapshot_date))
 
             scored: list[dict[str, Any]] = []
-            for relevance_final, mid, event_id, question, volume_usd, end_date, probability in candidates:
+            for base_score, qmult, relevance_final, mid, breakdown, event_id, question, volume_usd, end_date, probability in candidates:
                 q = str(question or "")
+                primary_domain_id = _parse_score_breakdown_primary_domain_id(breakdown)
+                mean_base = market_mean_base_by_id.get(int(mid), 0.0)
+                rel = (float(base_score) / float(mean_base + 1e-9)) if use_structural else 1.0
+                rel_clip_min, rel_clip_max = (0.50, 2.00)
+                try:
+                    clip = params.get("selection_relative_clip") or [0.50, 2.00]
+                    rel_clip_min, rel_clip_max = float(clip[0]), float(clip[1])
+                except Exception:
+                    pass
+                rel_clipped = max(rel_clip_min, min(rel_clip_max, float(rel)))
 
                 dp = None
                 tau_days = None
                 g = None
                 g_components = None
 
-                selection_score = float(relevance_final)
+                selection_score = float(base_score if use_structural else relevance_final)
                 if use_sentiment_g_v1:
                     dp = delta_p_abs(
                         p_now=(float(probability) if probability is not None else None),
@@ -382,18 +501,29 @@ def persist_relevance_selection(
                     g_components = g_full.get("components") if isinstance(g_full, dict) else None
                     g_with_movement = float(g_full.get("g_with_movement")) if isinstance(g_full, dict) and g_full.get("g_with_movement") is not None else None
                     a = float(max(0.0, min(1.0, float(sentiment_alpha))))
-                    selection_score = float(relevance_final) * (a + (1.0 - a) * float(g))
+                    factor = float(a + (1.0 - a) * float(g))
+                    if use_structural:
+                        beta = float(params.get("selection_quality_beta") or 0.50)
+                        qm = float(qmult or 1.0)
+                        rr = rel_clipped if bool(params.get("selection_use_relative_relevance")) else 1.0
+                        selection_score = float(base_score) * rr * (qm**beta) * factor
+                    else:
+                        selection_score = float(relevance_final) * factor
                 else:
                     g_with_movement = None
 
                 scored.append(
                     {
                         "selection_score": float(selection_score),
+                        "relevance_base_score": float(base_score),
+                        "relevance_quality_multiplier": float(qmult or 1.0),
                         "relevance_final_score": float(relevance_final),
+                        "relative_relevance": float(rel_clipped),
                         "market_id": int(mid),
                         "event_id": int(event_id) if event_id is not None else None,
                         "question": q,
                         "is_rate_like": bool(is_rate_like(q)),
+                        "primary_domain_id": primary_domain_id,
                         "sentiment_g_v1": g,
                         "sentiment_g_v1_with_movement": g_with_movement,
                         "sentiment_components": g_components,
@@ -413,23 +543,131 @@ def persist_relevance_selection(
             picked: list[dict[str, Any]] = []
             event_counts: dict[int, int] = {}
             rate_n = 0
-            for c in scored:
-                mid = int(c["market_id"])
+            domain_counts: dict[int, int] = {}
+            picked_market_ids: set[int] = set()
+            high_cov_picked = 0
+
+            def _can_pick(c: dict[str, Any]) -> bool:
+                nonlocal high_cov_picked
                 event_id = c.get("event_id")
                 eid = int(event_id) if event_id is not None else -1
-                q = str(c.get("question") or "")
                 rate_like = bool(c.get("is_rate_like"))
                 if eid != -1 and event_counts.get(eid, 0) >= int(max_per_event):
-                    continue
+                    return False
                 if rate_like and rate_n >= int(max_rate_like):
-                    continue
-                picked.append(c)
-                if eid != -1:
-                    event_counts[eid] = event_counts.get(eid, 0) + 1
-                if rate_like:
-                    rate_n += 1
+                    return False
+                if use_structural and max_high_cov > 0 and cov_threshold > 0:
+                    mid = int(c.get("market_id") or 0)
+                    cov_n = int(market_coverage_n_by_id.get(mid, 0))
+                    if cov_n >= int(cov_threshold) and high_cov_picked >= int(max_high_cov):
+                        return False
+                return True
+
+            def _can_pick_relaxed(c: dict[str, Any]) -> bool:
+                event_id = c.get("event_id")
+                eid = int(event_id) if event_id is not None else -1
+                rate_like = bool(c.get("is_rate_like"))
+                if eid != -1 and event_counts.get(eid, 0) >= int(max_per_event):
+                    return False
+                if rate_like and rate_n >= int(max_rate_like):
+                    return False
+                return True
+
+            # Domain-aware first pass (selected_v2+): try to allocate some picks to the
+            # security's top exposure domains, based on the market's primary domain contribution.
+            if bool(params.get("domain_diversify")):
+                quotas = _domain_quotas_for_security(security_id=sid, k=int(top_k))
+                by_domain: dict[int, list[dict[str, Any]]] = {}
+                for c in scored:
+                    did = c.get("primary_domain_id")
+                    if did is None:
+                        continue
+                    by_domain.setdefault(int(did), []).append(c)
+
+                for did in list(by_domain.keys()):
+                    by_domain[did].sort(
+                        key=lambda x: (
+                            -float(x.get("selection_score") or 0.0),
+                            -float(x.get("relevance_final_score") or 0.0),
+                            int(x.get("market_id") or 0),
+                        )
+                    )
+
+                for did, quota in quotas.items():
+                    want = int(quota)
+                    if want <= 0:
+                        continue
+                    for c in by_domain.get(int(did), []):
+                        if len(picked) >= int(top_k):
+                            break
+                        mid = int(c["market_id"])
+                        if mid in picked_market_ids:
+                            continue
+                        if not _can_pick(c):
+                            continue
+                        picked.append(c)
+                        picked_market_ids.add(mid)
+                        event_id = c.get("event_id")
+                        eid = int(event_id) if event_id is not None else -1
+                        if eid != -1:
+                            event_counts[eid] = event_counts.get(eid, 0) + 1
+                        if bool(c.get("is_rate_like")):
+                            rate_n += 1
+                        if use_structural and max_high_cov > 0 and cov_threshold > 0:
+                            cov_n = int(market_coverage_n_by_id.get(int(mid), 0))
+                            if cov_n >= int(cov_threshold):
+                                high_cov_picked += 1
+                        domain_counts[int(did)] = domain_counts.get(int(did), 0) + 1
+                        if domain_counts[int(did)] >= want:
+                            break
+
+            # Fill remaining slots greedily by score (v1 behavior).
+            for c in scored:
                 if len(picked) >= int(top_k):
                     break
+                mid = int(c["market_id"])
+                if mid in picked_market_ids:
+                    continue
+                if not _can_pick(c):
+                    continue
+                picked.append(c)
+                picked_market_ids.add(mid)
+                event_id = c.get("event_id")
+                eid = int(event_id) if event_id is not None else -1
+                if eid != -1:
+                    event_counts[eid] = event_counts.get(eid, 0) + 1
+                if bool(c.get("is_rate_like")):
+                    rate_n += 1
+                if use_structural and max_high_cov > 0 and cov_threshold > 0:
+                    cov_n = int(market_coverage_n_by_id.get(int(mid), 0))
+                    if cov_n >= int(cov_threshold):
+                        high_cov_picked += 1
+                did = c.get("primary_domain_id")
+                if did is not None:
+                    domain_counts[int(did)] = domain_counts.get(int(did), 0) + 1
+
+            # Safety valve: if the market universe is extremely "global", the high-coverage cap
+            # can prevent filling top_k. In that case, relax the cap but keep event/rate limits.
+            if use_structural and len(picked) < int(top_k):
+                for c in scored:
+                    if len(picked) >= int(top_k):
+                        break
+                    mid = int(c["market_id"])
+                    if mid in picked_market_ids:
+                        continue
+                    if not _can_pick_relaxed(c):
+                        continue
+                    picked.append(c)
+                    picked_market_ids.add(mid)
+                    event_id = c.get("event_id")
+                    eid = int(event_id) if event_id is not None else -1
+                    if eid != -1:
+                        event_counts[eid] = event_counts.get(eid, 0) + 1
+                    if bool(c.get("is_rate_like")):
+                        rate_n += 1
+                    did = c.get("primary_domain_id")
+                    if did is not None:
+                        domain_counts[int(did)] = domain_counts.get(int(did), 0) + 1
 
             for i, c in enumerate(picked, start=1):
                 mid = int(c["market_id"])
@@ -450,7 +688,15 @@ def persist_relevance_selection(
                             {
                                 "event_counts": event_counts,
                                 "rate_like_picked": int(rate_n),
+                                "primary_domain_id": c.get("primary_domain_id"),
+                                "primary_domain_counts": domain_counts,
+                                "relevance_base_score": float(c.get("relevance_base_score") or 0.0),
+                                "relevance_quality_multiplier": float(c.get("relevance_quality_multiplier") or 1.0),
                                 "relevance_final_score": float(c.get("relevance_final_score") or 0.0),
+                                "relative_relevance": float(c.get("relative_relevance") or 1.0),
+                                "market_coverage_n": int(market_coverage_n_by_id.get(int(mid), 0)),
+                                "high_coverage_threshold_n": int(cov_threshold) if use_structural else None,
+                                "high_coverage_picked": int(high_cov_picked) if use_structural else None,
                                 "selection_score": float(c.get("selection_score") or 0.0),
                                 "sentiment_g_v1": c.get("sentiment_g_v1"),
                                 "sentiment_g_v1_with_movement": c.get("sentiment_g_v1_with_movement"),
@@ -458,7 +704,7 @@ def persist_relevance_selection(
                                 "delta_p_abs": c.get("delta_p_abs"),
                                 "tau_days": c.get("tau_days"),
                                 "prev_snapshot_date": str(prev_snapshot_date),
-                        "vol95_kept_usd": float(vol95_kept),
+                                "vol95_kept_usd": float(vol95_kept),
                             },
                             ensure_ascii=False,
                         ),
@@ -591,7 +837,7 @@ def compute_market_security_relevance(
     min_base_score: float = 0.0,
     top_families_in_breakdown: int = 8,
     include_domain_breakdown: bool = True,
-    trusted_only: bool = True,
+    trusted_only: bool = False,
 ) -> RelevanceRunResult:
     """Compute and persist Step 4 relevance scores for all (security, market) pairs.
 
@@ -599,10 +845,8 @@ def compute_market_security_relevance(
     - active via pm_event (active=true AND closed=false)
     - kept by hard filters for the given filter_version
 
-    By default, Step 4 uses only trusted strict matches from Step 3
-    (pm_market_signal_family_match.method='rule_classification'). Discovery
-    candidates are intentionally higher-recall/noisier and should not drive
-    relevance scoring unless explicitly enabled.
+    By default, Step 4 uses both strict matches and discovery matches from Step 3,
+    but discovery matches are discounted to preserve precision.
     """
     if filter_version is None:
         filter_version = load_hard_filter_rules().filter_version
@@ -637,6 +881,7 @@ def compute_market_security_relevance(
             market_ids=market_ids,
             trusted_only=bool(trusted_only),
         )
+        discovery_match_discount = 0.50
 
         # Precompute per-security per-family effect: Σ_D w_infl(F,D) * w_exp(S,D)
         family_effect_by_security: dict[int, dict[int, float]] = {}
@@ -675,6 +920,9 @@ def compute_market_security_relevance(
                 for mm in matches:
                     fid = int(mm["signal_family_id"])
                     wmatch = float(mm["match_strength"])
+                    method = str(mm.get("method") or "")
+                    if not bool(trusted_only) and method and method != "rule_classification":
+                        wmatch *= float(discovery_match_discount)
                     if wmatch <= 0.0:
                         continue
                     effect = float(fe.get(fid, 0.0))
@@ -686,7 +934,7 @@ def compute_market_security_relevance(
                         {
                             "signal_family_id": fid,
                             "slug": family_slug_by_id.get(fid),
-                            "method": mm.get("method"),
+                            "method": method,
                             "match_strength": wmatch,
                             "family_effect": effect,
                             "contribution": contrib,

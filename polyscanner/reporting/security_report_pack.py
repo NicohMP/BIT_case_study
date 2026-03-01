@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from polyscanner.db.pg import connect
+from polyscanner.env import resolve_repo_relative
 from polyscanner.relevance.rate_like import is_rate_like
 from polyscanner.sentiment.market_intensity_v1 import (
     SentimentIntensityParamsV1,
@@ -54,7 +55,7 @@ def _parse_md_table_row(line: str) -> list[str]:
 
 def _load_security_exposure_rationales_md(md_path: str) -> dict[str, dict[str, str]]:
     """Return mapping company_name -> {table_header_domain -> rationale_text}."""
-    p = Path(md_path)
+    p = resolve_repo_relative(md_path)
     if not p.exists():
         return {}
     lines = p.read_text(encoding="utf-8").splitlines()
@@ -233,6 +234,24 @@ def fetch_latest_versions(conn) -> Versions:
     run_id, fv, mv, sv, selv = row
     if not (fv and mv and sv and selv):
         raise RuntimeError(f"Latest run is missing version fields: {row}")
+
+    # Prefer selected_v2 selections if present for this scoring_version.
+    # This keeps report generation aligned with the best available Step 4b logic, even if the
+    # last recorded pipeline run metadata still points at selected_v1.
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select 1
+            from pm_market_security_relevance_selection
+            where scoring_version = %s
+              and selection_version = 'selected_v2'
+            limit 1;
+            """,
+            (str(sv),),
+        )
+        if cur.fetchone():
+            selv = "selected_v2"
+
     return Versions(
         run_id=str(run_id) if run_id is not None else None,
         filter_version=str(fv),
@@ -355,6 +374,7 @@ def _fetch_selected_markets_enriched(
             where sel.security_id = %s
               and sel.scoring_version = %s
               and sel.selection_version = %s
+              and (m.end_date is null or m.end_date >= now())
             order by sel.rank asc
             limit %s;
             """,
@@ -622,7 +642,7 @@ def build_security_context_pack(
     versions: Versions | None = None,
     top_k_markets: int = 20,
     top_k_matches_per_market: int = 5,
-    exposure_rationales_md_path: str = "security_domain_exposure_rationale.md",
+    exposure_rationales_md_path: str = "data/authorities/security_domain_exposure_rationale.md",
 ) -> dict[str, Any]:
     """Build a deterministic context pack for one security."""
     now = _utcnow()

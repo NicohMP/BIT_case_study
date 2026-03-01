@@ -70,11 +70,11 @@ def run_polymarket_refresh(
     classification_min_score: float = 0.70,
     # Step 4 (relevance)
     scoring_version: str = "relevance_v1",
-    trusted_only: bool = True,
+    trusted_only: bool = False,
     min_base_score: float = 0.0,
     # Step 4b (selection)
     persist_selection: bool = True,
-    selection_version: str = "selected_v1",
+    selection_version: str = "selected_v2",
     selection_k: int = 20,
     selection_max_per_event: int = 1,
     selection_max_rate_like: int = 3,
